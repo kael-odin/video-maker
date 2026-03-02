@@ -207,6 +207,7 @@ videos/{视频名称}/
 - [ ] 支持竖屏视频 (9:16)，适配 B站手机端沉浸式播放
 - [ ] Figma 集成，支持封面、图标和布局设计资源导入
 - [ ] Remotion 转场效果 (@remotion/transitions)，章节间过渡更专业
+- [ ] 多 TTS 引擎支持 (ElevenLabs, Edge TTS)，作为 Azure Speech 的备选方案
 
 ## 开源协议
 

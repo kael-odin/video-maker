@@ -213,6 +213,7 @@ Included tracks in `assets/`:
 - [ ] Vertical video support (9:16) for Bilibili mobile-first content
 - [ ] Figma integration for thumbnails, icons, and layout design assets
 - [ ] Remotion transitions (@remotion/transitions) for professional chapter transitions
+- [ ] Multi TTS engine support (ElevenLabs, Edge TTS) as alternatives to Azure Speech
 
 ## License
 

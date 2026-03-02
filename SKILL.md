@@ -561,7 +561,7 @@ import { OffthreadVideo, staticFile } from "remotion";
 | `bilibili-triple-white.mp4` | 白色 | 默认白色主题视频 |
 | `bilibili-triple-black.mp4` | 黑色 | 深色主题视频 |
 
-### Studio Preview (included in this step)
+### Studio Preview & Iterative Refinement
 
 **Claude behavior:** 使用 AskUserQuestion 询问用户：
 
@@ -574,11 +574,28 @@ import { OffthreadVideo, staticFile } from "remotion";
 npx remotion studio src/remotion/index.ts
 ```
 
-**Preview workflow:**
-1. `remotion studio` for iterative development (real-time preview, hot reload)
-2. Check pronunciation — if incorrect, fix in `podcast.txt` or `phonemes.json`, re-run `generate_tts.py`, copy to `public/`
-3. Quick preview render: `npx remotion render ... --scale 0.33 --crf 28`
-4. Satisfied → proceed to Step 10
+**Iterative feedback loop:**
+
+1. Launch `remotion studio` (real-time preview, hot reload)
+2. **Ask user:** "预览效果满意吗？如果需要调整，请描述修改意见（例如：标题太小、背景换深色、动画太快）"
+   - **Options:**
+     - **满意，继续渲染** → proceed to Step 10
+     - **需要修改** → user provides feedback in natural language
+3. Apply user's modifications to component code (Studio hot reloads automatically)
+4. **Repeat from step 2** until user is satisfied
+
+**Common modification examples:**
+
+| User Feedback | Action |
+|---------------|--------|
+| "标题太小" | Increase title fontSize |
+| "背景换成深色" | Change backgroundColor |
+| "动画太快" | Adjust animation duration/spring config |
+| "章节之间太突兀" | Add fade transition between sections |
+| "进度条太粗" | Reduce progressBarHeight |
+| "发音不对" | Fix in `podcast.txt` or `phonemes.json`, re-run `generate_tts.py`, copy to `public/` |
+
+> **Note:** Studio supports hot reload — code changes reflect instantly without restarting. Pronunciation fixes require re-running TTS (Step 8) and copying updated files to `public/`.
 
 ---
 
