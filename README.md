@@ -208,6 +208,7 @@ Included tracks in `assets/`:
 - [ ] Figma integration for thumbnails, icons, and layout design assets
 - [ ] Remotion transitions (@remotion/transitions) for professional chapter transitions
 - [ ] Multi TTS engine support (ElevenLabs, Edge TTS) as alternatives to Azure Speech
+- [ ] Windows compatibility (WSL or native PowerShell support)
 
 ## License
 

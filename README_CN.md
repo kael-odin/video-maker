@@ -208,6 +208,7 @@ videos/{视频名称}/
 - [ ] Figma 集成，支持封面、图标和布局设计资源导入
 - [ ] Remotion 转场效果 (@remotion/transitions)，章节间过渡更专业
 - [ ] 多 TTS 引擎支持 (ElevenLabs, Edge TTS)，作为 Azure Speech 的备选方案
+- [ ] Windows 适配 (WSL 或原生 PowerShell 支持)
 
 ## 开源协议
 

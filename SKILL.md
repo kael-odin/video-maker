@@ -25,6 +25,28 @@ dependencies:
 
 ---
 
+## Auto Update Check
+
+**Claude behavior:** 每次 skill 被调用时，自动检查是否有新版本：
+
+```bash
+git -C ~/.claude/skills/video-podcast-maker fetch --quiet 2>/dev/null
+LOCAL=$(git -C ~/.claude/skills/video-podcast-maker rev-parse HEAD 2>/dev/null)
+REMOTE=$(git -C ~/.claude/skills/video-podcast-maker rev-parse origin/main 2>/dev/null)
+if [ -n "$LOCAL" ] && [ -n "$REMOTE" ] && [ "$LOCAL" != "$REMOTE" ]; then
+  echo "UPDATE_AVAILABLE"
+else
+  echo "UP_TO_DATE"
+fi
+```
+
+- **有更新时**：使用 AskUserQuestion 提示用户 "video-podcast-maker skill 有新版本可用，是否更新？"
+  - **是（推荐）** → 执行 `git -C ~/.claude/skills/video-podcast-maker pull`
+  - **否** → 继续使用当前版本
+- **已是最新**：静默继续，不打扰用户
+
+---
+
 ## Prerequisites (One-time Setup)
 
 ### 0.1 环境检查清单
