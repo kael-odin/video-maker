@@ -86,6 +86,280 @@ const useEntrance = (enabled: boolean, delay = 0) => {
   };
 };
 
+// ============================================================
+// Reusable Visual Components (building blocks for custom sections)
+// Use these inside any SectionComponent case block.
+// ============================================================
+
+// ComparisonCard - Two-column VS layout for product/feature comparisons
+const ComparisonCard = ({
+  props,
+  left,
+  right,
+  delay = 0,
+}: {
+  props: VideoProps;
+  left: { title: string; items: string[]; highlight?: boolean };
+  right: { title: string; items: string[]; highlight?: boolean };
+  delay?: number;
+}) => {
+  const anim = useEntrance(props.enableAnimations, delay);
+  const leftAnim = useEntrance(props.enableAnimations, delay + 5);
+  const rightAnim = useEntrance(props.enableAnimations, delay + 10);
+
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 40, width: "100%", opacity: anim.opacity }}>
+      {[{ side: left, a: leftAnim }, { side: right, a: rightAnim }].map(({ side, a }, i) => (
+        <React.Fragment key={i}>
+          {i === 1 && (
+            <div style={{
+              fontSize: 48, fontWeight: 800, color: props.primaryColor, opacity: 0.6,
+              flexShrink: 0,
+            }}>
+              VS
+            </div>
+          )}
+          <div style={{
+            flex: 1, background: side.highlight ? `${props.primaryColor}08` : "rgba(0,0,0,0.02)",
+            border: side.highlight ? `2px solid ${props.primaryColor}30` : "1px solid rgba(0,0,0,0.08)",
+            borderRadius: 24, padding: "40px 44px",
+            opacity: a.opacity, transform: `translateY(${a.translateY}px)`,
+          }}>
+            <h3 style={{ fontSize: 38, fontWeight: 700, color: props.primaryColor, marginBottom: 24 }}>
+              {side.title}
+            </h3>
+            {side.items.map((item, j) => (
+              <div key={j} style={{
+                fontSize: 28, color: props.textColor, padding: "10px 0",
+                borderTop: j > 0 ? "1px solid rgba(0,0,0,0.06)" : "none",
+              }}>
+                {item}
+              </div>
+            ))}
+          </div>
+        </React.Fragment>
+      ))}
+    </div>
+  );
+};
+
+// Timeline - Vertical timeline with connected nodes for history/steps
+const Timeline = ({
+  props,
+  items,
+  delay = 0,
+}: {
+  props: VideoProps;
+  items: { label: string; description: string }[];
+  delay?: number;
+}) => {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 0, width: "100%" }}>
+      {items.map((item, i) => {
+        const a = useEntrance(props.enableAnimations, delay + i * 6);
+        return (
+          <div key={i} style={{
+            display: "flex", gap: 28, opacity: a.opacity,
+            transform: `translateY(${a.translateY}px)`,
+          }}>
+            {/* Node + connector line */}
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", width: 28 }}>
+              <div style={{
+                width: 28, height: 28, borderRadius: 14, flexShrink: 0,
+                background: props.primaryColor,
+              }} />
+              {i < items.length - 1 && (
+                <div style={{ width: 3, flex: 1, background: `${props.primaryColor}30`, minHeight: 32 }} />
+              )}
+            </div>
+            {/* Content */}
+            <div style={{ paddingBottom: i < items.length - 1 ? 32 : 0, flex: 1 }}>
+              <div style={{ fontSize: 34, fontWeight: 700, color: props.primaryColor }}>{item.label}</div>
+              <div style={{ fontSize: 26, color: props.textColor, marginTop: 6, lineHeight: 1.5 }}>
+                {item.description}
+              </div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
+// CodeBlock - Dark-background code display with title bar
+const CodeBlock = ({
+  props,
+  title = "terminal",
+  lines,
+  delay = 0,
+}: {
+  props: VideoProps;
+  title?: string;
+  lines: string[];
+  delay?: number;
+}) => {
+  const anim = useEntrance(props.enableAnimations, delay);
+  return (
+    <div style={{
+      width: "100%", borderRadius: 20, overflow: "hidden",
+      opacity: anim.opacity, transform: `translateY(${anim.translateY}px)`,
+      boxShadow: "0 8px 32px rgba(0,0,0,0.12)",
+    }}>
+      {/* Title bar */}
+      <div style={{
+        background: "#2d2d2d", padding: "14px 24px",
+        display: "flex", alignItems: "center", gap: 12,
+      }}>
+        <div style={{ display: "flex", gap: 8 }}>
+          {["#ff5f57", "#febc2e", "#28c840"].map((c) => (
+            <div key={c} style={{ width: 14, height: 14, borderRadius: 7, background: c }} />
+          ))}
+        </div>
+        <span style={{ fontSize: 20, color: "rgba(255,255,255,0.5)", marginLeft: 8 }}>{title}</span>
+      </div>
+      {/* Code content */}
+      <div style={{ background: "#1e1e1e", padding: "28px 32px" }}>
+        {lines.map((line, i) => {
+          const lineAnim = useEntrance(props.enableAnimations, delay + 5 + i * 4);
+          return (
+            <div key={i} style={{
+              fontFamily: "SF Mono, Menlo, Monaco, monospace", fontSize: 26,
+              color: "#e6e6e6", lineHeight: 1.8,
+              opacity: lineAnim.opacity, transform: `translateY(${lineAnim.translateY}px)`,
+            }}>
+              {line}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+// QuoteBlock - Large quote with attribution
+const QuoteBlock = ({
+  props,
+  quote,
+  attribution,
+  delay = 0,
+}: {
+  props: VideoProps;
+  quote: string;
+  attribution: string;
+  delay?: number;
+}) => {
+  const anim = useEntrance(props.enableAnimations, delay);
+  const attrAnim = useEntrance(props.enableAnimations, delay + 10);
+  return (
+    <div style={{
+      width: "100%", textAlign: "center", padding: "40px 60px",
+      opacity: anim.opacity, transform: `translateY(${anim.translateY}px) scale(${anim.scale})`,
+    }}>
+      <div style={{
+        fontSize: 120, color: props.primaryColor, opacity: 0.2, lineHeight: 0.6, marginBottom: 20,
+      }}>
+        &ldquo;
+      </div>
+      <p style={{
+        fontSize: 40, fontWeight: 600, color: props.textColor,
+        lineHeight: 1.6, fontStyle: "italic",
+      }}>
+        {quote}
+      </p>
+      <div style={{
+        fontSize: 28, color: props.primaryColor, marginTop: 32, fontWeight: 500,
+        opacity: attrAnim.opacity, transform: `translateY(${attrAnim.translateY}px)`,
+      }}>
+        &mdash; {attribution}
+      </div>
+    </div>
+  );
+};
+
+// FeatureGrid - 2-3 column grid of icon + title + description cards
+const FeatureGrid = ({
+  props,
+  items,
+  columns = 3,
+  delay = 0,
+}: {
+  props: VideoProps;
+  items: { icon: string; title: string; description: string }[];
+  columns?: 2 | 3;
+  delay?: number;
+}) => {
+  return (
+    <div style={{
+      display: "flex", flexWrap: "wrap", gap: 28, width: "100%",
+    }}>
+      {items.map((item, i) => {
+        const a = useEntrance(props.enableAnimations, delay + i * 5);
+        return (
+          <div key={i} style={{
+            flex: `0 0 calc(${100 / columns}% - ${28 * (columns - 1) / columns}px)`,
+            background: "rgba(0,0,0,0.02)", border: "1px solid rgba(0,0,0,0.08)",
+            borderRadius: 20, padding: "36px 32px", textAlign: "center",
+            opacity: a.opacity, transform: `translateY(${a.translateY}px)`,
+          }}>
+            <div style={{ fontSize: 56, marginBottom: 16 }}>{item.icon}</div>
+            <div style={{ fontSize: 32, fontWeight: 700, color: props.primaryColor, marginBottom: 10 }}>
+              {item.title}
+            </div>
+            <div style={{ fontSize: 24, color: props.textColor, lineHeight: 1.5 }}>
+              {item.description}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
+// DataBar - Horizontal bar chart for data comparison
+const DataBar = ({
+  props,
+  items,
+  delay = 0,
+}: {
+  props: VideoProps;
+  items: { label: string; value: number; maxValue?: number }[];
+  delay?: number;
+}) => {
+  const max = Math.max(...items.map((d) => d.maxValue ?? d.value));
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 24, width: "100%" }}>
+      {items.map((item, i) => {
+        const pct = (item.value / max) * 100;
+        const a = useEntrance(props.enableAnimations, delay + i * 5);
+        return (
+          <div key={i} style={{
+            display: "flex", alignItems: "center", gap: 20,
+            opacity: a.opacity, transform: `translateY(${a.translateY}px)`,
+          }}>
+            <div style={{
+              fontSize: 28, fontWeight: 600, color: props.textColor,
+              width: 160, textAlign: "right", flexShrink: 0,
+            }}>
+              {item.label}
+            </div>
+            <div style={{
+              flex: 1, height: 40, background: "rgba(0,0,0,0.06)", borderRadius: 20, overflow: "hidden",
+            }}>
+              <div style={{
+                width: `${pct}%`, height: "100%", borderRadius: 20,
+                background: `linear-gradient(90deg, ${props.primaryColor}, ${props.accentColor})`,
+              }} />
+            </div>
+            <div style={{ fontSize: 26, fontWeight: 700, color: props.primaryColor, width: 80 }}>
+              {item.value}%
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
 // 章节进度条组件 (matches Superpowers reference style)
 // Renders at native 4K resolution (outside scale(2) wrapper)
 const ChapterProgressBar = ({

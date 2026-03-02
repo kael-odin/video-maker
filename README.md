@@ -24,6 +24,7 @@ Automated pipeline to create professional video podcasts from a topic. **Optimiz
 - **Bilingual TTS** - Chinese/English mixed narration with Azure Speech
 - **Pronunciation Correction** - Built-in polyphone dictionary + custom phoneme support
 - **Bilibili Templates** - Ready-to-use Remotion templates (`Video.tsx`, `Root.tsx`, `Thumbnail.tsx`, `podcast.txt`) for quick project scaffolding
+- **Component Library** - Reusable visual building blocks (ComparisonCard, Timeline, CodeBlock, QuoteBlock, FeatureGrid, DataBar) for composing rich section layouts
 
 ### Bilibili Optimizations
 
@@ -206,7 +207,8 @@ Included tracks in `assets/`:
 
 - [ ] Vertical video support (9:16) for Bilibili mobile-first content
 - [ ] Figma integration for thumbnails, icons, and layout design assets
-- [ ] Remotion transitions (@remotion/transitions) for professional chapter transitions
+- [x] Remotion transitions (@remotion/transitions) for professional chapter transitions
+- [x] Component template library (ComparisonCard, Timeline, CodeBlock, QuoteBlock, FeatureGrid, DataBar)
 - [ ] Multi TTS engine support (ElevenLabs, Edge TTS) as alternatives to Azure Speech
 - [ ] Windows compatibility (WSL or native PowerShell support)
 
