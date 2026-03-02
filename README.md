@@ -125,12 +125,6 @@ export DASHSCOPE_API_KEY="your-dashscope-api-key"
 
 Then reload: `source ~/.zshrc`
 
-## Documentation
-
-| Document | Description |
-|----------|-------------|
-| [SKILL.md](SKILL.md) | Complete 15-step workflow with pronunciation correction |
-
 ## Quick Start
 
 ### Usage
