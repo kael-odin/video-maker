@@ -1,65 +1,64 @@
-# Video Podcast Maker
+# 视频播客生成器
 
-[中文文档](README_CN.md)
+[English](README_EN.md)
 
-Automated pipeline to create professional video podcasts from a topic. **Optimized for Bilibili (B站)**. Combines research, script generation, Microsoft Azure TTS, Remotion video rendering, and FFmpeg audio mixing.
+自动化流程，从主题生成专业视频播客。**针对 B站 (Bilibili) 优化**。集成研究、脚本撰写、微软 Azure TTS、Remotion 视频渲染和 FFmpeg 音频混音。
 
-> **No coding required!** Just describe your topic in plain language - Claude guides you through each step interactively. You make creative decisions, Claude handles all the technical details. Creating your first video podcast is easier than you think.
+> **无需编程！** 用自然语言描述你的主题，Claude 会一步步引导你完成。你做创意决策，Claude 处理所有技术细节。制作你的第一个视频播客，比你想象的更简单。
 
-> **Note:** This project is still under active development and may not be fully mature yet. We are continuously iterating and improving. Your feedback and suggestions are greatly appreciated — feel free to [open an issue](https://github.com/Agents365-ai/video-podcast-maker/issues) or reach out!
+> **提示：** 本项目仍在持续迭代完善中，部分功能可能还不太成熟。欢迎提出宝贵意见和建议 — 可以 [提交 Issue](https://github.com/Agents365-ai/video-podcast-maker/issues) 或直接联系作者！
 
-## Features
+## 功能特点
 
-- **Topic Research** - Web search and content gathering
-- **Script Writing** - Structured narration with section markers
-- **Multi-TTS** - Azure Speech or CosyVoice (Alibaba Cloud) text-to-speech
-- **Remotion Video** - React-based video composition with animations
-- **Visual Style Editing** - Adjust colors, fonts, and layout in Remotion Studio UI
-- **Real-time Preview** - Remotion Studio for instant debugging before render
-- **Auto Timing** - Audio-video sync via `timing.json`
-- **BGM Mixing** - Background music overlay with FFmpeg
-- **Subtitle Burning** - Optional SRT subtitle embedding
-- **4K Output** - 3840x2160 resolution for crisp uploads
-- **Chapter Progress Bar** - Visual timeline showing current section during playback
-- **Bilingual TTS** - Chinese/English mixed narration with Azure Speech or CosyVoice
-- **Pronunciation Correction** - Built-in polyphone dictionary + custom phoneme support
-- **Bilibili Templates** - Ready-to-use Remotion templates (`Video.tsx`, `Root.tsx`, `Thumbnail.tsx`, `podcast.txt`) for quick project scaffolding
-- **Component Library** - Reusable visual building blocks (ComparisonCard, Timeline, CodeBlock, QuoteBlock, FeatureGrid, DataBar) for composing rich section layouts
+- **主题研究** - 网络搜索与内容收集
+- **脚本撰写** - 带章节标记的结构化旁白
+- **多 TTS 引擎** - Azure Speech、CosyVoice（阿里云）、Edge TTS（免费，无需 API 密钥）
+- **Remotion 视频** - 基于 React 的视频合成与动画
+- **可视化样式编辑** - 在 Remotion Studio 界面调整颜色、字体、布局
+- **实时预览** - Remotion Studio 即时调试，渲染前预览效果
+- **自动同步** - 通过 `timing.json` 实现音视频同步
+- **背景音乐** - FFmpeg 叠加背景音乐
+- **字幕烧录** - 可选 SRT 字幕嵌入
+- **4K 输出** - 3840x2160 分辨率，画质清晰
+- **章节进度条** - 可视化时间轴，实时显示当前章节
+- **中英混读** - Azure Speech 支持中英文混合旁白
+- **发音校正** - 内置多音字词典 + 自定义拼音支持
+- **B站模板** - 开箱即用的 Remotion 模板（`Video.tsx`、`Root.tsx`、`Thumbnail.tsx`、`podcast.txt`），快速搭建项目
 
-### Bilibili Optimizations
+### B站优化
 
-- **Script Structure** - Welcome intro + call-to-action outro (一键三连)
-- **Chapter Timestamps** - Auto-generated `MM:SS` format for B站 chapters
-- **Thumbnail Generation** - AI (imagen/imagenty) or Remotion, auto-generates 16:9 + 4:3 versions
-- **Visual Style** - Bold text, minimal whitespace, high information density
-- **Publish Info** - Title formulas, tag strategies, description templates
+- **脚本结构** - 欢迎开场 + 一键三连片尾引导
+- **章节时间戳** - 自动生成 `MM:SS` 格式，直接复制到B站
+- **封面生成** - AI (imagen/imagenty) 或 Remotion，自动生成 16:9 + 4:3 双版本
+- **视觉风格** - 大字饱满、极少留白、信息密度高
+- **发布信息** - 标题公式、标签策略、简介模板
 
-## Workflow
+## 工作流程
 
-![Workflow](assets/workflow.png)
+![工作流程](assets/workflow.png)
 
-## Related Skills
+## 相关技能
 
-This skill depends on **remotion-best-practices** and works alongside other optional skills:
+本技能依赖 **remotion-best-practices**，并可与其他可选技能配合使用：
 
-- **remotion-best-practices** - Official Remotion best practices (required, provides core Remotion patterns and guidelines)
-- **find-skills** - Official skill discovery tool (required, helps find and install additional skills)
-- **ffmpeg** - Advanced audio/video processing (optional)
-- **imagen / imagenty** - AI thumbnail generation (optional)
+- **remotion-best-practices** - Remotion 官方最佳实践（必需，提供核心 Remotion 模式与规范）
+- **find-skills** - 官方技能发现工具（必需，用于查找和安装更多技能）
+- **ffmpeg** - 高级音视频处理（可选）
+- **imagen / imagenty** - AI 封面生成（可选）
 
 
-## Requirements
+## 环境要求
 
-### System Requirements
+### 系统要求
 
-| Software | Version | Purpose |
-|----------|---------|---------|
-| **macOS / Linux** | - | Tested on macOS, Linux compatible |
-| **Python** | 3.8+ | TTS script, automation |
-| **Node.js** | 18+ | Remotion video rendering |
-| **FFmpeg** | 4.0+ | Audio/video processing |
+| 软件 | 版本 | 用途 |
+|------|------|------|
+| **macOS / Linux** | - | 已在 macOS 测试，兼容 Linux |
+| **Python** | 3.8+ | TTS 脚本、自动化 |
+| **Node.js** | 18+ | Remotion 视频渲染 |
+| **FFmpeg** | 4.0+ | 音视频处理 |
 
-### Installation
+### 安装依赖
 
 ```bash
 # macOS
@@ -68,172 +67,176 @@ brew install ffmpeg node python3
 # Ubuntu/Debian
 sudo apt install ffmpeg nodejs python3 python3-pip
 
-# Python dependencies
-pip install azure-cognitiveservices-speech dashscope requests
+# Python 依赖
+pip install azure-cognitiveservices-speech requests
 ```
 
-### Project Setup (Required)
+### 项目初始化（必需）
 
-> **Important:** This skill requires a Remotion project as the foundation.
+> **重要：** 本技能需要一个 Remotion 项目作为基础。
 
-**Understanding the components:**
+**组件关系说明：**
 
-| Component | Source | Purpose |
-|-----------|--------|---------|
-| **Remotion Project** | `npx create-video` | Base framework with `src/`, `public/`, `package.json` |
-| **video-podcast-maker** | Claude Code skill | Workflow orchestration (this skill) |
+| 组件 | 来源 | 作用 |
+|------|------|------|
+| **Remotion 项目** | `npx create-video` | 基础框架，包含 `src/`、`public/`、`package.json` |
+| **video-podcast-maker** | Claude Code skill | 工作流编排（本技能） |
 
 ```bash
-# Step 1: Create a new Remotion project (base framework)
+# 第一步：创建 Remotion 项目（基础框架）
 npx create-video@latest my-video-project
 cd my-video-project
-npm i  # Install Remotion dependencies
+npm i  # 安装 Remotion 依赖
 
-# Step 2: Verify installation
-npx remotion studio  # Should open browser preview
+# 第二步：验证安装
+npx remotion studio  # 应打开浏览器预览
 ```
 
-If you already have a Remotion project:
+如果你已有 Remotion 项目：
 
 ```bash
 cd your-existing-project
 npm install remotion @remotion/cli @remotion/player zod
 ```
 
-### API Keys Required
+### 所需 API 密钥
 
-| Service | Purpose | Get Key |
-|---------|---------|---------|
-| **Azure Speech** | TTS audio generation (default backend) | [Azure Portal](https://portal.azure.com/) → Speech Services |
-| **Aliyun CosyVoice** | TTS audio generation (alternative backend) | [Aliyun Bailian](https://bailian.console.aliyun.com/) |
-| **Google Gemini** | AI thumbnail generation (optional) | [AI Studio](https://aistudio.google.com/) |
-| **Aliyun Dashscope** | AI thumbnail - Chinese optimized (optional) | [Aliyun Bailian](https://bailian.console.aliyun.com/) |
+| 服务 | 用途 | 获取方式 |
+|------|------|---------|
+| **Azure Speech** | TTS 语音合成（默认后端） | [Azure 门户](https://portal.azure.com/) → 语音服务 |
+| **阿里云 CosyVoice** | TTS 语音合成（备选后端） | [百炼控制台](https://bailian.console.aliyun.com/) |
+| **Edge TTS** | TTS 语音合成（免费，无需密钥） | `pip install edge-tts` |
+| **Google Gemini** | AI 封面生成（可选） | [AI Studio](https://aistudio.google.com/) |
+| **阿里云百炼** | AI 封面生成 - 中文优化（可选） | [百炼控制台](https://bailian.console.aliyun.com/) |
 
-### Environment Variables
+### 环境变量
 
-Add to `~/.zshrc` or `~/.bashrc`:
+添加到 `~/.zshrc` 或 `~/.bashrc`：
 
 ```bash
-# TTS Backend: Azure (default) or CosyVoice
-export AZURE_SPEECH_KEY="your-azure-speech-key"     # Required for Azure TTS
+# Azure TTS（必需）
+export AZURE_SPEECH_KEY="your-azure-speech-key"
 export AZURE_SPEECH_REGION="eastasia"
-export DASHSCOPE_API_KEY="your-dashscope-api-key"    # Required for CosyVoice TTS + AI thumbnails
-export TTS_BACKEND="azure"                           # Or "cosyvoice"
 
-# Optional: Google Gemini for AI thumbnails
+# 可选：Google Gemini 生成 AI 封面
 export GEMINI_API_KEY="your-gemini-api-key"
+
+# 可选：阿里云百炼生成 AI 封面（中文优化）
+export DASHSCOPE_API_KEY="your-dashscope-api-key"
 ```
 
-Then reload: `source ~/.zshrc`
+然后重新加载：`source ~/.zshrc`
 
-## Quick Start
+## 快速开始
 
-### Usage
+### 使用方法
 
-This skill is designed for use with [Claude Code](https://claude.ai/claude-code) or [Opencode](https://github.com/opencode-ai/opencode). Simply tell Claude:
+本技能专为 [Claude Code](https://claude.ai/claude-code) 或 [Opencode](https://github.com/opencode-ai/opencode) 设计。只需告诉 Claude：
 
-> "Create a video podcast about [your topic]"
+> "帮我制作一个关于 [你的主题] 的视频播客"
 
-Claude will guide you through the entire workflow automatically.
+Claude 会自动引导你完成整个流程。
 
-> **Tips:** The quality of first-generation output heavily depends on the model's intelligence and capabilities — the smarter and more advanced the model, the better the results. In our testing, both Codex and Claude Code produce excellent videos on the first try, and OpenCode paired with GLM-5 also delivers solid results. If the initial output isn't perfect, you can preview it in Remotion Studio and ask the coding agent to keep refining until you're satisfied.
+> **提示：** 经过多次测试，初次生成的效果和模型效果有很大的关系，模型越智能越先进，生成的效果会越好。目前初次生成 Codex 和 Claude Code 生成的视频效果都不错，OpenCode 搭配 GLM-5 也还不错。如果第一次生成的不够好，可以在 Remotion Studio 预览，并让 coding agent 继续修改。
 
-### Preview & Visual Editing with Remotion Studio
+### 预览与可视化编辑
 
-Before rendering the final video, use Remotion Studio to preview and visually edit styles:
+在渲染最终视频前，使用 Remotion Studio 实时预览和可视化编辑样式：
 
 ```bash
 npx remotion studio src/remotion/index.ts
 ```
 
-This opens a browser-based editor where you can:
-- **Visual Style Editing** - Adjust colors, fonts, and sizes in the right panel
-- Scrub through the timeline frame-by-frame
-- See live updates as you edit components
-- Debug timing and animations instantly
+这会打开一个浏览器编辑器，你可以：
+- **可视化样式编辑** - 在右侧面板调整颜色、字体、尺寸
+- 逐帧拖动时间轴查看效果
+- 编辑组件时实时看到更新
+- 即时调试时间和动画
 
-#### Editable Properties
+#### 可编辑属性
 
-| Category | Properties |
-|----------|-----------|
-| **Colors** | Primary color, background, text color, accent |
-| **Typography** | Title size (72-120), subtitle size, body size |
-| **Progress Bar** | Show/hide, height, font size, active color |
-| **Audio** | BGM volume (0-0.3) |
-| **Animation** | Enable/disable entrance animations |
+| 分类 | 属性 |
+|------|------|
+| **颜色** | 主色调、背景色、文字颜色、强调色 |
+| **字体** | 标题大小 (72-120)、副标题、正文 |
+| **进度条** | 显示/隐藏、高度、字号、激活颜色 |
+| **音频** | BGM 音量 (0-0.3) |
+| **动画** | 启用/禁用入场动画 |
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │  Remotion Studio                                                │
 ├──────────────────────────────────┬──────────────────────────────┤
-│                                  │  Props Panel                 │
+│                                  │  属性面板                     │
 │                                  │  ─────────────────────────── │
-│     Video Preview                │  primaryColor    [#4f6ef7]   │
-│     (Real-time)                  │  backgroundColor [#ffffff]   │
-│                                  │  titleSize       [====80===] │
-│     ┌─────────────────────┐      │  showProgressBar [✓]         │
-│     │   Your Video Here   │      │  progressBarHeight [==130==] │
-│     │                     │      │  bgmVolume       [=0.05====] │
-│     └─────────────────────┘      │  enableAnimations [✓]        │
+│     视频预览                      │  主色调       [#4f6ef7]      │
+│     (实时)                        │  背景色       [#ffffff]      │
+│                                  │  标题大小     [====80===]    │
+│     ┌─────────────────────┐      │  显示进度条   [✓]            │
+│     │   你的视频在这里     │      │  进度条高度   [==130==]      │
+│     │                     │      │  BGM音量      [=0.05====]    │
+│     └─────────────────────┘      │  启用动画     [✓]            │
 │                                  │                              │
-│  ◀──────────●──────────────▶     │  [Render Video]              │
-│  Timeline                        │                              │
+│  ◀──────────●──────────────▶     │  [渲染视频]                   │
+│  时间轴                           │                              │
 └──────────────────────────────────┴──────────────────────────────┘
 ```
 
-## Output Structure
+## 输出结构
 
 ```
-videos/{video-name}/
-├── topic_definition.md      # Topic direction
-├── topic_research.md        # Research notes
-├── podcast.txt              # Narration script
-├── podcast_audio.wav        # TTS audio
-├── podcast_audio.srt        # Subtitles
-├── timing.json              # Section timing for sync
-├── thumbnail_*.png          # Video thumbnails
-├── publish_info.md          # Title, tags, description
-├── part_*.wav               # TTS segments (temp, cleanup via Step 14)
-├── output.mp4               # Raw render (temp)
-├── video_with_bgm.mp4       # With BGM (temp)
-└── final_video.mp4          # Final output
+videos/{视频名称}/
+├── topic_definition.md      # 主题定义
+├── topic_research.md        # 研究笔记
+├── podcast.txt              # 旁白脚本
+├── podcast_audio.wav        # TTS 音频
+├── podcast_audio.srt        # 字幕文件
+├── timing.json              # 章节时间轴
+├── thumbnail_*.png          # 视频封面
+├── publish_info.md          # 标题、标签、简介
+├── part_*.wav               # TTS 分段（临时，Step 14 清理）
+├── output.mp4               # 原始渲染（临时）
+├── video_with_bgm.mp4       # 含背景音乐（临时）
+└── final_video.mp4          # 最终输出
 ```
 
-## Background Music
+## 背景音乐
 
-Included tracks in `assets/`:
-- `perfect-beauty-191271.mp3` - Upbeat, positive
-- `snow-stevekaldes-piano-397491.mp3` - Calm piano
+`assets/` 目录下包含：
+- `perfect-beauty-191271.mp3` - 轻快积极
+- `snow-stevekaldes-piano-397491.mp3` - 舒缓钢琴
 
-## Roadmap
+## 开发路线
 
-- [ ] Vertical video support (9:16) for Bilibili mobile-first content
-- [ ] Figma integration for thumbnails, icons, and layout design assets
-- [x] Remotion transitions (@remotion/transitions) for professional chapter transitions
-- [x] Component template library (ComparisonCard, Timeline, CodeBlock, QuoteBlock, FeatureGrid, DataBar)
-- [x] Multi TTS engine support (Azure Speech + CosyVoice via `TTS_BACKEND` env var)
-- [ ] Additional TTS engines (ElevenLabs, Edge TTS)
-- [ ] Windows compatibility (WSL or native PowerShell support)
+- [ ] 支持竖屏视频 (9:16)，适配 B站手机端沉浸式播放
+- [ ] Figma 集成，支持封面、图标和布局设计资源导入
+- [x] Remotion 转场效果 (@remotion/transitions)，章节间过渡更专业
+- [x] 多 TTS 引擎支持 (Azure Speech + CosyVoice + Edge TTS)
+- [x] Edge TTS 免费后端（无需 API 密钥）
+- [x] 断点续传（`--resume` 参数）
+- [x] 预估模式（`--dry-run` 预估时长，不调用 API）
+- [ ] 更多 TTS 引擎 (ElevenLabs)
+- [ ] Windows 适配 (WSL 或原生 PowerShell 支持)
 
-## License
+## 开源协议
 
 MIT
 
-## Support
+## 支持作者
 
-If this project helps you, consider supporting the author:
+如果这个项目对你有帮助，欢迎支持作者：
 
 <table>
   <tr>
     <td align="center">
-      <img src="https://raw.githubusercontent.com/Agents365-ai/images_payment/main/qrcode/wechat-pay.png" width="180" alt="WeChat Pay">
+      <img src="https://raw.githubusercontent.com/Agents365-ai/images_payment/main/qrcode/wechat-pay.png" width="180" alt="微信支付">
       <br>
-      <b>WeChat Pay</b>
+      <b>微信支付</b>
     </td>
     <td align="center">
-      <img src="https://raw.githubusercontent.com/Agents365-ai/images_payment/main/qrcode/alipay.png" width="180" alt="Alipay">
+      <img src="https://raw.githubusercontent.com/Agents365-ai/images_payment/main/qrcode/alipay.png" width="180" alt="支付宝">
       <br>
-      <b>Alipay</b>
+      <b>支付宝</b>
     </td>
     <td align="center">
       <img src="https://raw.githubusercontent.com/Agents365-ai/images_payment/main/qrcode/buymeacoffee.png" width="180" alt="Buy Me a Coffee">
@@ -243,9 +246,9 @@ If this project helps you, consider supporting the author:
   </tr>
 </table>
 
-## Author
+## 作者
 
 **Agents365-ai**
 
-- Bilibili: https://space.bilibili.com/441831884
+- B站: https://space.bilibili.com/441831884
 - GitHub: https://github.com/Agents365-ai

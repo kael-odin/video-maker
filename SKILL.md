@@ -33,7 +33,7 @@ dependencies:
 **Claude behavior:** 每次 skill 被调用时，自动检查是否有新版本：
 
 ```bash
-git -C ~/.claude/skills/video-podcast-maker fetch --quiet 2>/dev/null
+timeout 5 git -C ~/.claude/skills/video-podcast-maker fetch --quiet 2>/dev/null || true
 LOCAL=$(git -C ~/.claude/skills/video-podcast-maker rev-parse HEAD 2>/dev/null)
 REMOTE=$(git -C ~/.claude/skills/video-podcast-maker rev-parse origin/main 2>/dev/null)
 if [ -n "$LOCAL" ] && [ -n "$REMOTE" ] && [ "$LOCAL" != "$REMOTE" ]; then
@@ -486,10 +486,21 @@ npx remotion still src/remotion/index.ts Thumbnail4x3 videos/{name}/thumbnail_re
 
 ```bash
 cp ~/.claude/skills/video-podcast-maker/generate_tts.py .
+
+# Dry run: estimate duration without calling TTS API
+python3 generate_tts.py --input videos/{name}/podcast.txt --output-dir videos/{name} --dry-run
+
+# Azure TTS (default, requires AZURE_SPEECH_KEY)
 python3 generate_tts.py --input videos/{name}/podcast.txt --output-dir videos/{name}
 
-# Or use CosyVoice backend (requires DASHSCOPE_API_KEY)
+# CosyVoice backend (requires DASHSCOPE_API_KEY)
 TTS_BACKEND=cosyvoice python3 generate_tts.py --input videos/{name}/podcast.txt --output-dir videos/{name}
+
+# Edge TTS (free, no API key required)
+TTS_BACKEND=edge python3 generate_tts.py --input videos/{name}/podcast.txt --output-dir videos/{name}
+
+# Resume from breakpoint (skip already synthesized parts)
+python3 generate_tts.py --input videos/{name}/podcast.txt --output-dir videos/{name} --resume
 ```
 
 ### 多音字/发音校正 (SSML Phoneme)

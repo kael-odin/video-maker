@@ -1,3 +1,4 @@
 azure-cognitiveservices-speech
 dashscope
+edge-tts
 requests

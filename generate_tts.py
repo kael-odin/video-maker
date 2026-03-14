@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-TTS Script for Video Podcast Maker (Azure + CosyVoice)
+TTS Script for Video Podcast Maker (Azure / CosyVoice / Edge TTS)
 Generates audio from podcast.txt and creates SRT subtitles + timing.json for Remotion sync
 """
 import os
@@ -152,13 +152,17 @@ BUILTIN_POLYPHONES = {
 
 parser = argparse.ArgumentParser(
     description='Generate TTS audio from podcast script',
-    epilog='Environment: AZURE_SPEECH_KEY (required), AZURE_SPEECH_REGION (default: eastasia), TTS_RATE (default: +5%, range: -50% to +200%)'
+    epilog='Backends: azure (default), cosyvoice, edge (free). Env: TTS_BACKEND, AZURE_SPEECH_KEY, DASHSCOPE_API_KEY, EDGE_TTS_VOICE, TTS_RATE'
 )
 parser.add_argument('--input', '-i', default='podcast.txt', help='Input script file (default: podcast.txt)')
 parser.add_argument('--output-dir', '-o', default='.', help='Output directory for podcast_audio.wav, podcast_audio.srt, timing.json (default: current dir)')
 parser.add_argument('--phonemes', '-p', default=None, help='Phoneme dictionary JSON file (default: phonemes.json in input dir)')
 parser.add_argument('--backend', '-b', default=None,
-    help='TTS backend: azure or cosyvoice (default: env TTS_BACKEND or azure)')
+    help='TTS backend: azure, cosyvoice, or edge (default: env TTS_BACKEND or azure)')
+parser.add_argument('--resume', action='store_true',
+    help='Resume from last breakpoint, skip already synthesized parts')
+parser.add_argument('--dry-run', action='store_true',
+    help='Parse sections and estimate duration without calling TTS API')
 
 args = parser.parse_args()
 
@@ -175,8 +179,10 @@ elif BACKEND == "cosyvoice":
     if not os.environ.get("DASHSCOPE_API_KEY"):
         print("Error: DASHSCOPE_API_KEY not set", file=sys.stderr)
         sys.exit(1)
+elif BACKEND == "edge":
+    pass  # No API key required
 else:
-    print(f"Error: Unknown backend '{BACKEND}'. Use 'azure' or 'cosyvoice'", file=sys.stderr)
+    print(f"Error: Unknown backend '{BACKEND}'. Use 'azure', 'cosyvoice', or 'edge'", file=sys.stderr)
     sys.exit(1)
 MAX_CHARS = 400
 
@@ -239,11 +245,36 @@ if not sections:
 else:
     print(f"检测到 {len(sections)} 个章节: {[s['name'] for s in sections]}")
     for s in sections:
-        print(f"  {s['name']}: \"{s['first_text'][:20]}...\"")
+        status = " (silent)" if s.get('is_silent') else ""
+        print(f"  {s['name']}: \"{s['first_text'][:20]}...\"{status}")
 
 # 处理读音替换
 clean_text = re.sub(r'([A-Za-z0-9\-]+)，读作["""]([\u4e00-\u9fff]+)["""]', r"\2", clean_text)
 print(f"文本长度: {len(clean_text)} 字符")
+
+# Dry-run: estimate duration and exit without calling TTS
+if args.dry_run:
+    # Estimate: ~4 chars/sec for Chinese, ~3 words/sec for English
+    cn_chars = len(re.findall(r'[\u4e00-\u9fff]', clean_text))
+    en_words = len(re.findall(r'[A-Za-z]+', clean_text))
+    est_duration = cn_chars / 4.0 + en_words / 3.0
+    # Apply speech rate
+    rate_match = re.match(r'([+-]?\d+)%', SPEECH_RATE)
+    if rate_match:
+        rate_factor = 1.0 + int(rate_match.group(1)) / 100.0
+        est_duration /= rate_factor
+    est_frames = int(est_duration * 30)
+    print(f"\n--- Dry Run ---")
+    print(f"Chinese chars: {cn_chars}, English words: {en_words}")
+    print(f"Estimated duration: {est_duration:.0f}s ({est_duration/60:.1f}min)")
+    print(f"Estimated frames: {est_frames} @ 30fps")
+    print(f"Speech rate: {SPEECH_RATE}")
+    print(f"Backend: {BACKEND} (not called)")
+    non_silent = [s for s in sections if not s.get('is_silent')]
+    if len(non_silent) > 1:
+        avg = est_duration / len(non_silent)
+        print(f"Average section: ~{avg:.0f}s ({len(non_silent)} sections with content)")
+    sys.exit(0)
 
 # 分句分段
 sentences = clean_text.replace("；", "。").split("。")
@@ -319,7 +350,7 @@ def mark_english_terms(text):
     return result
 
 
-def synth_azure(chunks, phoneme_dict, speech_rate, output_dir):
+def synth_azure(chunks, phoneme_dict, speech_rate, output_dir, resume=False):
     import azure.cognitiveservices.speech as speechsdk
 
     config = speechsdk.SpeechConfig(subscription=key, region=region)
@@ -331,6 +362,17 @@ def synth_azure(chunks, phoneme_dict, speech_rate, output_dir):
     for i, chunk in enumerate(chunks):
         part_file = os.path.join(output_dir, f"part_{i}.wav")
         part_files.append(part_file)
+
+        # Resume: skip if part file already exists
+        if resume and os.path.exists(part_file):
+            probe = subprocess.run(
+                ["ffprobe", "-v", "quiet", "-show_entries", "format=duration", "-of", "csv=p=0", part_file],
+                capture_output=True, text=True)
+            chunk_duration = float(probe.stdout.strip()) if probe.stdout.strip() else 0
+            print(f"  ⏭ Part {i + 1}/{len(chunks)} skipped (resume, {chunk_duration:.1f}s)")
+            accumulated_duration += chunk_duration
+            continue
+
         audio = speechsdk.audio.AudioOutputConfig(filename=part_file)
         synth = speechsdk.SpeechSynthesizer(speech_config=config, audio_config=audio)
 
@@ -375,7 +417,7 @@ def synth_azure(chunks, phoneme_dict, speech_rate, output_dir):
     return part_files, word_boundaries, accumulated_duration
 
 
-def synth_cosyvoice(chunks, phoneme_dict, speech_rate, output_dir):
+def synth_cosyvoice(chunks, phoneme_dict, speech_rate, output_dir, resume=False):
     import struct
     import json as _json
     from dashscope.audio.tts_v2 import SpeechSynthesizer, ResultCallback, AudioFormat
@@ -396,6 +438,16 @@ def synth_cosyvoice(chunks, phoneme_dict, speech_rate, output_dir):
     for i, chunk in enumerate(chunks):
         part_file = os.path.join(output_dir, f"part_{i}.wav")
         part_files.append(part_file)
+
+        # Resume: skip if part file already exists
+        if resume and os.path.exists(part_file):
+            probe = subprocess.run(
+                ["ffprobe", "-v", "quiet", "-show_entries", "format=duration", "-of", "csv=p=0", part_file],
+                capture_output=True, text=True)
+            chunk_duration = float(probe.stdout.strip()) if probe.stdout.strip() else 0
+            print(f"  ⏭ Part {i + 1}/{len(chunks)} skipped (resume, {chunk_duration:.1f}s)")
+            accumulated_duration += chunk_duration
+            continue
 
         success = False
         for attempt in range(1, 4):
@@ -467,11 +519,97 @@ def synth_cosyvoice(chunks, phoneme_dict, speech_rate, output_dir):
     return part_files, word_boundaries, accumulated_duration
 
 
+def synth_edge(chunks, phoneme_dict, speech_rate, output_dir, resume=False):
+    import asyncio
+    import edge_tts
+
+    voice = os.environ.get("EDGE_TTS_VOICE", "zh-CN-XiaoxiaoNeural")
+    part_files = []
+    word_boundaries = []
+    accumulated_duration = 0
+
+    async def synthesize_chunk(i, chunk):
+        nonlocal accumulated_duration
+        part_file = os.path.join(output_dir, f"part_{i}.wav")
+        part_files.append(part_file)
+
+        # Resume: skip if part file already exists
+        if resume and os.path.exists(part_file):
+            # Get duration from existing file
+            probe = subprocess.run(
+                ["ffprobe", "-v", "quiet", "-show_entries", "format=duration", "-of", "csv=p=0", part_file],
+                capture_output=True, text=True)
+            chunk_duration = float(probe.stdout.strip()) if probe.stdout.strip() else 0
+            print(f"  ⏭ Part {i + 1}/{len(chunks)} skipped (resume, {chunk_duration:.1f}s)")
+            accumulated_duration += chunk_duration
+            return
+
+        mp3_file = part_file.replace('.wav', '.mp3')
+
+        success = False
+        for attempt in range(1, 4):
+            try:
+                audio_data = bytearray()
+                chunk_words = []
+
+                communicate = edge_tts.Communicate(
+                    chunk, voice=voice, rate=speech_rate, boundary='WordBoundary')
+
+                async for event in communicate.stream():
+                    if event["type"] == "audio":
+                        audio_data.extend(event["data"])
+                    elif event["type"] == "WordBoundary":
+                        chunk_words.append({
+                            "text": event["text"],
+                            "offset": accumulated_duration + event["offset"] / 10_000_000,
+                            "duration": event["duration"] / 10_000_000,
+                        })
+
+                if not audio_data:
+                    raise RuntimeError("No audio data received")
+
+                # Write MP3, convert to WAV via ffmpeg
+                with open(mp3_file, 'wb') as f:
+                    f.write(bytes(audio_data))
+                subprocess.run(
+                    ["ffmpeg", "-y", "-i", mp3_file, "-ar", "48000", "-ac", "1", part_file],
+                    capture_output=True)
+                os.remove(mp3_file)
+
+                # Get actual duration from WAV
+                probe = subprocess.run(
+                    ["ffprobe", "-v", "quiet", "-show_entries", "format=duration", "-of", "csv=p=0", part_file],
+                    capture_output=True, text=True)
+                chunk_duration = float(probe.stdout.strip())
+
+                word_boundaries.extend(chunk_words)
+                print(f"  ✓ Part {i + 1}/{len(chunks)} done ({len(chunk)} chars, {chunk_duration:.1f}s)")
+                accumulated_duration += chunk_duration
+                success = True
+                break
+            except Exception as e:
+                print(f"  ✗ Part {i + 1} failed (attempt {attempt}/3): {e}")
+                if attempt < 3:
+                    time.sleep(attempt * 2)
+
+        if not success:
+            raise RuntimeError(f"Part {i + 1} synthesis failed")
+
+    async def run_all():
+        for i, chunk in enumerate(chunks):
+            await synthesize_chunk(i, chunk)
+
+    asyncio.run(run_all())
+    return part_files, word_boundaries, accumulated_duration
+
+
 # TTS synthesis
 if BACKEND == "azure":
-    part_files, word_boundaries, total_duration = synth_azure(chunks, phoneme_dict, SPEECH_RATE, args.output_dir)
+    part_files, word_boundaries, total_duration = synth_azure(chunks, phoneme_dict, SPEECH_RATE, args.output_dir, resume=args.resume)
 elif BACKEND == "cosyvoice":
-    part_files, word_boundaries, total_duration = synth_cosyvoice(chunks, phoneme_dict, SPEECH_RATE, args.output_dir)
+    part_files, word_boundaries, total_duration = synth_cosyvoice(chunks, phoneme_dict, SPEECH_RATE, args.output_dir, resume=args.resume)
+elif BACKEND == "edge":
+    part_files, word_boundaries, total_duration = synth_edge(chunks, phoneme_dict, SPEECH_RATE, args.output_dir, resume=args.resume)
 print(f"\n✓ 收集到 {len(word_boundaries)} 个词边界")
 print(f"✓ 总时长: {total_duration:.1f} 秒")
 
@@ -543,6 +681,24 @@ if len(sections) > 1 and word_boundaries:
     for section in sections:
         if 'duration' not in section or section['duration'] is None:
             section['duration'] = section['end_time'] - section['start_time']
+elif len(sections) > 1 and not word_boundaries:
+    # No word boundaries (e.g. full resume) - use proportional estimation
+    print("\n⚠ 无词边界数据（断点续传），使用比例估算章节时间...")
+    non_silent = [s for s in sections if not s.get('is_silent')]
+    if non_silent:
+        avg_duration = total_duration / len(non_silent)
+        t = 0
+        for s in sections:
+            s['start_time'] = t
+            if s.get('is_silent'):
+                s['end_time'] = total_duration
+                s['duration'] = 0
+            else:
+                t += avg_duration
+                s['end_time'] = min(t, total_duration)
+                s['duration'] = s['end_time'] - s['start_time']
+    for s in sections:
+        print(f"  ≈ {s['name']}: {s['start_time']:.1f}s - {s['end_time']:.1f}s ({s['duration']:.1f}s)")
 else:
     sections[0]['start_time'] = 0
     sections[0]['end_time'] = total_duration
