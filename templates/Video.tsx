@@ -8,7 +8,7 @@
  * 4. Use Remotion Studio right panel to adjust styles in real-time
  *
  * Available components (import from "./components"):
- *   ComparisonCard, Timeline, CodeBlock, QuoteBlock, FeatureGrid, DataBar
+ *   ComparisonCard, Timeline, CodeBlock, QuoteBlock, FeatureGrid, DataBar, StatCounter, FlowChart, IconCard
  */
 
 import React from "react";
@@ -24,6 +24,7 @@ import {
   useEntrance,
   getPresentation,
   ChapterProgressBar,
+  IconCard,
 } from "./components";
 
 // Section renderer - customize your section visuals here
@@ -50,6 +51,17 @@ const SectionComponent = ({
     case "hero":
       return (
         <FullBleedLayout bg={props.backgroundColor}>
+          {/* Decorative radial gradient */}
+          <div style={{
+            position: "absolute", inset: 0,
+            background: `radial-gradient(ellipse at 50% 40%, ${props.primaryColor}12 0%, transparent 70%)`,
+          }} />
+          {/* Decorative circle */}
+          <div style={{
+            position: "absolute", top: -120, right: -80,
+            width: 400, height: 400, borderRadius: "50%",
+            background: `${props.primaryColor}08`,
+          }} />
           <div
             style={{
               position: "absolute",
@@ -69,6 +81,7 @@ const SectionComponent = ({
                 fontWeight: 800,
                 color: props.primaryColor,
                 lineHeight: v ? 1.3 : 1.1,
+                textShadow: `0 2px 16px ${props.primaryColor}15`,
               }}
             >
               视频标题
@@ -78,7 +91,7 @@ const SectionComponent = ({
                 fontSize: props.subtitleSize,
                 color: props.textColor,
                 marginTop: v ? 32 : 20,
-                opacity: 0.5,
+                opacity: 0.6,
                 fontWeight: 500,
               }}
             >
@@ -90,7 +103,7 @@ const SectionComponent = ({
 
     case "overview":
       return (
-        <PaddedLayout bg={props.backgroundColor} orientation={props.orientation}>
+        <PaddedLayout bg="#fafafa" orientation={props.orientation}>
           <div
             style={{
               position: "absolute",
@@ -111,24 +124,17 @@ const SectionComponent = ({
             >
               今天的内容
             </h2>
-            <p style={{ fontSize: v ? 34 : 30, color: "rgba(0,0,0,0.5)", marginBottom: v ? 48 : 40 }}>
+            <p style={{ fontSize: v ? 34 : 30, color: props.textColor, opacity: 0.5, marginBottom: v ? 48 : 40 }}>
               Section description here
             </p>
             <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <div style={{ display: "flex", flexDirection: "column", gap: v ? 36 : 28, width: "100%", maxWidth: v ? undefined : 800 }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: v ? 24 : 20, width: "100%", maxWidth: v ? undefined : 900 }}>
                 {[
-                  { icon: "💡", text: "要点一" },
-                  { icon: "🎯", text: "要点二" },
-                  { icon: "✅", text: "要点三" },
+                  { icon: "💡", title: "要点一", description: "说明文字" },
+                  { icon: "🎯", title: "要点二", description: "说明文字" },
+                  { icon: "✅", title: "要点三", description: "说明文字" },
                 ].map((item, i) => (
-                  <div key={i} style={{
-                    background: "rgba(0,0,0,0.02)", border: "1px solid rgba(0,0,0,0.08)",
-                    borderRadius: 20, padding: v ? "40px 48px" : "32px 40px",
-                    display: "flex", alignItems: "center", gap: 24,
-                  }}>
-                    <div style={{ fontSize: v ? 60 : 52 }}>{item.icon}</div>
-                    <div style={{ fontSize: v ? 40 : 34, fontWeight: 600, color: props.textColor }}>{item.text}</div>
-                  </div>
+                  <IconCard key={i} props={props} icon={item.icon} title={item.title} description={item.description} delay={i * 6} />
                 ))}
               </div>
             </div>
@@ -158,6 +164,8 @@ const SectionComponent = ({
                 padding: v ? "72px 60px" : "56px 72px",
                 textAlign: "center",
                 width: v ? "100%" : "auto",
+                border: `1px solid ${props.primaryColor}20`,
+                boxShadow: `0 4px 24px ${props.primaryColor}12, 0 8px 48px rgba(0,0,0,0.04)`,
               }}
             >
               <h2
@@ -255,7 +263,7 @@ const SectionComponent = ({
             >
               {section.name}
             </h2>
-            <p style={{ fontSize: v ? 34 : 30, color: "rgba(0,0,0,0.5)", marginTop: 12 }}>
+            <p style={{ fontSize: v ? 34 : 30, color: props.textColor, opacity: 0.5, marginTop: 12 }}>
               Section description here
             </p>
             <div
@@ -267,16 +275,24 @@ const SectionComponent = ({
                 marginTop: 24,
               }}
             >
-              <p
-                style={{
-                  fontSize: props.bodySize,
-                  color: props.textColor,
-                  fontWeight: 500,
-                  lineHeight: v ? 1.8 : 1.5,
-                }}
-              >
-                Section content goes here...
-              </p>
+              <div style={{
+                background: `linear-gradient(135deg, ${props.primaryColor}06, ${props.accentColor}06)`,
+                borderRadius: 24, padding: v ? "40px 44px" : "40px 56px",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.03), 0 8px 32px rgba(0,0,0,0.05)",
+                border: `1px solid ${props.primaryColor}10`,
+                width: "100%",
+              }}>
+                <p
+                  style={{
+                    fontSize: props.bodySize,
+                    color: props.textColor,
+                    fontWeight: 500,
+                    lineHeight: v ? 1.8 : 1.5,
+                  }}
+                >
+                  Section content goes here...
+                </p>
+              </div>
             </div>
           </div>
         </PaddedLayout>
