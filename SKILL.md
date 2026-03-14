@@ -10,7 +10,6 @@ bilibili: https://space.bilibili.com/441831884
 github: https://github.com/Agents365-ai/video-podcast-maker
 dependencies:
   - remotion-best-practices
-  - find-skills
 ---
 
 > **REQUIRED: Load Remotion Best Practices First**

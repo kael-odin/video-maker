@@ -43,7 +43,7 @@ Automated pipeline to create professional video podcasts from a topic. **Optimiz
 This skill depends on **remotion-best-practices** and works alongside other optional skills:
 
 - **remotion-best-practices** - Official Remotion best practices (required, provides core Remotion patterns and guidelines)
-- **find-skills** - Official skill discovery tool (required, helps find and install additional skills)
+- **find-skills** - Official skill discovery tool (optional, helps find and install additional skills)
 - **ffmpeg** - Advanced audio/video processing (optional)
 - **imagen / imagenty** - AI thumbnail generation (optional)
 
@@ -170,24 +170,6 @@ This opens a browser-based editor where you can:
 | **Audio** | BGM volume (0-0.3) |
 | **Animation** | Enable/disable entrance animations |
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│  Remotion Studio                                                │
-├──────────────────────────────────┬──────────────────────────────┤
-│                                  │  Props Panel                 │
-│                                  │  ─────────────────────────── │
-│     Video Preview                │  primaryColor    [#4f6ef7]   │
-│     (Real-time)                  │  backgroundColor [#ffffff]   │
-│                                  │  titleSize       [====80===] │
-│     ┌─────────────────────┐      │  showProgressBar [✓]         │
-│     │   Your Video Here   │      │  progressBarHeight [==130==] │
-│     │                     │      │  bgmVolume       [=0.05====] │
-│     └─────────────────────┘      │  enableAnimations [✓]        │
-│                                  │                              │
-│  ◀──────────●──────────────▶     │  [Render Video]              │
-│  Timeline                        │                              │
-└──────────────────────────────────┴──────────────────────────────┘
-```
 
 ## Output Structure
 
