@@ -199,6 +199,8 @@ videos/{视频名称}/
 
 - [x] 支持竖屏视频 (9:16)，适配 B站手机端沉浸式播放
 - [x] Remotion 转场效果 (@remotion/transitions)，章节间过渡更专业
+- [x] 组件模板库 (ComparisonCard, Timeline, CodeBlock, QuoteBlock, FeatureGrid, DataBar, StatCounter, FlowChart, IconCard)
+- [x] 广播级画质升级（渐变背景、多层阴影、动画计数器、质量检查清单）
 - [x] 多 TTS 引擎支持 (Azure Speech + CosyVoice + Edge TTS)
 - [x] Edge TTS 免费后端（无需 API 密钥）
 - [x] 断点续传（`--resume` 参数）
