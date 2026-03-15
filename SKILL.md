@@ -179,12 +179,35 @@ Automated pipeline to create professional **Bilibili (B站) 横屏知识视频**
 
 | Constraint | Minimum |
 |------------|---------|
-| **Any text** | ≥ 18px |
-| **Hero title** | ≥ 72px |
-| **Section title** | ≥ 60px |
-| **Card / body text** | ≥ 24px |
+| **Any text** | ≥ 24px |
+| **Hero title** | ≥ 84px |
+| **Section title** | ≥ 72px |
+| **Card title** | ≥ 40px |
+| **Card / body text** | ≥ 32px |
+| **Icon size** | ≥ 56px |
 | **Section padding** | ≥ 40px |
-| **Card padding** | ≥ 24px |
+| **Card padding** | ≥ 40px 48px |
+| **Card border-radius** | ≥ 24px |
+| **Grid gap** | ≥ 28px |
+
+### Space Utilization (防止大量留白)
+
+| Rule | Requirement |
+|------|-------------|
+| **Content width** | 卡片/网格应占据 ≥85% 可用宽度 (maxWidth: 1500-1700px) |
+| **Vertical centering** | 所有章节必须使用 `justifyContent: 'center'` 垂直居中 |
+| **Grid vs Flex** | 多卡片布局优先使用 `grid` 而非 `flex wrap`，确保卡片大小一致 |
+| **Card fill** | 卡片应填充可用空间，不要留下大块空白 |
+
+### Visual Richness (视觉丰富度)
+
+| Element | Requirement |
+|---------|-------------|
+| **Card borders** | 每个卡片必须有彩色边框 (≥3px) 或彩色左边框 (≥6px) |
+| **Shadows** | 卡片必须有阴影: `boxShadow: '0 8px 24px rgba(color, 0.15)'` |
+| **Color coding** | 并列元素（如多个特性卡片）应使用不同的主题色 |
+| **Gradients** | 卡片背景优先使用渐变而非纯色 |
+| **Icons** | 每个卡片/要点应有配套图标，图标大小 ≥56px |
 
 ---
 
@@ -210,11 +233,12 @@ Claude MUST verify each section meets ALL of these before proceeding:
 
 | # | Check | Requirement |
 |---|-------|-------------|
-| 1 | **Visual depth** | At least 2 layers of depth: shadows, gradients, or foreground/background separation |
-| 2 | **Adjacent differentiation** | Differs from previous section in ≥2 of: background color, layout direction, content form |
-| 3 | **Complete animation** | Entrance animation on all elements, list items have stagger delay |
-| 4 | **Information density** | ≤5 key points per section, no large empty areas |
-| 5 | **Topic-matched colors** | Color palette serves the content (tech→cool blue, health→warm green, finance→dark blue/gold) |
+| 1 | **Space utilization** | 内容占据 ≥85% 可用宽度，无大块空白区域 |
+| 2 | **Visual depth** | 卡片有阴影 + 彩色边框/渐变背景，至少2层视觉层次 |
+| 3 | **Color coding** | 并列卡片使用不同主题色（边框、标题、图标） |
+| 4 | **Typography scale** | 标题 ≥72px, 卡片标题 ≥40px, 正文 ≥32px, 图标 ≥56px |
+| 5 | **Complete animation** | 所有元素有入场动画，列表项有 stagger delay |
+| 6 | **Vertical centering** | 使用 `justifyContent: 'center'` 垂直居中 |
 
 ### Video-Level Checklist (before render)
 
@@ -242,25 +266,38 @@ Claude MUST verify each section meets ALL of these before proceeding:
 
 | Element | Recommended Size | Weight | When to Use |
 |---------|-----------------|--------|-------------|
-| **Hero Title** | 72–120px | 800 | Opening section, brand moment |
+| **Hero Title** | 84–96px | 800 | Opening section, brand moment |
 | **Section Title** | 72–80px | 700–800 | Each section's main heading |
-| **Large Emphasis** | 40–68px | 600–700 | Key statements, conclusions, quotes |
-| **Subtitle / Description** | 30–40px | 500–600 | Under section titles, subheadings |
-| **Card Title** | 34–38px | 700 | Feature cards, list group headers |
-| **Body Text** | 26–34px | 500–600 | Paragraphs, list items, descriptions |
-| **Tags / Pills** | 20–26px | 600 | Labels, badges, categories |
+| **Large Emphasis** | 48–72px | 600–700 | Key statements, conclusions, quotes |
+| **Subtitle / Description** | 36–44px | 500–600 | Under section titles, subheadings |
+| **Card Title** | 40–48px | 700 | Feature cards, list group headers |
+| **Body Text** | 32–40px | 500–600 | Paragraphs, list items, descriptions |
+| **Tags / Pills** | 28–36px | 600 | Labels, badges, categories |
+| **Icons** | 56–80px | — | Card icons, decorative elements |
 
 ### Layout Patterns (recommended)
 
 | Pattern | Recommended |
 |---------|-------------|
-| **Card** | `borderRadius: 20–28px`, `padding: 28–44px`, subtle border + shadow |
-| **Section Padding** | `40–80px` content, `60–100px` hero |
-| **Grid Gap** | `20–40px` |
-| **Hero / Impact** | Full viewport centered, no excessive whitespace |
-| **Content Max Width** | 800–950px for centered blocks, or full width with padding |
+| **Card** | `borderRadius: 24–32px`, `padding: 48px 56px`, colored border (3px) + shadow |
+| **Section Padding** | `40px 60px` content, `40px 80px` hero |
+| **Grid Gap** | `28–40px` |
+| **Content Max Width** | `1500–1700px` for grids, `1400px` for centered blocks |
+| **Hero / Impact** | Full viewport centered with decorative icon, no excessive whitespace |
+| **2-column cards** | Use `display: grid; gridTemplateColumns: 1fr 1fr` with gap 36-56px |
+| **4+ items** | Use `display: grid; gridTemplateColumns: repeat(4, 1fr)` or `repeat(2, 1fr)` |
+| **Workflow/Steps** | Each step has unique color, circular number badge, colored border |
 
-> **Principle:** 这些是经过验证的参考值，不是强制规格。不同视频风格（科技/教育/新闻）可以有不同的视觉表现，只要不低于 Minimums。
+### Color Coding Examples
+
+| Scenario | Approach |
+|----------|----------|
+| **Feature cards (4个)** | 绿/紫/橙/粉 - 每个卡片不同主题色的边框和标题 |
+| **Workflow steps** | 蓝→紫→绿→橙→粉→青 - 渐变色序列 |
+| **Intro cards (2个)** | 绿色系 vs 紫色系 - 对比色搭配 |
+| **Outro buttons** | 红/橙/黄/粉 - 每个动作独立配色 |
+
+> **Principle:** 这些是经过验证的参考值。关键是**填满空间、放大元素、丰富配色**，不要留下大块空白。
 
 ---
 
