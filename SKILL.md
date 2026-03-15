@@ -374,6 +374,38 @@ rm -rf public/media/{name}
 
 ---
 
+## Step 0: Load User Preferences
+
+**Claude behavior:** 自动执行，无需用户干预
+
+1. 检查 `user_prefs.json` 是否存在于 skill 目录
+2. 如果不存在，从 `user_prefs.template.json` 复制创建
+3. 读取用户偏好并在后续步骤中应用
+
+```bash
+SKILL_DIR="~/.claude/skills/video-podcast-maker"
+PREFS_FILE="$SKILL_DIR/user_prefs.json"
+TEMPLATE_FILE="$SKILL_DIR/user_prefs.template.json"
+
+if [ ! -f "$PREFS_FILE" ]; then
+  cp "$TEMPLATE_FILE" "$PREFS_FILE"
+  echo "✓ 首次使用，已创建默认偏好配置"
+fi
+```
+
+4. 在 Step 1 开始时，告知用户当前应用的偏好（如有自定义）：
+
+```
+"根据您的偏好设置：
+ - 主题: [theme]
+ - 字号缩放: [scalePreference]x
+ - 语速: [tts.rate]
+
+如需调整请随时告诉我，或说「显示偏好设置」查看详情。"
+```
+
+---
+
 ## Step 1: Define Topic Direction
 
 使用 `brainstorming` skill 确认：
@@ -422,6 +454,20 @@ performance: Standard (2 comparison bars)
 cta: Impact (1 call-to-action)
 ```
 
+### Topic Type Detection
+
+基于主题关键词自动检测类别并匹配偏好：
+
+| 关键词 | 类别 | 应用偏好 |
+|-------|------|---------|
+| AI、编程、软件、硬件、技术 | tech | topic_patterns.tech |
+| 投资、股票、基金、加密货币、理财 | finance | topic_patterns.finance |
+| 教程、学习、入门、指南 | education | topic_patterns.education |
+| 美食、旅行、生活、Vlog | lifestyle | topic_patterns.lifestyle |
+| 新闻、热点、事件、速报 | news | topic_patterns.news |
+
+**Claude behavior:** 检测到主题类别后，合并 `topic_patterns[category]` 到当前偏好。
+
 ### Title Position Confirmation
 
 使用 AskUserQuestion 询问用户标题位置偏好：
@@ -437,6 +483,12 @@ cta: Impact (1 call-to-action)
 ---
 
 ## Step 4: Write Narration Script
+
+**偏好应用:** 根据 `user_prefs.content` 调整脚本风格：
+- `tone: professional` → 使用正式用语，避免口语化
+- `tone: casual` → 轻松口语，可加入语气词
+- `verbosity: concise` → 每段 50-80 字
+- `verbosity: detailed` → 每段 100-150 字
 
 Create `videos/{name}/podcast.txt` with section markers:
 
@@ -564,6 +616,11 @@ npx remotion still src/remotion/index.ts Thumbnail9x16 videos/{name}/thumbnail_r
 
 ## Step 8: Generate TTS Audio
 
+**偏好应用:** 从 `user_prefs.tts` 读取：
+- `backend` → 设置 TTS_BACKEND 环境变量
+- `rate` → 设置 TTS_RATE 环境变量
+- `voice` → 设置 EDGE_TTS_VOICE（如使用 edge 后端）
+
 ```bash
 cp ~/.claude/skills/video-podcast-maker/generate_tts.py .
 
@@ -635,6 +692,11 @@ TTS 脚本支持三种方式校正发音，优先级从高到低：
 ---
 
 ## Step 9: Create Remotion Composition + Studio Preview
+
+**偏好应用:** 从 `user_prefs.visual` 覆盖 `defaultVideoProps`：
+- `typography.*` × `scalePreference` → 应用字号缩放
+- `theme: dark` → 交换 backgroundColor/textColor
+- `primaryColor`, `accentColor` → 直接覆盖
 
 复制文件到 public/:
 ```bash
@@ -763,6 +825,56 @@ npx remotion studio src/remotion/index.ts
 | "发音不对" | Fix in `podcast.txt` or `phonemes.json`, re-run `generate_tts.py`, copy to `public/` |
 
 > **Note:** Studio supports hot reload — code changes reflect instantly without restarting. Pronunciation fixes require re-running TTS (Step 8) and copying updated files to `public/`.
+
+---
+
+## Step 9.5: Learn from Modifications
+
+**Claude behavior:** Studio 预览迭代完成后执行
+
+### 9.5.1 检测修改
+
+对比 Studio 预览开始时和结束时的值，识别用户手动调整：
+
+| 属性类别 | 检测项 |
+|---------|--------|
+| 字体 | titleSize, subtitleSize, bodySize 变化 |
+| 颜色 | primaryColor, backgroundColor 变化 |
+| 布局 | 进度条开关、转场效果变化 |
+
+### 9.5.2 渐进学习
+
+- **首次修改**：仅当前视频生效，不更新全局偏好
+- **重复修改**（≥2次相同方向）：询问用户是否设为默认
+
+```
+"检测到您连续 [N] 次调大标题字号（从 80 到 96），是否将 96px 设为默认值？"
+- 是（推荐）→ 更新 user_prefs.json
+- 否 → 仅当前视频使用
+```
+
+### 9.5.3 显式偏好捕获
+
+在对话中检测以下表达并学习：
+
+| 用户表达模式 | 学习动作 |
+|-------------|---------|
+| "以后都用这个颜色" | 保存当前 primaryColor 到 global |
+| "科技类视频用这个风格" | 保存到 topic_patterns.tech |
+| "记住这个设置" | 保存当前所有修改到 global |
+
+### 9.5.4 更新偏好文件
+
+学习到新偏好后，更新 `user_prefs.json` 并添加 `learning_history` 记录：
+
+```json
+{
+  "date": "2026-03-15",
+  "source": "implicit",
+  "change": { "path": "global.visual.typography.heroTitle", "from": 80, "to": 96 },
+  "context": "用户在 Studio 中连续 3 次调大标题"
+}
+```
 
 ---
 
@@ -904,6 +1016,17 @@ echo "✓ 文件大小: $SIZE"
 是否需要清理临时文件？(Step 15)
 ```
 
+### 14.4 满意度反馈
+
+**Claude behavior:** 验证完成后询问：
+
+> "这个视频的整体效果满意吗？"
+>
+> - **满意** → 记录正向反馈，强化当前偏好
+> - **需要调整** → 收集具体反馈，更新偏好
+
+如用户反馈"文字还是有点小"，增加 `scalePreference` 并记录到 `learning_history`。
+
 ---
 
 ## Step 15: Cleanup (可选)
@@ -966,6 +1089,78 @@ videos/{name}/
 Available at `~/.claude/skills/video-podcast-maker/assets/`:
 - `perfect-beauty-191271.mp3` - Upbeat, positive
 - `snow-stevekaldes-piano-397491.mp3` - Calm piano
+
+---
+
+## Preference Commands
+
+用户可在对话中随时使用以下命令管理偏好：
+
+### 查看偏好
+
+```
+用户: "显示我的偏好设置"
+```
+
+Claude 输出：
+
+```
+=== 当前偏好设置 ===
+
+【视觉】
+  主题: light
+  主色: #4f6ef7
+  字号缩放: 1.0x
+  标题位置: top-center
+
+【TTS】
+  后端: azure
+  语速: +5%
+  声音: XiaoxiaoNeural
+
+【内容】
+  风格: professional
+  详细度: balanced
+  章节数: 5
+
+【主题模板】
+  tech: 蓝色专业风
+  finance: 深色专业风
+  lifestyle: 粉红轻松风
+
+学习记录: 3 条
+```
+
+### 重置偏好
+
+```
+用户: "重置偏好" / "清除学习记录"
+```
+
+Claude 确认后执行：
+
+```bash
+cp ~/.claude/skills/video-podcast-maker/user_prefs.template.json ~/.claude/skills/video-podcast-maker/user_prefs.json
+echo "✓ 偏好已重置为默认值"
+```
+
+### 保存当前设置
+
+```
+用户: "把这个视频的设置保存为科技类默认"
+```
+
+Claude 提取当前视频的 visual/tts/content 设置，更新 `topic_patterns.tech`。
+
+### 手动设置偏好
+
+```
+用户: "把默认语速设为 +10%"
+用户: "以后标题都用 100px"
+用户: "深色主题设为默认"
+```
+
+Claude 直接更新 `user_prefs.json` 对应字段。
 
 ---
 
