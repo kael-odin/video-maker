@@ -1,3 +1,4 @@
+import React from "react";
 import { useCurrentFrame, interpolate } from "remotion";
 import { ICON_MAP, isEmoji } from "./iconMap";
 
