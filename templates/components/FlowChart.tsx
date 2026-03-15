@@ -1,6 +1,7 @@
 import React from "react";
 import type { VideoProps } from "../Root";
 import { useEntrance } from "./animations";
+import { Icon } from "./Icon";
 
 export const FlowChart = ({
   props,
@@ -12,6 +13,7 @@ export const FlowChart = ({
   delay?: number;
 }) => {
   const v = props.orientation === "vertical";
+  const iconAnim = props.iconAnimation === "none" ? "none" : "entrance";
   return (
     <div style={{
       display: "flex", alignItems: "center", width: "100%",
@@ -31,7 +33,11 @@ export const FlowChart = ({
               opacity: a.opacity, transform: `translateY(${a.translateY}px)`,
               minWidth: 0,
             }}>
-              {step.icon && <div style={{ fontSize: v ? 44 : 48, marginBottom: 12 }}>{step.icon}</div>}
+              {step.icon && (
+                <div style={{ marginBottom: 12 }}>
+                  <Icon name={step.icon} size={v ? 44 : 48} color={props.primaryColor} animate={iconAnim} delay={delay + i * 8} />
+                </div>
+              )}
               <div style={{
                 fontSize: v ? 30 : 28, fontWeight: 700, color: props.primaryColor,
               }}>
