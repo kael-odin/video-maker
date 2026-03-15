@@ -123,6 +123,41 @@ export GEMINI_API_KEY="..."        # Optional: AI thumbnails (imagen)
 export EDGE_TTS_VOICE="zh-CN-XiaoxiaoNeural"  # Optional: Edge TTS voice override
 ```
 
+## User Preference System
+
+Skill learns and applies user preferences automatically.
+
+### Storage Files
+
+| File | Purpose |
+|------|---------|
+| `user_prefs.json` | Learned preferences (auto-created from template) |
+| `user_prefs.template.json` | Default values |
+| `pref_keywords.json` | NLU keyword mapping |
+| `prefs_schema.json` | JSON schema definition |
+
+### Preference Priority
+
+```
+Final = merge(
+  Root.tsx defaults < global < topic_patterns[type] < current instructions
+)
+```
+
+### User Commands
+
+| Command | Effect |
+|---------|--------|
+| "显示偏好设置" | Show current preferences |
+| "重置偏好" | Reset to defaults |
+| "保存为 X 类默认" | Save to topic_patterns |
+
+### Learning Triggers
+
+- **Explicit**: "我喜欢深色主题", "语速快一点"
+- **Implicit**: ≥2 same-direction Studio modifications
+- **Feedback**: Post-completion satisfaction survey
+
 ## Troubleshooting
 
 - TTS errors: check `AZURE_SPEECH_KEY` and `AZURE_SPEECH_REGION` env vars
