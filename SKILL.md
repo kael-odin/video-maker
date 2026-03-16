@@ -708,6 +708,22 @@ npx remotion studio src/remotion/index.ts
 
 ## Step 10: Render Video
 
+### Preview Render (recommended before 4K)
+
+Quick 720p render (~10x faster than 4K) to validate full video end-to-end (audio sync, transitions, timing):
+
+```bash
+npx remotion render src/remotion/index.ts CompositionId videos/{name}/preview.mp4 --scale 0.33 --crf 28
+```
+
+This catches issues that Studio preview may miss (e.g., audio sync drift, transition timing across sections, final frame count). Review `preview.mp4`, then proceed to 4K if satisfied.
+
+> **When to use Studio vs preview render:**
+> - **Studio** — iterating on visual design (layout, colors, animations). Real-time, hot reload.
+> - **Preview render** — validating the complete video (audio sync, transitions, pacing). Fast MP4 output.
+
+### 4K Render
+
 ```bash
 npx remotion render src/remotion/index.ts CompositionId videos/{name}/output.mp4 --video-bitrate 16M
 ```
