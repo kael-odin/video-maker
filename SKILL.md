@@ -823,9 +823,27 @@ The vertical composition reuses Video.tsx with `orientation: "vertical"`. All co
 
 ## Step 11: Mix with Background Music
 
-```bash
-cp ~/.claude/skills/video-podcast-maker/assets/perfect-beauty-191271.mp3 videos/{name}/bgm.mp3
+### BGM Selection
 
+**Auto mode:** Select BGM based on topic type:
+- Tech/coding/tutorial → `snow-stevekaldes-piano-397491.mp3` (calm)
+- Product review/news/upbeat → `perfect-beauty-191271.mp3` (positive)
+- User provided custom BGM → use their file directly
+
+**Interactive mode:** Ask user to choose from available tracks or provide their own.
+
+If user provided a custom BGM file path, copy that instead:
+```bash
+# Default: auto-selected track
+cp ~/.claude/skills/video-podcast-maker/assets/{selected-track}.mp3 videos/{name}/bgm.mp3
+
+# Or user's custom BGM
+cp /path/to/user-bgm.mp3 videos/{name}/bgm.mp3
+```
+
+### Mix
+
+```bash
 ffmpeg -y \
   -i videos/{name}/output.mp4 \
   -stream_loop -1 -i videos/{name}/bgm.mp3 \
@@ -835,7 +853,7 @@ ffmpeg -y \
   videos/{name}/video_with_bgm.mp4
 ```
 
-> **BGM options & troubleshooting:** See `TROUBLESHOOTING.md`.
+> **More BGM options, custom BGM, and volume tuning:** See `TROUBLESHOOTING.md`.
 
 ---
 

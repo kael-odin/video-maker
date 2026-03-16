@@ -62,9 +62,46 @@ ffmpeg -i voice.mp3 -i bgm.mp3 \
 
 ## Background Music Options
 
+### Included Tracks
+
 Available at `~/.claude/skills/video-podcast-maker/assets/`:
-- `perfect-beauty-191271.mp3` - Upbeat, positive
-- `snow-stevekaldes-piano-397491.mp3` - Calm piano
+
+| Track | Mood | Best For |
+|-------|------|----------|
+| `perfect-beauty-191271.mp3` | Upbeat, positive | Tech demos, product intros, tutorials |
+| `snow-stevekaldes-piano-397491.mp3` | Calm piano | Reflective topics, analysis, comparisons |
+
+### Using Custom BGM
+
+Users can provide their own BGM:
+```bash
+# Copy user's BGM file
+cp /path/to/my-bgm.mp3 videos/{name}/bgm.mp3
+```
+
+If user says "用我自己的BGM" or provides a file path, skip the default BGM copy in Step 11.
+
+### Royalty-Free BGM Sources
+
+| Source | URL | License |
+|--------|-----|---------|
+| Pixabay Music | https://pixabay.com/music/ | Free, no attribution |
+| Free Music Archive | https://freemusicarchive.org/ | CC licenses |
+| Incompetech | https://incompetech.com/ | CC BY (attribution) |
+| Uppbeat | https://uppbeat.io/ | Free tier available |
+| Chosic | https://www.chosic.com/free-music/all/ | Various CC |
+
+### BGM Selection Guide
+
+| Video Type | Recommended Mood | Volume |
+|------------|-----------------|--------|
+| Tech/coding | Lo-fi, ambient | 0.03-0.05 |
+| Product review | Upbeat, corporate | 0.05-0.08 |
+| News/analysis | Neutral, minimal | 0.03-0.05 |
+| Tutorial | Calm, steady | 0.04-0.06 |
+| Lifestyle | Warm, acoustic | 0.05-0.08 |
+
+**Claude behavior:** In auto mode, select the most appropriate included track based on topic type. In interactive mode, ask user to choose.
 
 ---
 

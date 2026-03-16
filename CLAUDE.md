@@ -76,6 +76,7 @@ templates/
     StatCounter.tsx              # Animated number tickers
     FlowChart.tsx                # Horizontal arrow-connected steps
     IconCard.tsx                 # Large icon emphasis card
+    MediaSection.tsx             # Image/media display (full, card, grid layouts)
     ChapterProgressBar.tsx       # Bottom progress bar (renders outside Scale4K)
 assets/                          # BGM tracks, bilibili triple-click animations
 ```
