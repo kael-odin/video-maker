@@ -158,7 +158,6 @@ Skill learns and applies user preferences automatically.
 |------|---------|
 | `user_prefs.json` | Learned preferences (auto-created from template) |
 | `user_prefs.template.json` | Default values |
-| `pref_keywords.json` | NLU keyword mapping |
 | `prefs_schema.json` | JSON schema definition |
 
 ### Preference Priority
