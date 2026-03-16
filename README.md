@@ -4,7 +4,7 @@
 
 自动化流程，从主题生成专业视频播客。**针对 B站 (Bilibili) 优化**。集成研究、脚本撰写、微软 Azure TTS、Remotion 视频渲染和 FFmpeg 音频混音。
 
-**支持平台：** [Claude Code](https://claude.ai/code) · [OpenClaw](https://openclaw.ai/) (ClawHub)
+**支持平台：** [Claude Code](https://claude.ai/code) · [OpenClaw](https://openclaw.ai/) (ClawHub) · [OpenCode](https://opencode.ai/) · [Codex](https://openai.com/index/introducing-codex/)
 
 ![OpenClaw x Video Podcast Maker](assets/openclaw-collaboration.png)
 
@@ -207,6 +207,7 @@ videos/{视频名称}/
 - [x] 断点续传（`--resume` 参数）
 - [x] 预估模式（`--dry-run` 预估时长，不调用 API）
 - [x] 用户偏好自我进化（自动学习视觉/TTS/内容风格偏好）
+- [ ] 视觉检查 - 对生成后的页面进行视觉检查，检查其美观性、布局合理性等
 - [ ] 更多 TTS 引擎 (看用户需求)
 - [ ] Windows 适配 (WSL 验证 + 文档)
 
