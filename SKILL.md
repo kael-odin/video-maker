@@ -638,15 +638,31 @@ cp videos/{name}/podcast_audio.wav videos/{name}/timing.json public/
 
 使用 `templates/Video.tsx` 作为起点，已包含完整实现（4K 缩放、章节进度条、音频集成）。
 
+**Shared infrastructure** — copy only if not already present (safe for existing projects):
 ```bash
-cp ~/.claude/skills/video-podcast-maker/templates/Video.tsx src/remotion/
-cp ~/.claude/skills/video-podcast-maker/templates/Root.tsx src/remotion/
-cp -r ~/.claude/skills/video-podcast-maker/templates/components src/remotion/components
+# Root.tsx and components are shared across all videos — don't overwrite if customized
+[ ! -f src/remotion/Root.tsx ] && cp ~/.claude/skills/video-podcast-maker/templates/Root.tsx src/remotion/
+[ ! -d src/remotion/components ] && cp -r ~/.claude/skills/video-podcast-maker/templates/components src/remotion/components
 ```
+
+**Per-video composition** — NEVER overwrite `Video.tsx`. Create a unique file per video:
+```bash
+# Generate per-video composition: {PascalCaseName}Video.tsx
+# Example: "ai-agents" → AiAgentsVideo.tsx
+cp ~/.claude/skills/video-podcast-maker/templates/Video.tsx src/remotion/{PascalCaseName}Video.tsx
+```
+
+Then register it in `Root.tsx` alongside existing compositions. Each video gets its own composition file with customized section layouts, colors, and components.
+
+**Naming convention:**
+| Video name | Composition file | Composition ID |
+|------------|-----------------|----------------|
+| `ai-agents` | `AiAgentsVideo.tsx` | `AiAgents` |
+| `reference-manager` | `ReferenceManagerVideo.tsx` | `ReferenceManager` |
 
 Components are modular — import only what you need:
 ```tsx
-import { ComparisonCard, CodeBlock, FeatureGrid } from "./components";
+import { ComparisonCard, CodeBlock, FeatureGrid, MediaSection } from "./components";
 ```
 
 ### 章节转场效果

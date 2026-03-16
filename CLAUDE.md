@@ -105,9 +105,10 @@ podcast.txt → generate_tts.py → podcast_audio.wav + podcast_audio.srt + timi
 
 ### Template Architecture
 
-- `Video.tsx` imports components via barrel `./components` — only SectionComponent switch cases and main composition logic live here
-- `Root.tsx` defines Zod schema for all Studio-editable props (colors, typography, transitions, progress bar, orientation)
-- `Root.tsx` registers `MyVideo` (3840x2160) and `MyVideoVertical` (2160x3840) compositions
+- `templates/Video.tsx` is the **template** — copied as `{PascalCaseName}Video.tsx` per video, NEVER overwrite shared `Video.tsx`
+- Each video gets its own composition file (e.g., `AiAgentsVideo.tsx`) with customized sections
+- `Root.tsx` defines Zod schema for all Studio-editable props; shared across all videos, copy only if not present
+- `Root.tsx` registers compositions — add per-video entries alongside `MyVideo` / `MyVideoVertical`
 - `ChapterProgressBar` renders **outside** the `Scale4K` wrapper at native 4K resolution
 - `TransitionSeries` compensates for overlap by adding lost frames to the first section
 - All components are orientation-aware via `props.orientation` — vertical mode adapts layouts, font sizes, and spacing
