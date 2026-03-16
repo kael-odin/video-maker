@@ -14,6 +14,14 @@ Do NOT add "Co-Authored-By: Claude" to commit messages.
 
 A Claude Code skill for automated video podcast creation targeting **B站横屏视频 (16:9)** with optional **竖屏精华片段 (9:16)**. The 15-step workflow is defined in `SKILL.md`.
 
+### Documentation Structure
+
+| File | Purpose | When Claude Loads |
+|------|---------|-------------------|
+| `SKILL.md` | Core workflow (15 steps), execution modes, resume | Always (skill invocation) |
+| `DESIGN_GUIDE.md` | Visual minimums, typography, layout patterns, checklists | Step 9 (Remotion composition) |
+| `TROUBLESHOOTING.md` | Error fixes, preference commands, BGM options, preference learning | On error or user request |
+
 ## Key Commands
 
 ```bash

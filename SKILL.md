@@ -3,9 +3,9 @@ name: video-podcast-maker
 description: Use when user provides a topic and wants an automated video podcast created - handles research, script writing, TTS audio synthesis, Remotion video creation, and final MP4 output with background music
 author: Agents365-ai
 category: Content Creation
-version: 1.0.0
+version: 1.1.0
 created: 2025-01-27
-updated: 2026-03-15
+updated: 2026-03-16
 bilibili: https://space.bilibili.com/441831884
 github: https://github.com/Agents365-ai/video-podcast-maker
 dependencies:
@@ -157,6 +157,96 @@ Automated pipeline to create professional **Bilibili (B站) 横屏知识视频**
 
 ---
 
+## Execution Modes
+
+**Claude behavior:** At the start of the workflow, detect the user's intent:
+
+- If user says "帮我制作..." / "make a video about..." with no special instructions → **Auto Mode**
+- If user says "我想自己控制每个步骤" / mentions interactive/manual → **Interactive Mode**
+- Default: **Auto Mode**
+
+### Auto Mode (Default)
+
+Runs the full pipeline with sensible defaults. **Only 2 mandatory prompts:**
+
+1. **Step 1**: Confirm topic direction (required — determines everything)
+2. **Step 9**: Studio preview feedback loop (required — visual quality matters)
+
+All other decisions use these defaults:
+
+| Step | Decision | Auto Default |
+|------|----------|-------------|
+| Step 3 | Title position | top-center |
+| Step 5 | Media assets | Skip (text-only animations) |
+| Step 7 | Thumbnail method | Remotion-generated (16:9 + 4:3) |
+| Step 9 | Outro animation | Pre-made MP4 (white for light theme, black for dark) |
+| Step 12 | Subtitles | Skip |
+| Step 15 | Cleanup | Auto-clean temp files |
+
+Users can override any default by mentioning it in their initial request:
+- "帮我做一个关于AI的视频，要烧字幕" → auto mode + subtitles on
+- "用深色主题，AI生成封面" → auto mode + dark theme + imagen thumbnails
+- "需要截图素材" → auto mode + media collection enabled
+
+### Interactive Mode
+
+Prompts the user at each decision point. Activated by:
+- "互动模式" / "interactive mode"
+- "我想自己选择每个选项"
+- User explicitly requests control over specific steps
+
+---
+
+## Workflow State & Resume
+
+**Claude behavior:** Automatically persist workflow progress for error recovery.
+
+### State File
+
+Each video project maintains `videos/{name}/workflow_state.json`:
+
+```json
+{
+  "video_name": "ai-agents-explained",
+  "mode": "auto",
+  "started_at": "2026-03-16T10:30:00",
+  "current_step": 8,
+  "steps": {
+    "1": { "status": "completed", "completed_at": "2026-03-16T10:31:00" },
+    "2": { "status": "completed", "completed_at": "2026-03-16T10:35:00" },
+    "8": { "status": "failed", "error": "AZURE_SPEECH_KEY not set" }
+  }
+}
+```
+
+### Auto-Resume
+
+**Claude behavior:** When the skill is invoked:
+
+1. Check if `videos/*/workflow_state.json` exists for any in-progress video
+2. If found, report status and ask: "检测到未完成的视频项目 `{name}`，当前在第 {N} 步。是否继续？"
+   - **继续** → Resume from the failed/incomplete step
+   - **重新开始** → Reset state, start from Step 1
+   - **新视频** → Start a different video, keep old state
+3. If not found, start fresh
+
+### Step Lifecycle
+
+Each step follows this pattern:
+1. Update state: `status: "in_progress"`
+2. Execute step
+3. On success: `status: "completed"`, record `completed_at`
+4. On failure: `status: "failed"`, record `error` message
+5. On skip (auto mode): `status: "skipped"`
+
+### Manual Resume
+
+Users can explicitly resume:
+- "继续上次的视频" → find latest workflow_state.json, resume
+- "从第8步开始" → resume from Step 8 (validate prior steps' outputs exist)
+
+---
+
 ## Technical Rules
 
 以下是视频制作的技术硬约束，其他视觉设计和布局由 Claude 根据内容自由发挥：
@@ -171,133 +261,10 @@ Automated pipeline to create professional **Bilibili (B站) 横屏知识视频**
 | **Thumbnail** | Must generate both 16:9 (1920×1080) AND 4:3 (1200×900). Design for small-size visibility: title text ≥80px bold, icons/graphics as large as possible, high contrast colors, minimal elements. Thumbnails are viewed at ~300px wide in feed — if text isn't readable at that size, make it bigger. Default layout: title centered, all UI elements and text centered (both horizontally and vertically). |
 | **Font** | PingFang SC / Noto Sans SC for Chinese text |
 
----
+## Visual Design
 
-## Visual Design Minimums (MUST follow)
-
-以下是防止文字过小、布局过空的**硬约束**（1080p 设计空间）：
-
-| Constraint | Minimum |
-|------------|---------|
-| **Any text** | ≥ 24px |
-| **Hero title** | ≥ 84px |
-| **Section title** | ≥ 72px |
-| **Card title** | ≥ 40px |
-| **Card / body text** | ≥ 32px |
-| **Icon size** | ≥ 56px |
-| **Section padding** | ≥ 40px |
-| **Card padding** | ≥ 40px 48px |
-| **Card border-radius** | ≥ 24px |
-| **Grid gap** | ≥ 28px |
-
-### Space Utilization (防止大量留白)
-
-| Rule | Requirement |
-|------|-------------|
-| **Content width** | 卡片/网格应占据 ≥85% 可用宽度 (maxWidth: 1500-1700px) |
-| **Vertical centering** | 所有章节必须使用 `justifyContent: 'center'` 垂直居中 |
-| **Grid vs Flex** | 多卡片布局优先使用 `grid` 而非 `flex wrap`，确保卡片大小一致 |
-| **Card fill** | 卡片应填充可用空间，不要留下大块空白 |
-
-### Visual Richness (视觉丰富度)
-
-| Element | Requirement |
-|---------|-------------|
-| **Card borders** | 每个卡片必须有彩色边框 (≥3px) 或彩色左边框 (≥6px) |
-| **Shadows** | 卡片必须有阴影: `boxShadow: '0 8px 24px rgba(color, 0.15)'` |
-| **Color coding** | 并列元素（如多个特性卡片）应使用不同的主题色 |
-| **Gradients** | 卡片背景优先使用渐变而非纯色 |
-| **Icons** | 每个卡片/要点应有配套图标，图标大小 ≥56px |
-
----
-
-## Design Philosophy
-
-Templates (`templates/`) are **starting points, not blueprints**. Claude SHOULD customize the visual design for each video based on its topic:
-
-- **Color palette**: match the subject (tech → cool blues/grays, food → warm tones, finance → dark/gold)
-- **Section layouts**: create new component arrangements, don't repeat the same layout for every section
-- **Visual variety**: vary section backgrounds, card styles, and emphasis techniques across sections to maintain viewer engagement
-- **Typography**: adjust sizes and weights to create clear visual hierarchy per section's content density
-- **Animations**: use entrance animations and transitions that fit the video's energy and pacing
-
-**What to keep consistent**: Technical Rules above (4K, safe zones, min sizes), component imports from `./components`, and the `timing.json`-driven timing system.
-
-**What to vary freely**: colors, gradients, backgrounds, layout composition, card styles, icon choices, spacing, animation timing, section visual identity.
-
-## Quality Checklists (MUST follow)
-
-### Per-Section Checklist
-
-Claude MUST verify each section meets ALL of these before proceeding:
-
-| # | Check | Requirement |
-|---|-------|-------------|
-| 1 | **Space utilization** | 内容占据 ≥85% 可用宽度，无大块空白区域 |
-| 2 | **Visual depth** | 卡片有阴影 + 彩色边框/渐变背景，至少2层视觉层次 |
-| 3 | **Color coding** | 并列卡片使用不同主题色（边框、标题、图标） |
-| 4 | **Typography scale** | 标题 ≥72px, 卡片标题 ≥40px, 正文 ≥32px, 图标 ≥56px |
-| 5 | **Complete animation** | 所有元素有入场动画，列表项有 stagger delay |
-| 6 | **Vertical centering** | 使用 `justifyContent: 'center'` 垂直居中 |
-
-### Video-Level Checklist (before render)
-
-| # | Check | Requirement |
-|---|-------|-------------|
-| 1 | **Layout variety** | ≥3 different layout types across the video (centered, grid, split, timeline, etc.) |
-| 2 | **Background alternation** | No 2 consecutive sections share the same background color |
-| 3 | **Unified color scheme** | Primary/secondary/accent colors used consistently throughout |
-| 4 | **Thumbnail readability** | Title text readable at ~300px thumbnail width |
-| 5 | **Hero impact** | Hero section has visual impact: large text + decorative elements or gradient |
-
-### TTS Quality Guidance
-
-| Technique | How |
-|-----------|-----|
-| **Section pauses** | Add an empty line before each `[SECTION:xxx]` marker in podcast.txt for natural breathing room |
-| **Pacing variation** | Slightly slower intro/outro (TTS_RATE="+0%"), normal middle sections (TTS_RATE="+5%") |
-| **Key sentence emphasis** | Use SSML `<emphasis>` tags on important sentences (Azure backend supports this) |
-
-## Visual Design Reference (recommended)
-
-以下尺寸来自已验证的生产视频，作为推荐参考。Claude 可根据内容需要灵活调整，但不得低于上方 Minimums。
-
-### Typography Scale (1080p design space)
-
-| Element | Recommended Size | Weight | When to Use |
-|---------|-----------------|--------|-------------|
-| **Hero Title** | 84–96px | 800 | Opening section, brand moment |
-| **Section Title** | 72–80px | 700–800 | Each section's main heading |
-| **Large Emphasis** | 48–72px | 600–700 | Key statements, conclusions, quotes |
-| **Subtitle / Description** | 36–44px | 500–600 | Under section titles, subheadings |
-| **Card Title** | 40–48px | 700 | Feature cards, list group headers |
-| **Body Text** | 32–40px | 500–600 | Paragraphs, list items, descriptions |
-| **Tags / Pills** | 28–36px | 600 | Labels, badges, categories |
-| **Icons** | 56–80px | — | Card icons, decorative elements |
-
-### Layout Patterns (recommended)
-
-| Pattern | Recommended |
-|---------|-------------|
-| **Card** | `borderRadius: 24–32px`, `padding: 48px 56px`, colored border (3px) + shadow |
-| **Section Padding** | `40px 60px` content, `40px 80px` hero |
-| **Grid Gap** | `28–40px` |
-| **Content Max Width** | `1500–1700px` for grids, `1400px` for centered blocks |
-| **Hero / Impact** | Full viewport centered with decorative icon, no excessive whitespace |
-| **2-column cards** | Use `display: grid; gridTemplateColumns: 1fr 1fr` with gap 36-56px |
-| **4+ items** | Use `display: grid; gridTemplateColumns: repeat(4, 1fr)` or `repeat(2, 1fr)` |
-| **Workflow/Steps** | Each step has unique color, circular number badge, colored border |
-
-### Color Coding Examples
-
-| Scenario | Approach |
-|----------|----------|
-| **Feature cards (4个)** | 绿/紫/橙/粉 - 每个卡片不同主题色的边框和标题 |
-| **Workflow steps** | 蓝→紫→绿→橙→粉→青 - 渐变色序列 |
-| **Intro cards (2个)** | 绿色系 vs 紫色系 - 对比色搭配 |
-| **Outro buttons** | 红/橙/黄/粉 - 每个动作独立配色 |
-
-> **Principle:** 这些是经过验证的参考值。关键是**填满空间、放大元素、丰富配色**，不要留下大块空白。
+> **Full design guide:** Read `DESIGN_GUIDE.md` when working on Step 9 (Remotion composition).
+> Claude MUST load `DESIGN_GUIDE.md` before creating or modifying any Remotion components.
 
 ---
 
@@ -317,9 +284,10 @@ project-root/                           # Remotion 项目根目录
 │   ├── {section}_screenshot.png        # 网页截图
 │   ├── {section}_logo.png              # Logo
 │   ├── {section}_web_{index}.{ext}     # 网络图片
-│   └── {section}_ai.png                # AI 生成图片
+│   └── {section}_ai.png               # AI 生成图片
 │
 ├── videos/{video-name}/                # 视频项目资产 (非 Remotion 代码)
+│   ├── workflow_state.json             # Workflow progress (auto-managed)
 │   ├── topic_definition.md             # Step 1: 主题定义
 │   ├── topic_research.md               # Step 2: 研究资料
 │   ├── podcast.txt                     # Step 4: 旁白脚本
@@ -330,7 +298,7 @@ project-root/                           # Remotion 项目根目录
 │   ├── timing.json                     # Step 8: 时间轴
 │   ├── thumbnail_*.png                 # Step 7: 封面
 │   ├── output.mp4                      # Step 10: Remotion 输出
-│   ├── video_with_bgm.mp4              # Step 11: 添加 BGM
+│   ├── video_with_bgm.mp4             # Step 11: 添加 BGM
 │   ├── final_video.mp4                 # Step 12: 最终输出
 │   └── bgm.mp3                         # 背景音乐
 │
@@ -372,7 +340,10 @@ rm -rf public/media/{name}
 
 ### Progress Tracking
 
-在 Step 1 开始时，使用 `TaskCreate` **按以下列表逐条创建 tasks**（不要合并或省略），每步开始时 `TaskUpdate` 为 `in_progress`，完成后标记 `completed`：
+在 Step 1 开始时：
+1. Create `videos/{name}/workflow_state.json` with initial state
+2. 使用 `TaskCreate` **按以下列表逐条创建 tasks**，每步开始时 `TaskUpdate` 为 `in_progress`，完成后标记 `completed`
+3. Each step completion updates BOTH `workflow_state.json` AND TaskUpdate
 
 ```
  1. Define topic direction (brainstorming) → topic_definition.md
@@ -388,8 +359,7 @@ rm -rf public/media/{name}
 11. Mix background music → video_with_bgm.mp4
 12. Add subtitles (optional) → final_video.mp4
 13. Complete publish info (Part 2) → chapter timestamps
-14. Verify output (resolution, sync, files)
-15. Cleanup temp files (optional)
+14. Verify output & cleanup
 ```
 
 ### Validation Checkpoints
@@ -403,11 +373,6 @@ rm -rf public/media/{name}
 - [ ] `output.mp4` resolution is 3840x2160
 - [ ] Audio-video sync verified
 - [ ] No black frames
-
-**After Step 12 (Final)**:
-- [ ] `final_video.mp4` resolution is 3840x2160
-- [ ] Subtitles display correctly (if added)
-- [ ] File size is reasonable
 
 ---
 
@@ -482,15 +447,6 @@ Before designing, assign each section a density tier based on content volume:
 | **Compact** | 4-6 | Feature grid, ecosystem |
 | **Dense** | 6+ | Data tables, detailed comparisons — smallest text |
 
-Example section plan with tiers:
-```
-hero: Impact (1 brand moment)
-features: Standard (3 feature cards)
-ecosystem: Compact (5 integration icons)
-performance: Standard (2 comparison bars)
-cta: Impact (1 call-to-action)
-```
-
 ### Topic Type Detection
 
 基于主题关键词自动检测类别并匹配偏好：
@@ -505,15 +461,10 @@ cta: Impact (1 call-to-action)
 
 **Claude behavior:** 检测到主题类别后，合并 `topic_patterns[category]` 到当前偏好。
 
-### Title Position Confirmation
+### Title Position
 
-使用 AskUserQuestion 询问用户标题位置偏好：
-
-| 位置 | 风格 | 适用场景 |
-|------|------|----------|
-| **顶部居中** | 视频风格 | 大多数视频内容 (推荐) |
-| **顶部左侧** | 演示风格 | 商务/正式内容 |
-| **全屏居中** | 英雄风格 | 仅用于 Hook/Hero 场景 |
+**Auto mode:** Use `top-center` (default for most video content).
+**Interactive mode:** Ask user to choose from: 顶部居中 (推荐) / 顶部左侧 / 全屏居中.
 
 **规则：** 单个视频内保持标题位置一致。
 
@@ -559,16 +510,6 @@ Create `videos/{name}/podcast.txt` with section markers:
 | 日期 | 2025-01-15 | 二零二五年一月十五日 |
 | 大数字 | 6144, 234324 | 六千一百四十四，二十三万四千三百二十四 |
 | 英文单位 | 128GB, 273GB/s | 一百二十八G，二百七十三GB每秒 |
-| 科学记数 | 1 PFLOPS | 一PFLOPS |
-
-**示例对比**:
-```text
-❌ 错误: 售价3999美元，内存128GB，去年10月15日开卖
-✅ 正确: 售价三千九百九十九美元，内存一百二十八GB，去年十月十五日开卖
-
-❌ 错误: DeepSeek R1 14B每秒2074个token
-✅ 正确: DeepSeek R1蒸馏版十四B每秒两千零七十四个token
-```
 
 **章节说明**:
 - **summary**: 纯内容总结，不包含互动引导
@@ -590,28 +531,19 @@ Report estimated duration to user. If too long (>12min) or too short (<3min), su
 
 ## Step 5: Collect Media Assets
 
-**首先询问用户**：是否需要使用 **imagen skill** 生成 AI 图片素材？
+**Auto mode:** Skip media collection (text-only animated sections). Proceed to Step 6.
+**Interactive mode:** Ask per-section media source (跳过 / 本地文件 / 网页截图 / 网络检索 / AI 生成).
 
-Claude 逐章节询问素材来源：
-1. **跳过** - 纯文字动效
-2. **本地文件** - 指定路径
-3. **网页截图** - Playwright 截图
-4. **网络检索** - 搜索下载
-   - **Unsplash** (https://unsplash.com) - 高质量免费图片
-   - **Pexels** (https://pexels.com) - 免费 CC0 图片
-   - **Pixabay** (https://pixabay.com) - 免费素材库
-   - **unDraw** (https://undraw.co) - 开源 SVG 插图
-   - **StockSnap** (https://stocksnap.io) - 高清免费图片
-   - **Simple Icons** (https://simpleicons.org) - 品牌 SVG 图标
-5. **AI 生成** - 使用 imagen skill（需用户确认）
-
-如果用户选择 AI 生成，调用 imagen skill 生成图片：
-```
-使用 imagen skill 生成：[图片描述]
-```
+If user mentioned AI images, screenshots, or specific assets in their initial request, collect those regardless of mode.
 
 素材保存到 `public/media/{video-name}/`，生成 `media_manifest.json`。
 
+**可用素材来源：**
+- **Unsplash** / **Pexels** / **Pixabay** — 免费图片
+- **unDraw** — 开源 SVG 插图
+- **Simple Icons** — 品牌 SVG 图标
+- **Playwright** — 网页截图
+- **imagen skill** — AI 生成图片
 
 ---
 
@@ -626,14 +558,11 @@ Claude 逐章节询问素材来源：
 
 ## Step 7: Generate Video Thumbnail
 
-**询问用户选择封面生成方式**:
-1. **Remotion生成** - 代码控制，风格与视频一致
-2. **AI文生图（imagen skill）** - 使用 imagen skill 生成创意封面
-3. **两者都生成** - 同时生成两种风格供选择
+**Auto mode:** Generate Remotion thumbnails (16:9 + 4:3).
+**Interactive mode:** Ask user to choose: Remotion生成 / AI文生图(imagen skill) / 两者都生成.
 
 ⚠️ **必须生成两个比例**: 16:9 (播放页) 和 4:3 (推荐流/动态)，缺一不可。9:16 仅在生成竖屏视频时需要。
 
-**Remotion 渲染封面**:
 ```bash
 npx remotion still src/remotion/index.ts Thumbnail16x9 videos/{name}/thumbnail_remotion_16x9.png
 npx remotion still src/remotion/index.ts Thumbnail4x3 videos/{name}/thumbnail_remotion_4x3.png
@@ -641,58 +570,26 @@ npx remotion still src/remotion/index.ts Thumbnail4x3 videos/{name}/thumbnail_re
 npx remotion still src/remotion/index.ts Thumbnail9x16 videos/{name}/thumbnail_remotion_9x16.png
 ```
 
-**使用 imagen skill 生成封面**:
-```
-使用 imagen skill 生成视频封面：
-- 主题：[视频主题]
-- 风格：科技感/简约/活泼
-- 比例：16:9 和 4:3
-```
-
 ---
 
 ## Step 8: Generate TTS Audio
 
-**偏好应用:** 从 `user_prefs.tts` 读取：
-- `backend` → 设置 TTS_BACKEND 环境变量
-- `rate` → 设置 TTS_RATE 环境变量
-- `voice` → 设置 EDGE_TTS_VOICE（如使用 edge 后端）
+**偏好应用:** 从 `user_prefs.tts` 读取 backend/rate/voice 设置。
 
 ```bash
 cp ~/.claude/skills/video-podcast-maker/generate_tts.py .
 
-# Dry run: estimate duration without calling TTS API
-python3 generate_tts.py --input videos/{name}/podcast.txt --output-dir videos/{name} --dry-run
-
-# Azure TTS (default, requires AZURE_SPEECH_KEY)
+# Primary command (backend from user_prefs or env)
 python3 generate_tts.py --input videos/{name}/podcast.txt --output-dir videos/{name}
-
-# CosyVoice backend (requires DASHSCOPE_API_KEY)
-TTS_BACKEND=cosyvoice python3 generate_tts.py --input videos/{name}/podcast.txt --output-dir videos/{name}
-
-# Edge TTS (free, no API key required)
-TTS_BACKEND=edge python3 generate_tts.py --input videos/{name}/podcast.txt --output-dir videos/{name}
 
 # Resume from breakpoint (skip already synthesized parts)
 python3 generate_tts.py --input videos/{name}/podcast.txt --output-dir videos/{name} --resume
 
-# Control speech rate (default: +5%)
-TTS_RATE="+15%" python3 generate_tts.py --input videos/{name}/podcast.txt --output-dir videos/{name}
-
-# Override Edge TTS voice
-EDGE_TTS_VOICE="zh-CN-YunxiNeural" TTS_BACKEND=edge python3 generate_tts.py --input videos/{name}/podcast.txt --output-dir videos/{name}
+# Dry run (estimate duration, no API call)
+python3 generate_tts.py --input videos/{name}/podcast.txt --output-dir videos/{name} --dry-run
 ```
 
-### Environment Variables (TTS)
-
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `TTS_BACKEND` | `azure` | Backend: `azure`, `cosyvoice`, or `edge` (free) |
-| `TTS_RATE` | `+5%` | Speech rate: `-50%` to `+200%` |
-| `EDGE_TTS_VOICE` | `zh-CN-XiaoxiaoNeural` | Voice for Edge TTS backend |
-| `AZURE_SPEECH_KEY` | - | Required for Azure backend |
-| `AZURE_SPEECH_REGION` | `eastasia` | Azure region |
-| `DASHSCOPE_API_KEY` | - | Required for CosyVoice backend |
+Backend selection via env: `TTS_BACKEND=azure|cosyvoice|edge`, rate via `TTS_RATE="+5%"`.
 
 ### 多音字/发音校正 (SSML Phoneme)
 
@@ -713,22 +610,17 @@ TTS 脚本支持三种方式校正发音，优先级从高到低：
 }
 ```
 
-**3. 内置词典** - 预置常见多音字（自动应用）：
-
-| 词语 | 拼音 | 说明 |
-|------|------|------|
-| 执行/运行/并行 | xíng | "行"作"执行"义 |
-| 一行命令/代码行 | háng | "行"作"行列"义 |
-| 重做/重新/重复 | chóng | "重"作"重复"义 |
-
-**拼音格式**: 使用带声调符号的拼音（如 `zhí xíng qì`），脚本会自动转换为 Azure SAPI 格式。
+**3. 内置词典** - 预置常见多音字（自动应用）
 
 **Outputs**: `podcast_audio.wav`, `podcast_audio.srt`, `timing.json`
 
 **timing.json `label` field**: Each section gets a human-readable label extracted from the first line of its content (before first punctuation, max 10 chars). This is displayed in the `ChapterProgressBar` component. Example: `[SECTION:hero]` with content "大家好，欢迎来到本期视频" → `label: "大家好"`. Silent sections use the section name as label.
+
 ---
 
 ## Step 9: Create Remotion Composition + Studio Preview
+
+**Claude MUST read `DESIGN_GUIDE.md` before this step.**
 
 **偏好应用:** 从 `user_prefs.visual` 覆盖 `defaultVideoProps`：
 - `typography.*` × `scalePreference` → 应用字号缩放
@@ -739,8 +631,6 @@ TTS 脚本支持三种方式校正发音，优先级从高到低：
 ```bash
 cp videos/{name}/podcast_audio.wav videos/{name}/timing.json public/
 ```
-
-使用 `timing.json` 同步。
 
 ### 标准视频模板（必须遵循）
 
@@ -761,21 +651,10 @@ import { ComparisonCard, CodeBlock, FeatureGrid } from "./components";
 
 模板使用 `@remotion/transitions` 的 `TransitionSeries` 实现章节间平滑过渡。
 
-**Studio UI 可配置项：**
-
 | 属性 | 默认值 | 说明 |
 |------|--------|------|
 | `transitionType` | `fade` | 转场类型：fade / slide / wipe / none |
 | `transitionDuration` | `15` (0.5秒) | 转场时长（帧数） |
-
-**可用转场效果：**
-
-| 类型 | 效果 | 适用场景 |
-|------|------|----------|
-| `fade` | 淡入淡出 | 通用，最安全 |
-| `slide` | 从右侧滑入 | 步骤推进、教程类 |
-| `wipe` | 从右侧擦除 | 揭示、转折 |
-| `none` | 硬切（无转场） | 快节奏内容 |
 
 安装依赖（项目中执行）：
 ```bash
@@ -791,50 +670,27 @@ npm install @remotion/transitions
 | **进度指示** | 当前章节内显示白色进度条，底部显示总进度 |
 | **4K 缩放** | 内容区域使用 `scale(2)` 从 1920×1080 放大到 3840×2160 |
 
-**ChapterProgressBar 默认启用**，提供用户导航和进度反馈。如不需要，可在创建视频组件时告知 Claude 关闭。
-
 ### 一键三连片尾
 
-**Claude behavior:** 使用 AskUserQuestion 询问用户片尾一键三连的实现方式：
-
-> "片尾一键三连动画如何实现？"
->
-> - **使用预制 MP4 动画（推荐）** — 直接嵌入专业制作的一键三连动画视频，黑白两版可选
-> - **Remotion 代码生成** — 用 Remotion 组件渲染自定义一键三连动画
-
-**预制 MP4 用法：**
+**Auto mode:** Use pre-made MP4 animation (white for light theme, black for dark theme).
+**Interactive mode:** Ask user to choose: 预制 MP4 动画 (推荐) / Remotion 代码生成.
 
 ```bash
-# 复制到项目 public 目录
+# Copy to project public directory
 cp ~/.claude/skills/video-podcast-maker/assets/bilibili-triple-white.mp4 public/media/{video-name}/
-# 或黑色背景版本
+# Or black background version
 cp ~/.claude/skills/video-podcast-maker/assets/bilibili-triple-black.mp4 public/media/{video-name}/
 ```
 
 ```tsx
-// 在 outro section 中使用 <OffthreadVideo> 嵌入
+// In outro section, embed with <OffthreadVideo>
 import { OffthreadVideo, staticFile } from "remotion";
-
-// 白色背景版
 <OffthreadVideo src={staticFile("media/{video-name}/bilibili-triple-white.mp4")} />
-// 黑色背景版
-<OffthreadVideo src={staticFile("media/{video-name}/bilibili-triple-black.mp4")} />
 ```
-
-可用素材：
-| 文件 | 背景 | 适用场景 |
-|------|------|----------|
-| `bilibili-triple-white.mp4` | 白色 | 默认白色主题视频 |
-| `bilibili-triple-black.mp4` | 黑色 | 深色主题视频 |
 
 ### Studio Preview & Iterative Refinement
 
-**Claude behavior:** 使用 AskUserQuestion 询问用户：
-
-> "建议先启动 Remotion Studio 预览，迭代修改满意后再渲染最终 4K 视频，可以节省大量渲染时间。是否启动预览？"
->
-> - **是（推荐）** — 启动 Studio 预览，迭代修改，满意后再执行渲染
-> - **否** — 跳过预览，直接渲染 4K 视频
+**Both modes:** Always launch Studio preview and iterate. This is the essential quality gate.
 
 ```bash
 npx remotion studio src/remotion/index.ts
@@ -844,80 +700,13 @@ npx remotion studio src/remotion/index.ts
 
 1. Launch `remotion studio` (real-time preview, hot reload)
 2. **Ask user:** "预览效果满意吗？如果需要调整，请描述修改意见（例如：标题太小、背景换深色、动画太快）"
-   - **Options:**
-     - **满意，继续渲染** → proceed to Step 10
-     - **需要修改** → user provides feedback in natural language
-3. Apply user's modifications to component code (Studio hot reloads automatically)
-4. **Repeat from step 2** until user is satisfied
-
-**Common modification examples:**
-
-| User Feedback | Action |
-|---------------|--------|
-| "标题太小" | Increase title fontSize |
-| "背景换成深色" | Change backgroundColor |
-| "动画太快" | Adjust animation duration/spring config |
-| "章节之间太突兀" | Add fade transition between sections |
-| "进度条太粗" | Reduce progressBarHeight |
-| "发音不对" | Fix in `podcast.txt` or `phonemes.json`, re-run `generate_tts.py`, copy to `public/` |
-
-> **Note:** Studio supports hot reload — code changes reflect instantly without restarting. Pronunciation fixes require re-running TTS (Step 8) and copying updated files to `public/`.
-
----
-
-## Step 9.5: Learn from Modifications
-
-**Claude behavior:** Studio 预览迭代完成后执行
-
-### 9.5.1 检测修改
-
-对比 Studio 预览开始时和结束时的值，识别用户手动调整：
-
-| 属性类别 | 检测项 |
-|---------|--------|
-| 字体 | titleSize, subtitleSize, bodySize 变化 |
-| 颜色 | primaryColor, backgroundColor 变化 |
-| 布局 | 进度条开关、转场效果变化 |
-
-### 9.5.2 渐进学习
-
-- **首次修改**：仅当前视频生效，不更新全局偏好
-- **重复修改**（≥2次相同方向）：询问用户是否设为默认
-
-```
-"检测到您连续 [N] 次调大标题字号（从 80 到 96），是否将 96px 设为默认值？"
-- 是（推荐）→ 更新 user_prefs.json
-- 否 → 仅当前视频使用
-```
-
-### 9.5.3 显式偏好捕获
-
-在对话中检测以下表达并学习：
-
-| 用户表达模式 | 学习动作 |
-|-------------|---------|
-| "以后都用这个颜色" | 保存当前 primaryColor 到 global |
-| "科技类视频用这个风格" | 保存到 topic_patterns.tech |
-| "记住这个设置" | 保存当前所有修改到 global |
-
-### 9.5.4 更新偏好文件
-
-学习到新偏好后，更新 `user_prefs.json` 并添加 `learning_history` 记录：
-
-```json
-{
-  "date": "2026-03-15",
-  "source": "implicit",
-  "change": { "path": "global.visual.typography.heroTitle", "from": 80, "to": 96 },
-  "context": "用户在 Studio 中连续 3 次调大标题"
-}
-```
+   - **满意，继续渲染** → proceed to Step 10
+   - **需要修改** → apply changes, Studio hot reloads, repeat
+3. Pronunciation fixes require re-running TTS (Step 8) and copying updated files to `public/`.
 
 ---
 
 ## Step 10: Render Video
-
-> Use `npx remotion studio` for preview, then render directly for final output.
 
 ```bash
 npx remotion render src/remotion/index.ts CompositionId videos/{name}/output.mp4 --video-bitrate 16M
@@ -931,21 +720,12 @@ ffprobe -v quiet -show_entries stream=width,height -of csv=p=0 videos/{name}/out
 
 ### Optional: Render Vertical Highlight Clip (9:16)
 
-Generate a 60-90 second vertical video for B站竖屏/短视频, using the same audio and components.
-
 ```bash
-# Render vertical version (uses MyVideoVertical composition)
 npx remotion render src/remotion/index.ts MyVideoVertical videos/{name}/output_vertical.mp4 --video-bitrate 16M
-
-# Render 9:16 thumbnail
 npx remotion still src/remotion/index.ts Thumbnail9x16 videos/{name}/thumbnail_remotion_9x16.png
-
-# Verify
-ffprobe -v quiet -show_entries stream=width,height -of csv=p=0 videos/{name}/output_vertical.mp4
-# 期望: 2160,3840
 ```
 
-The vertical composition reuses the same Video.tsx component with `orientation: "vertical"`. All section layouts, components (ComparisonCard, FeatureGrid, etc.), and Scale4K automatically adapt for 9:16.
+The vertical composition reuses Video.tsx with `orientation: "vertical"`. All components auto-adapt for 9:16.
 
 ---
 
@@ -963,18 +743,16 @@ ffmpeg -y \
   videos/{name}/video_with_bgm.mp4
 ```
 
+> **BGM options & troubleshooting:** See `TROUBLESHOOTING.md`.
+
 ---
 
-## Step 12: Add Subtitles (可选)
+## Step 12: Add Subtitles
 
-**Claude behavior:** Ask before skipping: "需要烧录字幕吗？字幕可以提高视频的可访问性。"
+**Auto mode:** Skip subtitles — copy `video_with_bgm.mp4` as `final_video.mp4`.
+**Interactive mode:** Ask user: "需要烧录字幕吗？字幕可以提高视频的可访问性。"
 
-如不需要字幕：
-```bash
-cp videos/{name}/video_with_bgm.mp4 videos/{name}/final_video.mp4
-```
-
-**添加字幕（纯白背景用深色字幕）**:
+If user requested subtitles (any mode):
 ```bash
 ffmpeg -y -i videos/{name}/video_with_bgm.mp4 \
   -vf "subtitles=videos/{name}/podcast_audio.srt:force_style='FontName=PingFang SC,FontSize=14,PrimaryColour=&H00333333,OutlineColour=&H00FFFFFF,Bold=1,Outline=2,Shadow=0,MarginV=20'" \
@@ -982,9 +760,10 @@ ffmpeg -y -i videos/{name}/video_with_bgm.mp4 \
   -c:a copy videos/{name}/final_video.mp4
 ```
 
-**关键参数**:
-- `-s 3840x2160` - 强制 4K
-- `-crf 18 -preset slow` - 高质量编码
+If skipping subtitles:
+```bash
+cp videos/{name}/video_with_bgm.mp4 videos/{name}/final_video.mp4
+```
 
 ---
 
@@ -1003,11 +782,9 @@ ffmpeg -y -i videos/{name}/video_with_bgm.mp4 \
 
 ---
 
-## Step 14: Verify Output
+## Step 14: Verify Output & Cleanup
 
-视频完成后，执行以下验证：
-
-### 14.1 文件存在性检查
+### 14.1 Verification
 
 ```bash
 VIDEO_DIR="videos/{name}"
@@ -1015,244 +792,45 @@ echo "=== 文件检查 ==="
 for f in podcast.txt podcast_audio.wav podcast_audio.srt timing.json output.mp4 final_video.mp4; do
   [ -f "$VIDEO_DIR/$f" ] && echo "✓ $f" || echo "✗ $f 缺失"
 done
-```
 
-### 14.2 技术指标验证
-
-```bash
 echo "=== 技术指标 ==="
-# 分辨率
 RES=$(ffprobe -v quiet -select_streams v:0 -show_entries stream=width,height -of csv=p=0 "$VIDEO_DIR/final_video.mp4")
 [ "$RES" = "3840,2160" ] && echo "✓ 分辨率: 3840x2160 (4K)" || echo "✗ 分辨率: $RES (非4K)"
-
-# 时长
 DUR=$(ffprobe -v quiet -show_entries format=duration -of csv=p=0 "$VIDEO_DIR/final_video.mp4" | cut -d. -f1)
 echo "✓ 时长: ${DUR}s"
-
-# 编码
-CODEC=$(ffprobe -v quiet -select_streams v:0 -show_entries stream=codec_name -of csv=p=0 "$VIDEO_DIR/final_video.mp4")
-echo "✓ 视频编码: $CODEC"
-
-# 文件大小
 SIZE=$(ls -lh "$VIDEO_DIR/final_video.mp4" | awk '{print $5}')
 echo "✓ 文件大小: $SIZE"
 ```
 
-### 14.3 验证报告模板
+### 14.2 Cleanup
 
-完成验证后，向用户报告：
-
-```
-=== 验证完成 ===
-✓ 文件完整性: 6/6
-✓ 分辨率: 3840x2160
-✓ 时长: XXs
-✓ 编码: h264
-✓ 大小: XXX MB
-
-是否需要清理临时文件？(Step 15)
-```
-
-### 14.4 满意度反馈
-
-**Claude behavior:** 验证完成后询问：
-
-> "这个视频的整体效果满意吗？"
->
-> - **满意** → 记录正向反馈，强化当前偏好
-> - **需要调整** → 收集具体反馈，更新偏好
-
-如用户反馈"文字还是有点小"，增加 `scalePreference` 并记录到 `learning_history`。
-
----
-
-## Step 15: Cleanup (可选)
-
-**Claude behavior:** Ask before skipping: "要清理临时文件吗？可以释放磁盘空间，但会删除中间产物。"
-
-### 15.1 列出临时文件
-
-执行前，先向用户展示将被删除的文件：
+**Auto mode:** Auto-clean temp files, report what was removed.
+**Interactive mode:** List files and ask for confirmation before deleting.
 
 ```bash
 VIDEO_DIR="videos/{name}"
-echo "=== 将删除的临时文件 ==="
-ls -lh "$VIDEO_DIR"/part_*.wav 2>/dev/null | awk '{print $9, "(" $5 ")"}'
-ls -lh "$VIDEO_DIR"/concat_list.txt 2>/dev/null | awk '{print $9, "(" $5 ")"}'
-ls -lh "$VIDEO_DIR"/output.mp4 2>/dev/null | awk '{print $9, "(" $5 ")"}'
-ls -lh "$VIDEO_DIR"/video_with_bgm.mp4 2>/dev/null | awk '{print $9, "(" $5 ")"}'
-echo ""
-echo "=== 将保留的文件 ==="
-ls -lh "$VIDEO_DIR"/final_video.mp4 "$VIDEO_DIR"/podcast_audio.wav "$VIDEO_DIR"/podcast_audio.srt "$VIDEO_DIR"/timing.json "$VIDEO_DIR"/podcast.txt 2>/dev/null | awk '{print $9, "(" $5 ")"}'
-```
-
-### 15.2 用户确认
-
-**询问用户**:
-> 以上临时文件将被删除，保留最终成品和源文件。是否继续？
-
-### 15.3 执行清理
-
-用户确认后执行：
-
-```bash
-VIDEO_DIR="videos/{name}"
-rm -f "$VIDEO_DIR"/part_*.wav
-rm -f "$VIDEO_DIR"/concat_list.txt
-rm -f "$VIDEO_DIR"/output.mp4
-rm -f "$VIDEO_DIR"/video_with_bgm.mp4
+rm -f "$VIDEO_DIR"/part_*.wav "$VIDEO_DIR"/concat_list.txt
+rm -f "$VIDEO_DIR"/output.mp4 "$VIDEO_DIR"/video_with_bgm.mp4
+rm -f public/podcast_audio.wav public/timing.json public/media_manifest.json
+rm -rf public/media/{name}
 echo "✓ 临时文件已清理"
 ```
 
-### 15.4 清理后文件结构
+### 14.3 Final Report
 
 ```
-videos/{name}/
-├── final_video.mp4      # 最终成品
-├── podcast.txt          # 原始脚本
-├── podcast_audio.wav    # 音频
-├── podcast_audio.srt    # 字幕
-├── timing.json          # 时间轴
-├── topic_research.md    # 研究资料
-├── publish_info.md      # 发布信息
-├── thumbnail_*_16x9.png # 封面图 16:9 (必须)
-└── thumbnail_*_4x3.png  # 封面图 4:3 (必须)
+=== 视频制作完成 ===
+✓ 文件: final_video.mp4
+✓ 分辨率: 3840x2160 (4K)
+✓ 时长: XXs
+✓ 大小: XXX MB
+✓ 封面: thumbnail_remotion_16x9.png, thumbnail_remotion_4x3.png
+✓ 发布信息: publish_info.md
+✓ 临时文件已清理
 ```
 
 ---
 
-## Background Music Options
+## Troubleshooting & Preferences
 
-Available at `~/.claude/skills/video-podcast-maker/assets/`:
-- `perfect-beauty-191271.mp3` - Upbeat, positive
-- `snow-stevekaldes-piano-397491.mp3` - Calm piano
-
----
-
-## Preference Commands
-
-用户可在对话中随时使用以下命令管理偏好：
-
-### 查看偏好
-
-```
-用户: "显示我的偏好设置"
-```
-
-Claude 输出：
-
-```
-=== 当前偏好设置 ===
-
-【视觉】
-  主题: light
-  主色: #4f6ef7
-  字号缩放: 1.0x
-  标题位置: top-center
-
-【TTS】
-  后端: azure
-  语速: +5%
-  声音: XiaoxiaoNeural
-
-【内容】
-  风格: professional
-  详细度: balanced
-  章节数: 5
-
-【主题模板】
-  tech: 蓝色专业风
-  finance: 深色专业风
-  lifestyle: 粉红轻松风
-
-学习记录: 3 条
-```
-
-### 重置偏好
-
-```
-用户: "重置偏好" / "清除学习记录"
-```
-
-Claude 确认后执行：
-
-```bash
-cp ~/.claude/skills/video-podcast-maker/user_prefs.template.json ~/.claude/skills/video-podcast-maker/user_prefs.json
-echo "✓ 偏好已重置为默认值"
-```
-
-### 保存当前设置
-
-```
-用户: "把这个视频的设置保存为科技类默认"
-```
-
-Claude 提取当前视频的 visual/tts/content 设置，更新 `topic_patterns.tech`。
-
-### 手动设置偏好
-
-```
-用户: "把默认语速设为 +10%"
-用户: "以后标题都用 100px"
-用户: "深色主题设为默认"
-```
-
-Claude 直接更新 `user_prefs.json` 对应字段。
-
----
-
-## Troubleshooting (常见问题)
-
-### TTS: Azure API 密钥错误
-
-**症状**: `Error: Authentication failed`, `HTTP 401 Unauthorized`
-
-**解决方案**:
-```bash
-# 检查环境变量
-echo $AZURE_SPEECH_KEY
-echo $AZURE_SPEECH_REGION
-
-# 设置环境变量
-export AZURE_SPEECH_KEY="your-key-here"
-export AZURE_SPEECH_REGION="eastasia"
-```
-
----
-
-### FFmpeg: BGM 混音问题
-
-**症状**: BGM 音量过大盖住人声，BGM 结尾突然中断
-
-**解决方案**:
-```bash
-# 基础混音（人声为主，BGM 降低）
-ffmpeg -i voice.mp3 -i bgm.mp3 \
-  -filter_complex "[0:a]volume=1.0[voice];[1:a]volume=0.15[bgm];[voice][bgm]amix=inputs=2:duration=first" \
-  -ac 2 output.mp3
-
-# 带淡入淡出的混音
-ffmpeg -i voice.mp3 -i bgm.mp3 \
-  -filter_complex "
-    [0:a]volume=1.0[voice];
-    [1:a]volume=0.15,afade=t=in:st=0:d=2,afade=t=out:st=58:d=2[bgm];
-    [voice][bgm]amix=inputs=2:duration=first
-  " output.mp3
-```
-
----
-
-### 快速检查清单
-
-**渲染前检查**:
-- [ ] 所有素材文件存在
-- [ ] timing.json 格式正确
-- [ ] 音频时长与 timing 匹配
-- [ ] 环境变量已设置
-- [ ] 磁盘空间充足 (>20GB for 4K)
-
-**渲染后检查**:
-- [ ] 视频时长正确
-- [ ] 音画同步
-- [ ] 字幕显示正常
-- [ ] 无黑屏/空白帧
+> **Full reference:** Read `TROUBLESHOOTING.md` when encountering errors, when user asks about preferences or BGM options.
