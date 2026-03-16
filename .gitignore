@@ -31,6 +31,10 @@ __pycache__/
 part_*.wav
 concat_list.txt
 
+# Internal docs (not for users)
+docs/
+
 # Worktrees
 .worktrees/
 logs/
+public/
