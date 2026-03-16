@@ -167,10 +167,9 @@ Automated pipeline to create professional **Bilibili (B站) 横屏知识视频**
 
 ### Auto Mode (Default)
 
-Runs the full pipeline with sensible defaults. **Only 2 mandatory prompts:**
+Runs the full pipeline with sensible defaults. **Only 1 mandatory stop:**
 
-1. **Step 1**: Confirm topic direction (required — determines everything)
-2. **Step 9**: Studio preview feedback loop (required — visual quality matters)
+1. **Step 10**: After preview render (720p) — user reviews preview.mp4, confirms before 4K render
 
 All other decisions use these defaults:
 
@@ -180,6 +179,7 @@ All other decisions use these defaults:
 | Step 5 | Media assets | Skip (text-only animations) |
 | Step 7 | Thumbnail method | Remotion-generated (16:9 + 4:3) |
 | Step 9 | Outro animation | Pre-made MP4 (white for light theme, black for dark) |
+| Step 9 | Preview method | Preview render (720p MP4, Claude self-validates) |
 | Step 12 | Subtitles | Skip |
 | Step 15 | Cleanup | Auto-clean temp files |
 
@@ -410,7 +410,9 @@ fi
 
 ## Step 1: Define Topic Direction
 
-使用 `brainstorming` skill 确认：
+**Auto mode:** Infer all decisions from the user's topic description. Use sensible defaults (目标受众: general, 视频定位: 科普入门, 视频风格: 轻松专业, 时长: 中 3-7分钟). Save directly to `videos/{name}/topic_definition.md` without prompting.
+
+**Interactive mode:** 使用 `brainstorming` skill 逐项确认：
 1. **目标受众**: 技术开发者 / 普通用户 / 学生 / 专业人士
 2. **视频定位**: 科普入门 / 深度解析 / 新闻速报 / 教程实操
 3. **内容范围**: 历史背景 / 技术原理 / 使用方法 / 对比评测
@@ -688,15 +690,15 @@ import { OffthreadVideo, staticFile } from "remotion";
 <OffthreadVideo src={staticFile("media/{video-name}/bilibili-triple-white.mp4")} />
 ```
 
-### Studio Preview & Iterative Refinement
+### Preview & Quality Gate
 
-**Both modes:** Always launch Studio preview and iterate. This is the essential quality gate.
+**Auto mode:** Skip Studio. Proceed directly to Step 10 where a preview render (720p) is generated and Claude self-validates (duration, no black frames, audio sync). If validation passes, proceed to 4K automatically.
+
+**Interactive mode:** Launch Studio for iterative visual refinement:
 
 ```bash
 npx remotion studio src/remotion/index.ts
 ```
-
-**Iterative feedback loop:**
 
 1. Launch `remotion studio` (real-time preview, hot reload)
 2. **Ask user:** "预览效果满意吗？如果需要调整，请描述修改意见（例如：标题太小、背景换深色、动画太快）"
@@ -708,19 +710,28 @@ npx remotion studio src/remotion/index.ts
 
 ## Step 10: Render Video
 
-### Preview Render (recommended before 4K)
+### Preview Render — The Only Mandatory Stop (Auto mode)
 
-Quick 720p render (~10x faster than 4K) to validate full video end-to-end (audio sync, transitions, timing):
+**Auto mode:** Render a 720p preview (~10x faster than 4K), then **stop and ask user to confirm**:
 
 ```bash
 npx remotion render src/remotion/index.ts CompositionId videos/{name}/preview.mp4 --scale 0.33 --crf 28
 ```
 
-This catches issues that Studio preview may miss (e.g., audio sync drift, transition timing across sections, final frame count). Review `preview.mp4`, then proceed to 4K if satisfied.
+```bash
+# Report preview info
+DUR=$(ffprobe -v quiet -show_entries format=duration -of csv=p=0 videos/{name}/preview.mp4 | cut -d. -f1)
+SIZE=$(ls -lh videos/{name}/preview.mp4 | awk '{print $5}')
+echo "Preview: ${DUR}s, ${SIZE}"
+```
 
-> **When to use Studio vs preview render:**
-> - **Studio** — iterating on visual design (layout, colors, animations). Real-time, hot reload.
-> - **Preview render** — validating the complete video (audio sync, transitions, pacing). Fast MP4 output.
+**Ask user:** "720p 预览已生成：`videos/{name}/preview.mp4`（时长 Xs）。请查看后确认："
+- **确认，渲染4K** → proceed to 4K render
+- **需要修改** → user describes changes, Claude applies, re-render preview, repeat
+
+This is the **only stop** in auto mode. Everything before this runs without prompting.
+
+**Interactive mode:** Studio preview already done in Step 9. Skip preview render, go directly to 4K.
 
 ### 4K Render
 
