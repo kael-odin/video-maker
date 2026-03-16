@@ -708,6 +708,71 @@ npx remotion studio src/remotion/index.ts
 
 ---
 
+## Step 9.5: Visual QA (Automated)
+
+**Claude behavior:** Automatically run after Step 9 composition is created, before Step 10 render. No user prompt needed — Claude self-inspects.
+
+### Render Section Stills
+
+Read `timing.json` to get each section's midpoint frame, then render a still for each:
+
+```bash
+# For each section in timing.json, render a still at its midpoint
+# midpoint_frame = start_frame + (duration_frames / 2)
+npx remotion still src/remotion/index.ts CompositionId videos/{name}/qa_{section_name}.png --frame {midpoint_frame}
+```
+
+Example with 5 sections:
+```bash
+npx remotion still src/remotion/index.ts CompositionId videos/{name}/qa_hero.png --frame 184
+npx remotion still src/remotion/index.ts CompositionId videos/{name}/qa_features.png --frame 1566
+npx remotion still src/remotion/index.ts CompositionId videos/{name}/qa_demo.png --frame 2976
+npx remotion still src/remotion/index.ts CompositionId videos/{name}/qa_summary.png --frame 4500
+npx remotion still src/remotion/index.ts CompositionId videos/{name}/qa_outro.png --frame 5800
+```
+
+### Visual Inspection
+
+**Claude reads each still image** (multimodal) and checks for:
+
+| Check | What to Look For | Severity |
+|-------|-----------------|----------|
+| **Blank frame** | All-white or all-black — section has no content | FAIL |
+| **Text size** | Any text too small to read at 1080p | FAIL |
+| **Space utilization** | Content uses <50% of screen, large empty areas | WARN |
+| **Text overflow** | Text clipped at edges or overlapping other elements | FAIL |
+| **Color contrast** | Text unreadable against background | FAIL |
+| **Layout alignment** | Elements visually misaligned or overlapping | WARN |
+| **Visual variety** | Two consecutive sections look nearly identical | WARN |
+
+### QA Report
+
+Claude generates a brief report:
+
+```
+=== Visual QA ===
+✓ hero: Large title centered, good contrast
+✓ features: 3 cards with distinct colors, well-spaced
+⚠ demo: Content only fills ~60% width — consider wider layout
+✓ summary: Clean layout, text readable
+✓ outro: Triple-click animation visible
+
+Result: 4/5 PASS, 1 WARNING
+```
+
+**On FAIL:** Auto-fix if possible (e.g., increase font size, adjust layout), re-render still, re-check.
+**On WARN:** Note in report, proceed (user can address during preview review).
+**All PASS:** Proceed to Step 10 silently.
+
+### Cleanup
+
+After QA passes, remove stills:
+```bash
+rm -f videos/{name}/qa_*.png
+```
+
+---
+
 ## Step 10: Render Video
 
 ### Preview Render — The Only Mandatory Stop (Auto mode)
