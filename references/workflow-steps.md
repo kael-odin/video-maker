@@ -4,9 +4,9 @@
 
 ---
 
-## Step 0: Load User Preferences
+## Startup: Load User Preferences
 
-**Claude behavior:** Auto-execute, no user interaction needed.
+**Claude behavior:** Auto-execute before Step 1, no user interaction needed.
 
 1. Check if `user_prefs.json` exists in `${CLAUDE_SKILL_DIR}`
 2. If not, copy from `${CLAUDE_SKILL_DIR}/user_prefs.template.json`
@@ -40,7 +40,7 @@ Say 'show preferences' to see details."
 
 **Auto mode:** Infer all decisions from the user's topic description. Use sensible defaults (audience: general, style: educational intro, tone: professional-casual, duration: medium 3-7min). Save directly to `videos/{name}/topic_definition.md`.
 
-**Interactive mode:** Confirm each item using `brainstorming` skill:
+**Interactive mode:** Confirm each item (use `brainstorming` skill if available, otherwise ask directly):
 1. **Target audience**: developers / general / students / professionals
 2. **Video style**: educational intro / deep analysis / news brief / hands-on tutorial
 3. **Content scope**: background / technical principles / usage / comparison
@@ -150,7 +150,7 @@ Create `videos/{name}/podcast.txt` with section markers:
 After writing `podcast.txt`, automatically run:
 
 ```bash
-python3 generate_tts.py --input videos/{name}/podcast.txt --output-dir videos/{name} --dry-run
+python3 ${CLAUDE_SKILL_DIR}/generate_tts.py --input videos/{name}/podcast.txt --output-dir videos/{name} --dry-run
 ```
 
 Report estimated duration. If >12min or <3min, suggest adjustments.
@@ -205,16 +205,14 @@ npx remotion still src/remotion/index.ts Thumbnail9x16 videos/{name}/thumbnail_r
 **Preference application:** Read backend/rate/voice from `user_prefs.tts`.
 
 ```bash
-cp ${CLAUDE_SKILL_DIR}/generate_tts.py .
-
 # Primary command (backend from user_prefs or env)
-python3 generate_tts.py --input videos/{name}/podcast.txt --output-dir videos/{name}
+python3 ${CLAUDE_SKILL_DIR}/generate_tts.py --input videos/{name}/podcast.txt --output-dir videos/{name}
 
 # Resume from breakpoint
-python3 generate_tts.py --input videos/{name}/podcast.txt --output-dir videos/{name} --resume
+python3 ${CLAUDE_SKILL_DIR}/generate_tts.py --input videos/{name}/podcast.txt --output-dir videos/{name} --resume
 
 # Dry run (estimate duration)
-python3 generate_tts.py --input videos/{name}/podcast.txt --output-dir videos/{name} --dry-run
+python3 ${CLAUDE_SKILL_DIR}/generate_tts.py --input videos/{name}/podcast.txt --output-dir videos/{name} --dry-run
 ```
 
 Backend selection via env: `TTS_BACKEND=azure|cosyvoice|edge`, rate via `TTS_RATE="+5%"`.
@@ -337,9 +335,9 @@ npx remotion studio src/remotion/index.ts
 
 ---
 
-## Step 9.5: Visual QA (Automated)
+### Visual QA (Automated, part of Step 9)
 
-**Claude behavior:** Auto-run after Step 9, before Step 10. No user prompt needed.
+**Claude behavior:** Auto-run after composition is created, before Step 10. No user prompt needed.
 
 ### Render Section Stills
 

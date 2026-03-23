@@ -41,6 +41,109 @@ ffmpeg -i voice.mp3 -i bgm.mp3 \
 
 ---
 
+### Remotion: Render Out of Memory
+
+**Symptoms**: `FATAL ERROR: CALL_AND_RETRY_LAST Allocation failed`, render crashes at ~50%
+
+**Solution**:
+```bash
+# Reduce parallelism
+npx remotion render ... --concurrency 1
+
+# Or increase Node memory
+NODE_OPTIONS="--max-old-space-size=8192" npx remotion render ...
+```
+
+---
+
+### Remotion: Black Screen / No Content
+
+**Symptoms**: Output video is all black or all white, no visual elements
+
+**Solution**:
+1. Verify `timing.json` exists in `public/` and has correct `start_frame`/`duration_frames`
+2. Check composition ID matches: `npx remotion render ... CompositionId` must match Root.tsx registration
+3. Ensure `podcast_audio.wav` is copied to `public/`
+4. Check browser console in `npx remotion studio` for JS errors
+
+---
+
+### Remotion: Command Not Found
+
+**Symptoms**: `npx: command not found` or `remotion: not found`
+
+**Solution**:
+```bash
+# Ensure you're in the Remotion project directory
+cd your-remotion-project
+npm i   # reinstall dependencies
+npx remotion --version  # verify
+```
+
+---
+
+### timing.json: Parse Error
+
+**Symptoms**: `SyntaxError: Unexpected token`, sections missing or misaligned
+
+**Solution**:
+```bash
+# Validate JSON
+python3 -c "import json; json.load(open('videos/{name}/timing.json'))"
+
+# Check section names match podcast.txt [SECTION:xxx] markers
+```
+
+Common cause: section name in `podcast.txt` doesn't match the composition code.
+
+---
+
+### SRT: Garbled Chinese Characters
+
+**Symptoms**: Subtitles show `???` or mojibake
+
+**Solution**:
+```bash
+# Check encoding
+file videos/{name}/podcast_audio.srt
+# Should show: UTF-8 Unicode text
+
+# Convert if needed
+iconv -f GBK -t UTF-8 videos/{name}/podcast_audio.srt > videos/{name}/podcast_audio_utf8.srt
+mv videos/{name}/podcast_audio_utf8.srt videos/{name}/podcast_audio.srt
+```
+
+---
+
+### Disk Space: 4K Render Fails
+
+**Symptoms**: Render stops partway, `No space left on device`
+
+**Solution**: 4K render needs ~10-20GB free space. Check with `df -h .` before rendering. Clean up old video outputs or use `--scale 0.5` for 1080p.
+
+---
+
+### Font Not Found (Linux)
+
+**Symptoms**: Text renders in fallback font, Chinese characters show as boxes
+
+**Solution**:
+```bash
+# Install Noto Sans SC
+sudo apt install fonts-noto-cjk
+# Or download PingFang SC manually
+```
+
+---
+
+### Edge TTS: No Audio Output
+
+**Symptoms**: Empty or zero-length WAV file, no error message
+
+**Solution**: Edge TTS requires internet access (uses Microsoft's online TTS service). Check network connectivity. No API key needed.
+
+---
+
 ### Quick Checklists
 
 **Pre-render**:

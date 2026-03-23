@@ -12,14 +12,14 @@ Do NOT add "Co-Authored-By: Claude" to commit messages.
 
 ## What This Is
 
-A Claude Code skill for automated video podcast creation targeting **B站横屏视频 (16:9)** with optional **竖屏精华片段 (9:16)**. The 15-step workflow is defined in `SKILL.md`.
+A Claude Code skill for automated video podcast creation targeting **B站横屏视频 (16:9)** with optional **竖屏精华片段 (9:16)**. The 14-step workflow is defined in `SKILL.md`.
 
 ### Documentation Structure
 
 | File | Purpose | When Claude Loads |
 |------|---------|-------------------|
 | `SKILL.md` | Core workflow overview, execution modes, resume, technical rules | Always (skill invocation) |
-| `references/workflow-steps.md` | Detailed step-by-step instructions (Steps 0-14) | At workflow start |
+| `references/workflow-steps.md` | Detailed step-by-step instructions (Steps 1-14) | At workflow start |
 | `references/design-guide.md` | Visual minimums, typography, layout patterns, checklists | Step 9 (Remotion composition) |
 | `references/troubleshooting.md` | Error fixes, preference commands, BGM options, preference learning | On error or user request |
 
@@ -60,7 +60,7 @@ ffmpeg -y -i videos/{name}/video_with_bgm.mp4 \
 generate_tts.py                  # TTS (Azure/CosyVoice/Edge) + SRT + timing.json
 SKILL.md                         # Core workflow overview (<500 lines)
 references/
-  workflow-steps.md              # Detailed step instructions (Steps 0-14)
+  workflow-steps.md              # Detailed step instructions (Steps 1-14)
   design-guide.md                # Visual design minimums, checklists
   troubleshooting.md             # Error fixes, BGM, preferences
 templates/
@@ -141,7 +141,7 @@ Common semantic names:
 - **Silent sections** (`[SECTION:outro]` with empty content) get `is_silent: true` — Remotion adds 150 extra frames
 - **Section markers** in `podcast.txt` must match Remotion component names exactly
 - **Content width** ≥85% of screen, bottom 100px reserved for subtitles
-- **Visual minimums** (MUST): hero ≥72px, section ≥60px, body ≥24px, any text ≥18px
+- **Visual minimums** (MUST): hero ≥84px, section ≥72px, card title ≥40px, body ≥32px, any text ≥24px (see `references/design-guide.md` for full table)
 
 ## Environment Variables
 
@@ -156,42 +156,4 @@ export EDGE_TTS_VOICE="zh-CN-XiaoxiaoNeural"  # Optional: Edge TTS voice overrid
 
 ## User Preference System
 
-Skill learns and applies user preferences automatically.
-
-### Storage Files
-
-| File | Purpose |
-|------|---------|
-| `user_prefs.json` | Learned preferences (auto-created from template) |
-| `user_prefs.template.json` | Default values |
-| `prefs_schema.json` | JSON schema definition |
-
-### Preference Priority
-
-```
-Final = merge(
-  Root.tsx defaults < global < topic_patterns[type] < current instructions
-)
-```
-
-### User Commands
-
-| Command | Effect |
-|---------|--------|
-| "显示偏好设置" | Show current preferences |
-| "重置偏好" | Reset to defaults |
-| "保存为 X 类默认" | Save to topic_patterns |
-
-### Learning Triggers
-
-- **Explicit**: "我喜欢深色主题", "语速快一点"
-- **Implicit**: ≥2 same-direction Studio modifications
-- **Feedback**: Post-completion satisfaction survey
-
-## Troubleshooting
-
-- TTS errors: check `AZURE_SPEECH_KEY` and `AZURE_SPEECH_REGION` env vars
-- Remotion black screen: verify `timing.json` exists in `public/` and has correct `start_frame`/`duration_frames`
-- Blurry output: ensure 4K render (3840×2160) with `scale(2)` wrapper
-- FFmpeg subtitle encoding: use UTF-8 for SRT files
-- Edge TTS no audio: check network connectivity (uses Microsoft Edge's online TTS)
+Files: `user_prefs.json` (learned), `user_prefs.template.json` (defaults), `prefs_schema.json` (schema). See `references/troubleshooting.md` for preference commands, learning triggers, and troubleshooting.

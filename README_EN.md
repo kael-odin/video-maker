@@ -211,7 +211,7 @@ Included tracks in `assets/`:
 - [x] Resume from breakpoint (`--resume` flag)
 - [x] Dry-run mode (`--dry-run` for duration estimation)
 - [x] User preference self-evolution (auto-learns visual/TTS/content style preferences)
-- [ ] Refactor to latest Claude Code SKILL spec (`references/` layered docs, `${CLAUDE_SKILL_DIR}` variable, `argument-hint`/`effort`/`allowed-tools` frontmatter fields)
+- [x] Refactor to latest Claude Code SKILL spec (`references/` layered docs, `${CLAUDE_SKILL_DIR}` variable, `argument-hint`/`effort`/`allowed-tools` frontmatter fields)
 - [ ] Additional TTS engines (based on user demand)
 - [ ] Windows compatibility (WSL verification + docs)
 

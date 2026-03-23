@@ -208,7 +208,7 @@ videos/{视频名称}/
 - [x] 预估模式（`--dry-run` 预估时长，不调用 API）
 - [x] 用户偏好自我进化（自动学习视觉/TTS/内容风格偏好）
 - [x] 视觉检查 - 对生成后的页面进行视觉检查，检查其美观性、布局合理性等
-- [ ] 重构为 Claude Code 最新 SKILL 规范（`references/` 分层、`${CLAUDE_SKILL_DIR}` 变量、`argument-hint`/`effort`/`allowed-tools` 等新 frontmatter 字段）
+- [x] 重构为 Claude Code 最新 SKILL 规范（`references/` 分层、`${CLAUDE_SKILL_DIR}` 变量、`argument-hint`/`effort`/`allowed-tools` 等新 frontmatter 字段）
 - [ ] 更多 TTS 引擎 (看用户需求)
 - [ ] Windows 适配 (WSL 验证 + 文档)
 

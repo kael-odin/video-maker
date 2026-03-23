@@ -23,6 +23,9 @@ videos/
 !assets/*.mp4
 !assets/*.mp3
 
+# User preferences (learned, auto-created from template)
+user_prefs.json
+
 # Python
 __pycache__/
 *.pyc

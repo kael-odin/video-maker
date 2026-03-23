@@ -17,9 +17,6 @@ dependencies:
 metadata:
   openclaw:
     requires:
-      env:
-        - AZURE_SPEECH_KEY
-        - AZURE_SPEECH_REGION
       bins:
         - python3
         - ffmpeg
@@ -75,45 +72,11 @@ fi
 
 ---
 
-## Prerequisites (One-time Setup)
+## Prerequisites Check
 
-### Environment Checklist
+!`( missing=""; node -v >/dev/null 2>&1 || missing="$missing node"; python3 --version >/dev/null 2>&1 || missing="$missing python3"; ffmpeg -version >/dev/null 2>&1 || missing="$missing ffmpeg"; [ -n "$AZURE_SPEECH_KEY" ] || missing="$missing AZURE_SPEECH_KEY"; if [ -n "$missing" ]; then echo "MISSING:$missing"; else echo "ALL_OK"; fi )`
 
-| Tool | Check | Install (macOS) |
-|------|-------|-----------------|
-| Node.js 18+ | `node -v` | `brew install node` |
-| Python 3.8+ | `python3 --version` | `brew install python3` |
-| FFmpeg | `ffmpeg -version` | `brew install ffmpeg` |
-
-### API Keys
-
-```bash
-# Azure Speech (required) — add to ~/.zshrc
-export AZURE_SPEECH_KEY="your-azure-speech-key"
-export AZURE_SPEECH_REGION="eastasia"
-```
-
-### Python Dependencies
-
-```bash
-pip install azure-cognitiveservices-speech requests
-```
-
-### Remotion Project Setup
-
-```bash
-npx create-video@latest my-video-project
-cd my-video-project && npm i
-npx remotion studio  # verify
-```
-
-### Quick Verify
-
-```bash
-echo "=== Environment Check ===" && \
-node -v && python3 --version && ffmpeg -version 2>&1 | head -1 && \
-[ -n "$AZURE_SPEECH_KEY" ] && echo "✓ AZURE_SPEECH_KEY set" || echo "✗ AZURE_SPEECH_KEY not set"
-```
+**If MISSING reported above**, see README.md for full setup instructions (install commands, API key setup, Remotion project init).
 
 ---
 
@@ -227,9 +190,10 @@ Hard constraints for video production — visual design is Claude's creative fre
 
 Claude loads these files on demand — **do NOT load all at once**:
 
-- **[references/workflow-steps.md](references/workflow-steps.md)**: Detailed step-by-step instructions (Steps 0-14). Load at workflow start.
+- **[references/workflow-steps.md](references/workflow-steps.md)**: Detailed step-by-step instructions (Steps 1-14). Load at workflow start.
 - **[references/design-guide.md](references/design-guide.md)**: Visual minimums, typography, layout patterns, checklists. **MUST load before Step 9.**
 - **[references/troubleshooting.md](references/troubleshooting.md)**: Error fixes, BGM options, preference commands, preference learning. Load on error or user request.
+- **[examples/](examples/)**: Real production video projects. Claude may reference these for composition structure and timing.json format.
 
 ---
 
