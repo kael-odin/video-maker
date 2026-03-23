@@ -187,6 +187,35 @@ Plus existing components: `ComparisonCard`, `Timeline`, `CodeBlock`, `QuoteBlock
 - `nodes`: `{ id, label, x, y, icon?, width?, height? }[]` — positioned boxes in SVG viewBox
 - `edges`: `{ from, to, label?, style? }[]` — connections between nodes (`"curve"` | `"straight"` | `"elbow"`)
 
+### Audio Waveform Visualization
+
+`AudioWaveform` renders a real-time frequency visualization synced to the TTS narration audio. Makes the video feel alive rather than a slideshow with voiceover.
+
+| Prop | Default | Description |
+|------|---------|-------------|
+| `mode` | `"bars"` | `"bars"` (spectrum bars), `"wave"` (filled waveform), `"dots"` (pulsing dots) |
+| `position` | `"bottom"` | `"bottom"`, `"top"` (absolute positioned), or `"inline"` (flow layout) |
+| `barCount` | `32` | Number of frequency bars/samples |
+| `height` | `60` | Height in pixels (design space) |
+| `opacity` | `0.4` | Overall opacity — keep subtle (0.2-0.5) to avoid distraction |
+
+**Recommended usage**: Add `<AudioWaveform props={props} position="bottom" opacity={0.3} height={40} />` inside `Video.tsx` as a persistent overlay across all sections, or per-section for selective visibility.
+
+### Lottie Animations (After Effects)
+
+`LottieAnimation` loads and plays After Effects animations exported as Lottie JSON. Unlocks the [LottieFiles](https://lottiefiles.com/) ecosystem (100,000+ free animations).
+
+| Prop | Default | Description |
+|------|---------|-------------|
+| `src` | — | Path to JSON in `public/` (via `staticFile`) or full CORS-enabled URL |
+| `animationData` | — | Pre-loaded JSON data (takes precedence over `src`) |
+| `loop` | `false` | Whether to loop the animation |
+| `direction` | `"forward"` | `"forward"` or `"backward"` |
+| `playbackRate` | `1` | Speed multiplier |
+| `enableEntrance` | `false` | Wrap in entrance fade-in animation |
+
+**Recommended usage**: Download Lottie JSON files to the video's `public/animations/` directory, then reference with `<LottieAnimation src="animations/brain.json" width={200} height={200} loop />`. Use for concept icons, character animations, decorative elements, or section transitions.
+
 ### Layout Sequencing Rules (MUST follow)
 
 Claude MUST vary layouts across sections. Follow these rules to prevent visual monotony:

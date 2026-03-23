@@ -34,5 +34,7 @@ export { ChapterProgressBar } from "./ChapterProgressBar";
 export { MediaSection, MediaGrid } from "./MediaSection";
 export { DiagramReveal } from "./DiagramReveal";
 export type { DiagramNode, DiagramEdge } from "./DiagramReveal";
+export { AudioWaveform } from "./AudioWaveform";
+export { LottieAnimation } from "./LottieAnimation";
 export { Icon } from "./Icon";
 export { ICON_MAP, isEmoji } from "./iconMap";

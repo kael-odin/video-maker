@@ -86,6 +86,8 @@ templates/
     AnimatedBackground.tsx       # MovingGradient, FloatingShapes, GridPattern, GlowOrb, AccentLine
     SectionLayouts.tsx           # SplitLayout, StatHighlight, ZigzagCards, CenteredShowcase, MetricsRow, StepProgress
     DiagramReveal.tsx            # General-purpose animated SVG diagram with draw-on effect (nodes + edges)
+    AudioWaveform.tsx            # Real-time audio frequency visualization (bars, wave, dots modes)
+    LottieAnimation.tsx          # After Effects animation player via @remotion/lottie (staticFile or URL)
 assets/                          # BGM tracks, bilibili triple-click animations
 ```
 
