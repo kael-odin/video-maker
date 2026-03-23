@@ -6,6 +6,7 @@ export {
   useEntrance, useExit, useCounter, useBarFill, getPresentation,
   useFloat, usePulse, useGradientShift, useOpacityWave,
   useTextReveal, useCharReveal, staggerDelay,
+  useDrawOn, useStaggeredDrawOn,
 } from "./animations";
 
 // Animated backgrounds
@@ -31,5 +32,7 @@ export { FlowChart } from "./FlowChart";
 export { IconCard } from "./IconCard";
 export { ChapterProgressBar } from "./ChapterProgressBar";
 export { MediaSection, MediaGrid } from "./MediaSection";
+export { DiagramReveal } from "./DiagramReveal";
+export type { DiagramNode, DiagramEdge } from "./DiagramReveal";
 export { Icon } from "./Icon";
 export { ICON_MAP, isEmoji } from "./iconMap";

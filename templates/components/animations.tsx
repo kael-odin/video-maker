@@ -3,6 +3,7 @@ import { fade } from "@remotion/transitions/fade";
 import { slide } from "@remotion/transitions/slide";
 import { wipe } from "@remotion/transitions/wipe";
 import { none } from "@remotion/transitions/none";
+import { evolvePath } from "@remotion/paths";
 
 // Spring presets for different animation feels
 const SPRING_PRESETS = {
@@ -170,6 +171,64 @@ export const useCharReveal = (
 // Stagger helper — compute delay for item at given index
 export const staggerDelay = (index: number, baseDelay = 0, interval = 6) =>
   baseDelay + index * interval;
+
+// --- SVG path draw-on animations ---
+
+// Draw-on animation — progressively reveals an SVG path from 0% to 100%
+// Returns strokeDasharray/strokeDashoffset to apply to a <path> element
+export const useDrawOn = (
+  path: string,
+  enabled: boolean,
+  delay = 0,
+  durationFrames = 30,
+  preset: SpringPreset = "gentle",
+) => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+
+  if (!enabled || !path) return { progress: 1, strokeDasharray: "none", strokeDashoffset: 0 };
+
+  const config = SPRING_PRESETS[preset];
+  const progress = spring({ frame, fps, delay, config, durationInFrames: durationFrames });
+  const evolved = evolvePath(progress, path);
+
+  return {
+    progress,
+    strokeDasharray: evolved.strokeDasharray,
+    strokeDashoffset: evolved.strokeDashoffset,
+  };
+};
+
+// Multi-path staggered draw-on — animates an array of paths sequentially
+export const useStaggeredDrawOn = (
+  paths: string[],
+  enabled: boolean,
+  delay = 0,
+  durationPerPath = 20,
+  staggerInterval = 8,
+  preset: SpringPreset = "gentle",
+) => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+
+  if (!enabled) {
+    return paths.map(() => ({ progress: 1, strokeDasharray: "none" as string, strokeDashoffset: 0 }));
+  }
+
+  const config = SPRING_PRESETS[preset];
+
+  return paths.map((path, i) => {
+    if (!path) return { progress: 1, strokeDasharray: "none", strokeDashoffset: 0 };
+    const pathDelay = delay + i * staggerInterval;
+    const progress = spring({ frame, fps, delay: pathDelay, config, durationInFrames: durationPerPath });
+    const evolved = evolvePath(progress, path);
+    return {
+      progress,
+      strokeDasharray: evolved.strokeDasharray,
+      strokeDashoffset: evolved.strokeDashoffset,
+    };
+  });
+};
 
 // Transition presentation mapper
 export const getPresentation = (type: string) => {

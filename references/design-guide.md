@@ -167,7 +167,25 @@ Pre-built layouts from `SectionLayouts.tsx` — Claude SHOULD pick from these be
 | `MetricsRow` | Dashboard-style stat cards in grid | Comparison numbers, KPIs, benchmarks |
 | `StepProgress` | Numbered steps with active highlight | Workflow, tutorial steps, process |
 
-Plus existing components: `ComparisonCard`, `Timeline`, `CodeBlock`, `QuoteBlock`, `FeatureGrid`, `DataBar`, `StatCounter`, `FlowChart`, `IconCard`, `MediaSection`
+Plus existing components: `ComparisonCard`, `Timeline`, `CodeBlock`, `QuoteBlock`, `FeatureGrid`, `DataBar`, `StatCounter`, `FlowChart`, `IconCard`, `MediaSection`, `DiagramReveal`
+
+### SVG Draw-On Animations
+
+`FlowChart` and `Timeline` now use animated SVG paths with draw-on effects via `@remotion/paths`. The `DiagramReveal` component provides general-purpose node+edge diagram animation.
+
+| Component | Draw-On Feature | Use Case |
+|-----------|----------------|----------|
+| `FlowChart` | Arrow connectors draw progressively between step cards | Process flows, pipelines |
+| `Timeline` | Node circles and vertical connectors draw on in sequence | History, milestones |
+| `DiagramReveal` | Arbitrary node+edge graphs with curve/elbow/straight edges | Architecture diagrams, mind maps, network graphs |
+
+**Animation hooks** (`animations.tsx`):
+- `useDrawOn(path, enabled, delay, duration, preset)` — animate a single SVG path
+- `useStaggeredDrawOn(paths, enabled, delay, durationPerPath, interval, preset)` — animate multiple paths sequentially
+
+**DiagramReveal props**:
+- `nodes`: `{ id, label, x, y, icon?, width?, height? }[]` — positioned boxes in SVG viewBox
+- `edges`: `{ from, to, label?, style? }[]` — connections between nodes (`"curve"` | `"straight"` | `"elbow"`)
 
 ### Layout Sequencing Rules (MUST follow)
 

@@ -71,7 +71,7 @@ templates/
   components/                    # Reusable visual building blocks
     index.ts                     # Barrel export
     layouts.tsx                  # Scale4K, FullBleedLayout, PaddedLayout
-    animations.tsx               # useEntrance, useExit, useCounter, useBarFill, getPresentation
+    animations.tsx               # useEntrance, useExit, useCounter, useBarFill, useDrawOn, useStaggeredDrawOn, getPresentation
     ComparisonCard.tsx           # Two-column VS layout with shadow depth
     Timeline.tsx                 # Vertical timeline with glowing nodes
     CodeBlock.tsx                # Dark terminal code display
@@ -85,6 +85,7 @@ templates/
     ChapterProgressBar.tsx       # Bottom progress bar (renders outside Scale4K)
     AnimatedBackground.tsx       # MovingGradient, FloatingShapes, GridPattern, GlowOrb, AccentLine
     SectionLayouts.tsx           # SplitLayout, StatHighlight, ZigzagCards, CenteredShowcase, MetricsRow, StepProgress
+    DiagramReveal.tsx            # General-purpose animated SVG diagram with draw-on effect (nodes + edges)
 assets/                          # BGM tracks, bilibili triple-click animations
 ```
 
