@@ -18,9 +18,10 @@ A Claude Code skill for automated video podcast creation targeting **B站横屏�
 
 | File | Purpose | When Claude Loads |
 |------|---------|-------------------|
-| `SKILL.md` | Core workflow (15 steps), execution modes, resume | Always (skill invocation) |
-| `DESIGN_GUIDE.md` | Visual minimums, typography, layout patterns, checklists | Step 9 (Remotion composition) |
-| `TROUBLESHOOTING.md` | Error fixes, preference commands, BGM options, preference learning | On error or user request |
+| `SKILL.md` | Core workflow overview, execution modes, resume, technical rules | Always (skill invocation) |
+| `references/workflow-steps.md` | Detailed step-by-step instructions (Steps 0-14) | At workflow start |
+| `references/design-guide.md` | Visual minimums, typography, layout patterns, checklists | Step 9 (Remotion composition) |
+| `references/troubleshooting.md` | Error fixes, preference commands, BGM options, preference learning | On error or user request |
 
 ## Key Commands
 
@@ -57,7 +58,11 @@ ffmpeg -y -i videos/{name}/video_with_bgm.mp4 \
 
 ```
 generate_tts.py                  # TTS (Azure/CosyVoice/Edge) + SRT + timing.json
-SKILL.md                         # 15-step workflow documentation
+SKILL.md                         # Core workflow overview (<500 lines)
+references/
+  workflow-steps.md              # Detailed step instructions (Steps 0-14)
+  design-guide.md                # Visual design minimums, checklists
+  troubleshooting.md             # Error fixes, BGM, preferences
 templates/
   Video.tsx                      # Main composition — section renderer + audio + transitions
   Root.tsx                       # Remotion root, Zod schema for Studio props
