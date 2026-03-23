@@ -3,7 +3,6 @@
 .DS_Store
 
 # Claude
-CLAUDE.md
 .playwright-mcp/
 suggestions.md
 
@@ -26,9 +25,13 @@ videos/
 # User preferences (learned, auto-created from template)
 user_prefs.json
 
+# Update check throttle
+.last_update_check
+
 # Python
 __pycache__/
 *.pyc
+.pytest_cache/
 
 # Temp files
 part_*.wav

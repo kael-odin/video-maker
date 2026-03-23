@@ -499,11 +499,14 @@ cp /path/to/user-bgm.mp3 videos/{name}/bgm.mp3
 
 ### Mix
 
+BGM volume priority: `user_prefs.tts.bgmVolume` > topic-pattern default > `0.05` fallback.
+
 ```bash
+# BGM_VOL from user_prefs.tts.bgmVolume (default 0.05)
 ffmpeg -y \
   -i videos/{name}/output.mp4 \
   -stream_loop -1 -i videos/{name}/bgm.mp3 \
-  -filter_complex "[0:a]volume=1.0[a1];[1:a]volume=0.05[a2];[a1][a2]amix=inputs=2:duration=first[aout]" \
+  -filter_complex "[0:a]volume=1.0[a1];[1:a]volume=${BGM_VOL:-0.05}[a2];[a1][a2]amix=inputs=2:duration=first[aout]" \
   -map 0:v -map "[aout]" \
   -c:v copy -c:a aac -b:a 192k \
   videos/{name}/video_with_bgm.mp4
@@ -597,9 +600,9 @@ echo "✓ Temp files cleaned"
 
 ---
 
-## Step 13: Generate Vertical Shorts (Optional)
+## Step 15: Generate Vertical Shorts (Optional)
 
-**When:** After long-form video is complete (Step 12). Optional step.
+**When:** After long-form video is complete (Step 14). Optional step.
 
 **Claude behavior:** Offer to generate vertical shorts. If user agrees, run automatically.
 

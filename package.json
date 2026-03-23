@@ -1,7 +1,10 @@
 {
   "name": "video-podcast-maker",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "description": "Automated pipeline to create professional video podcasts from a topic",
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "studio": "remotion studio src/remotion/index.ts",
     "render": "remotion render src/remotion/index.ts",

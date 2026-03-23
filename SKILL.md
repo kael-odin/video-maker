@@ -54,21 +54,29 @@ Or invoke directly: `/video-podcast-maker AI Agent tutorial`
 
 ## Auto Update Check
 
-**Claude behavior:** On each invocation, check for updates:
+**Claude behavior:** Check for updates at most once per day (throttled by timestamp file):
 
 ```bash
-timeout 5 git -C ${CLAUDE_SKILL_DIR} fetch --quiet 2>/dev/null || true
-LOCAL=$(git -C ${CLAUDE_SKILL_DIR} rev-parse HEAD 2>/dev/null)
-REMOTE=$(git -C ${CLAUDE_SKILL_DIR} rev-parse origin/main 2>/dev/null)
-if [ -n "$LOCAL" ] && [ -n "$REMOTE" ] && [ "$LOCAL" != "$REMOTE" ]; then
-  echo "UPDATE_AVAILABLE"
+STAMP="${CLAUDE_SKILL_DIR}/.last_update_check"
+NOW=$(date +%s)
+LAST=$(cat "$STAMP" 2>/dev/null || echo 0)
+if [ $((NOW - LAST)) -gt 86400 ]; then
+  timeout 5 git -C ${CLAUDE_SKILL_DIR} fetch --quiet 2>/dev/null || true
+  LOCAL=$(git -C ${CLAUDE_SKILL_DIR} rev-parse HEAD 2>/dev/null)
+  REMOTE=$(git -C ${CLAUDE_SKILL_DIR} rev-parse origin/main 2>/dev/null)
+  echo "$NOW" > "$STAMP"
+  if [ -n "$LOCAL" ] && [ -n "$REMOTE" ] && [ "$LOCAL" != "$REMOTE" ]; then
+    echo "UPDATE_AVAILABLE"
+  else
+    echo "UP_TO_DATE"
+  fi
 else
-  echo "UP_TO_DATE"
+  echo "SKIPPED_RECENT_CHECK"
 fi
 ```
 
 - **Update available**: Ask user via AskUserQuestion. Yes → `git -C ${CLAUDE_SKILL_DIR} pull`. No → continue.
-- **Up to date**: Continue silently.
+- **Up to date / Skipped**: Continue silently.
 
 ---
 
@@ -280,6 +288,7 @@ At Step 1 start:
 12. Add subtitles (optional) → final_video.mp4
 13. Complete publish info (Part 2) → chapter timestamps
 14. Verify output & cleanup
+15. Generate vertical shorts (optional) → shorts/
 ```
 
 ### Validation Checkpoints
@@ -298,28 +307,7 @@ At Step 1 start:
 
 ## Key Commands Reference
 
-```bash
-# TTS audio generation (3 backends)
-python3 generate_tts.py --input videos/{name}/podcast.txt --output-dir videos/{name}
-TTS_BACKEND=cosyvoice python3 generate_tts.py --input videos/{name}/podcast.txt --output-dir videos/{name}
-TTS_BACKEND=edge python3 generate_tts.py --input videos/{name}/podcast.txt --output-dir videos/{name}
-
-# TTS utilities
-python3 generate_tts.py ... --dry-run    # Estimate duration
-python3 generate_tts.py ... --resume     # Skip synthesized parts
-TTS_RATE="+15%" python3 generate_tts.py  # Control speech rate
-
-# Remotion
-npx remotion studio src/remotion/index.ts                                          # Preview
-npx remotion render src/remotion/index.ts CompositionId videos/{name}/output.mp4 --video-bitrate 16M  # 4K
-npx remotion render src/remotion/index.ts CompositionId videos/{name}/preview.mp4 --scale 0.33 --crf 28  # 720p preview
-npx remotion still src/remotion/index.ts Thumbnail16x9 videos/{name}/thumbnail_remotion_16x9.png  # Thumbnail
-
-# Post-processing (FFmpeg)
-ffmpeg -y -i videos/{name}/output.mp4 -stream_loop -1 -i videos/{name}/bgm.mp3 \
-  -filter_complex "[0:a]volume=1.0[a1];[1:a]volume=0.05[a2];[a1][a2]amix=inputs=2:duration=first[aout]" \
-  -map 0:v -map "[aout]" -c:v copy -c:a aac -b:a 192k videos/{name}/video_with_bgm.mp4
-```
+See **CLAUDE.md** for the full command reference (TTS, Remotion, FFmpeg, shorts generation).
 
 ---
 
