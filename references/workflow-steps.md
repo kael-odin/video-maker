@@ -281,6 +281,52 @@ Components are modular:
 import { ComparisonCard, CodeBlock, FeatureGrid, MediaSection } from "./components";
 ```
 
+### Component Selection Guide
+
+Choose components based on section content type:
+
+| Content Type | Recommended Component | Draw-On Effect |
+|---|---|---|
+| Process / pipeline steps | `FlowChart` | SVG arrow connectors draw progressively |
+| History / milestones | `Timeline` | SVG nodes + connectors animate in sequence |
+| Architecture / system diagram | `DiagramReveal` | Nodes + edges draw on with curve/elbow/straight |
+| Comparison / vs | `ComparisonCard` | Entrance animation |
+| Data / metrics | `DataBar`, `StatCounter`, `MetricsRow` | Bar fill + counter animations |
+| Code / terminal | `CodeBlock` | Entrance animation |
+| Key quote | `QuoteBlock` | Entrance animation |
+| Feature list / grid | `FeatureGrid`, `IconCard` | Staggered entrance |
+| Images / screenshots | `MediaSection`, `MediaGrid` | Entrance animation |
+| After Effects animation | `LottieAnimation` | Frame-accurate Lottie playback |
+
+**Audio visualization** — add `AudioWaveform` as a persistent overlay in the video:
+```tsx
+// Inside Video component, after Scale4K but before Audio elements:
+<AudioWaveform props={props} position="bottom" mode="bars" barCount={32} height={40} opacity={0.25} />
+```
+Three modes: `"bars"` (spectrum), `"wave"` (filled area), `"dots"` (pulsing circles).
+
+**Diagram architecture** — use `DiagramReveal` for system/architecture diagrams:
+```tsx
+<DiagramReveal
+  props={props}
+  nodes={[
+    { id: "a", label: "Input", x: 100, y: 80 },
+    { id: "b", label: "Process", x: 400, y: 80 },
+    { id: "c", label: "Output", x: 700, y: 80 },
+  ]}
+  edges={[
+    { from: "a", to: "b", style: "curve" },
+    { from: "b", to: "c", style: "curve" },
+  ]}
+  width={900} height={200}
+/>
+```
+
+**Lottie animations** — place JSON files in `public/animations/`:
+```tsx
+<LottieAnimation src="animations/brain.json" width={200} height={200} loop />
+```
+
 ### Section Transitions
 
 Template uses `@remotion/transitions` `TransitionSeries`.
@@ -290,9 +336,9 @@ Template uses `@remotion/transitions` `TransitionSeries`.
 | `transitionType` | `fade` | fade / slide / wipe / none |
 | `transitionDuration` | `15` (0.5s) | Frames |
 
-Install dependency:
+Install dependencies:
 ```bash
-npm install @remotion/transitions
+npm install @remotion/transitions @remotion/paths @remotion/shapes @remotion/media-utils @remotion/lottie lottie-web
 ```
 
 ### Key Architecture

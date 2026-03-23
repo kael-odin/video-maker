@@ -45,7 +45,7 @@ export const AudioWaveform = ({
     audioData,
     frame,
     fps,
-    numberOfSamples: mode === "dots" ? barCount * 2 : barCount,
+    numberOfSamples: barCount,  // MUST be a power of 2 (32, 64, 128, 256)
     smoothing: true,
   });
 
