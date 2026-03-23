@@ -1,5 +1,25 @@
+// Layouts
 export { Scale4K, FullBleedLayout, PaddedLayout } from "./layouts";
-export { useEntrance, useExit, useCounter, useBarFill, getPresentation } from "./animations";
+
+// Animations
+export {
+  useEntrance, useExit, useCounter, useBarFill, getPresentation,
+  useFloat, usePulse, useGradientShift, useOpacityWave,
+  useTextReveal, useCharReveal, staggerDelay,
+} from "./animations";
+
+// Animated backgrounds
+export {
+  MovingGradient, FloatingShapes, GridPattern, GlowOrb, AccentLine,
+} from "./AnimatedBackground";
+
+// Section layout presets
+export {
+  SplitLayout, StatHighlight, ZigzagCards,
+  CenteredShowcase, MetricsRow, StepProgress,
+} from "./SectionLayouts";
+
+// Content components
 export { ComparisonCard } from "./ComparisonCard";
 export { Timeline } from "./Timeline";
 export { CodeBlock } from "./CodeBlock";

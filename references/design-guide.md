@@ -131,3 +131,91 @@ Production-verified sizes as recommended reference. Claude may adjust freely but
 | **Outro buttons** | Red/orange/yellow/pink — unique color per action |
 
 > **Principle:** Fill space, enlarge elements, enrich colors — no large blank areas.
+
+---
+
+## Animated Backgrounds (SHOULD use)
+
+Every section SHOULD include at least one animated background layer for depth. Available layers from `AnimatedBackground.tsx`:
+
+| Component | Effect | Best For |
+|-----------|--------|----------|
+| `MovingGradient` | Slowly rotating gradient overlay | Any section — adds subtle motion |
+| `FloatingShapes` | Drifting circles/rings | Hero, feature sections — adds depth |
+| `GridPattern` | Dot/line/cross grid overlay | Data sections, technical content |
+| `GlowOrb` | Pulsing color orb with blur | Hero, stat highlight — focal point |
+| `AccentLine` | Animated expanding line | Section dividers, emphasis |
+
+**Rules:**
+- Use 1-2 background layers per section (not all at once)
+- Alternate between background styles across sections
+- Keep opacity low (0.03-0.08) — backgrounds should be felt, not seen
+- `FloatingShapes` count: 3-5 shapes, more than 6 looks cluttered
+
+---
+
+## Section Layout Presets (SHOULD use)
+
+Pre-built layouts from `SectionLayouts.tsx` — Claude SHOULD pick from these before creating custom layouts. Each includes animated backgrounds, proper spacing, and theme integration.
+
+| Layout | Visual | Best For |
+|--------|--------|----------|
+| `SplitLayout` | Content left + visual right (or reversed) | Feature highlight, explanation + diagram |
+| `StatHighlight` | Full-bleed big number with glow orb | Key metric, percentage, impact statement |
+| `ZigzagCards` | Alternating left/right cards with colored borders | Feature list, pros/cons, step-by-step |
+| `CenteredShowcase` | Centered content with dual glow orbs + accent lines | Key quote, thesis, conclusion |
+| `MetricsRow` | Dashboard-style stat cards in grid | Comparison numbers, KPIs, benchmarks |
+| `StepProgress` | Numbered steps with active highlight | Workflow, tutorial steps, process |
+
+Plus existing components: `ComparisonCard`, `Timeline`, `CodeBlock`, `QuoteBlock`, `FeatureGrid`, `DataBar`, `StatCounter`, `FlowChart`, `IconCard`, `MediaSection`
+
+### Layout Sequencing Rules (MUST follow)
+
+Claude MUST vary layouts across sections. Follow these rules to prevent visual monotony:
+
+| Rule | Requirement |
+|------|-------------|
+| **No repeat** | Never use the same layout preset for consecutive sections |
+| **Alternate density** | Follow a high-density section (grid/cards) with a low-density one (showcase/stat) |
+| **Background variety** | Consecutive sections must use different background layers |
+| **Hero → Impact → Detail → Breathe** | Recommended rhythm: start bold, add detail, give a visual break, repeat |
+
+**Recommended sequencing for 7-section video:**
+
+```
+1. Hero          → CenteredShowcase or custom hero (high impact)
+2. Overview      → ZigzagCards or FeatureGrid (structured content)
+3. Core concept  → SplitLayout (explanation + visual)
+4. Data/metrics  → MetricsRow or StatHighlight (visual break with numbers)
+5. Deep dive     → StepProgress or Timeline (sequential content)
+6. Summary       → CenteredShowcase (return to high impact)
+7. Outro         → Custom outro with icons
+```
+
+---
+
+## Animation Best Practices (SHOULD follow)
+
+### Use continuous animations for visual life
+
+Every section should have at least subtle continuous motion:
+- Background: `MovingGradient` or `FloatingShapes` (always present)
+- Decorative: `GlowOrb` with `usePulse` (for emphasis sections)
+- Content: stagger entrance delays (6-10 frames between items)
+
+### Text reveal for key statements
+
+Use `useTextReveal` or `useCharReveal` for:
+- Hero title (character reveal, 2 frames/char)
+- Key statistics or conclusions (word reveal, 4 frames/word)
+- NOT for body text or descriptions (too slow, use regular entrance)
+
+### Animation timing guidelines
+
+| Element | Entrance | Stagger | Exit |
+|---------|----------|---------|------|
+| Title | 0 delay, "snappy" preset | — | — |
+| Subtitle | 8 frame delay | — | — |
+| Cards/items | 6-10 frame stagger | `staggerDelay(i, 8)` | — |
+| Decorative | 15+ frame delay | — | — |
+| Background | Continuous (no entrance) | — | — |

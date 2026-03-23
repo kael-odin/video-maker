@@ -75,6 +75,102 @@ export const useBarFill = (targetPct: number, delay = 0, durationFrames = 40) =>
   return interpolate(progress, [0, 1], [0, targetPct]);
 };
 
+// --- Continuous animations (run throughout section lifetime) ---
+
+// Floating drift — continuous vertical oscillation for decorative elements
+export const useFloat = (
+  amplitude = 12,
+  periodFrames = 120,
+  phaseOffset = 0,
+) => {
+  const frame = useCurrentFrame();
+  const angle = ((frame + phaseOffset) / periodFrames) * Math.PI * 2;
+  return {
+    translateY: Math.sin(angle) * amplitude,
+    translateX: Math.cos(angle * 0.7) * (amplitude * 0.4),
+  };
+};
+
+// Pulsing scale — continuous subtle breathing for glows and orbs
+export const usePulse = (
+  minScale = 0.95,
+  maxScale = 1.05,
+  periodFrames = 90,
+  phaseOffset = 0,
+) => {
+  const frame = useCurrentFrame();
+  const t = ((frame + phaseOffset) / periodFrames) % 1;
+  // Smooth sine wave between min and max
+  const scale = minScale + (maxScale - minScale) * (0.5 + 0.5 * Math.sin(t * Math.PI * 2));
+  return { scale };
+};
+
+// Gradient rotation — slowly rotating gradient angle for backgrounds
+export const useGradientShift = (
+  speed = 0.5, // degrees per frame
+  startAngle = 135,
+) => {
+  const frame = useCurrentFrame();
+  const angle = startAngle + frame * speed;
+  return { angle: angle % 360 };
+};
+
+// Smooth opacity wave — for sequential glow/highlight effects
+export const useOpacityWave = (
+  periodFrames = 180,
+  min = 0.3,
+  max = 0.8,
+  phaseOffset = 0,
+) => {
+  const frame = useCurrentFrame();
+  const t = ((frame + phaseOffset) / periodFrames) % 1;
+  return min + (max - min) * (0.5 + 0.5 * Math.sin(t * Math.PI * 2));
+};
+
+// --- Text reveal animations ---
+
+// Word-by-word reveal — returns how many words to show at current frame
+export const useTextReveal = (
+  text: string,
+  enabled: boolean,
+  delay = 0,
+  framesPerWord = 4,
+) => {
+  const frame = useCurrentFrame();
+
+  if (!enabled) return { words: text.split(/\s+/), visibleCount: Infinity, progress: 1 };
+
+  const words = text.split(/\s+/);
+  const elapsed = Math.max(0, frame - delay);
+  const visibleCount = Math.min(words.length, Math.floor(elapsed / framesPerWord) + 1);
+  const progress = visibleCount / words.length;
+
+  return { words, visibleCount, progress };
+};
+
+// Character-by-character reveal — for hero titles
+export const useCharReveal = (
+  text: string,
+  enabled: boolean,
+  delay = 0,
+  framesPerChar = 2,
+) => {
+  const frame = useCurrentFrame();
+
+  if (!enabled) return { chars: text.split(""), visibleCount: Infinity, progress: 1 };
+
+  const chars = text.split("");
+  const elapsed = Math.max(0, frame - delay);
+  const visibleCount = Math.min(chars.length, Math.floor(elapsed / framesPerChar) + 1);
+  const progress = visibleCount / chars.length;
+
+  return { chars, visibleCount, progress };
+};
+
+// Stagger helper — compute delay for item at given index
+export const staggerDelay = (index: number, baseDelay = 0, interval = 6) =>
+  baseDelay + index * interval;
+
 // Transition presentation mapper
 export const getPresentation = (type: string) => {
   switch (type) {
