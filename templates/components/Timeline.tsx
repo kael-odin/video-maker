@@ -88,7 +88,11 @@ export const Timeline = ({
   const connectorHeight = 32;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 0, width: "100%" }}>
+    <div style={{
+      display: "flex", flexDirection: "column", gap: 0,
+      width: "100%", maxWidth: 700,
+      margin: "0 auto",
+    }}>
       {items.map((item, i) => {
         const itemDelay = staggerDelay(i, delay, 10);
         const a = useEntrance(props.enableAnimations, itemDelay, "snappy");

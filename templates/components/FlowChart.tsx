@@ -19,7 +19,7 @@ export const FlowChart = ({
 
   return (
     <div style={{
-      display: "flex", alignItems: "stretch", width: "100%",
+      display: "flex", alignItems: "center", width: "100%",
       flexDirection: v ? "column" : "row", gap: 0,
       position: "relative",
     }}>
@@ -60,28 +60,19 @@ export const FlowChart = ({
             </div>
             {i < stepCount - 1 && (
               <div style={{
-                width: v ? 4 : gapSize,
-                height: v ? gapSize : 4,
-                position: "relative",
+                width: v ? 24 : gapSize,
+                height: v ? gapSize : 24,
                 flexShrink: 0,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
               }}>
-                <svg
-                  width="100%"
-                  height="100%"
-                  viewBox={v ? "0 0 4 48" : "0 0 56 4"}
-                  preserveAspectRatio="none"
-                  style={{ overflow: "visible" }}
-                >
-                  <ArrowConnector
-                    vertical={v}
-                    color={props.primaryColor}
-                    enabled={props.enableAnimations}
-                    delay={staggerDelay(i, delay + 5, 10)}
-                  />
-                </svg>
+                <ArrowConnector
+                  vertical={v}
+                  color={props.primaryColor}
+                  enabled={props.enableAnimations}
+                  delay={staggerDelay(i, delay + 5, 10)}
+                />
               </div>
             )}
           </React.Fragment>
@@ -91,24 +82,31 @@ export const FlowChart = ({
   );
 };
 
-// Simplified arrow connector rendered inside a small SVG viewBox
+// Arrow connector — centered SVG with proper viewBox
 const ArrowConnector = ({
   vertical, color, enabled, delay,
 }: {
   vertical: boolean; color: string; enabled: boolean; delay: number;
 }) => {
+  // Horizontal: 56 wide × 24 tall, arrow centered at y=12
+  // Vertical: 24 wide × 48 tall, arrow centered at x=12
+  const w = vertical ? 24 : 56;
+  const h = vertical ? 48 : 24;
+  const cx = w / 2;
+  const cy = h / 2;
+
   const linePath = vertical
-    ? "M 2 0 L 2 38"
-    : "M 0 2 L 46 2";
+    ? `M ${cx} 2 L ${cx} ${h - 10}`
+    : `M 2 ${cy} L ${w - 10} ${cy}`;
   const headPath = vertical
-    ? "M -4 34 L 2 42 L 8 34"
-    : "M 42 -4 L 50 2 L 42 8";
+    ? `M ${cx - 6} ${h - 14} L ${cx} ${h - 6} L ${cx + 6} ${h - 14}`
+    : `M ${w - 14} ${cy - 6} L ${w - 6} ${cy} L ${w - 14} ${cy + 6}`;
 
   const line = useDrawOn(linePath, enabled, delay, 18, "snappy");
   const head = useDrawOn(headPath, enabled, delay + 10, 10, "snappy");
 
   return (
-    <>
+    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} style={{ overflow: "visible" }}>
       <path
         d={linePath}
         fill="none"
@@ -130,6 +128,6 @@ const ArrowConnector = ({
         strokeDasharray={head.strokeDasharray}
         strokeDashoffset={head.strokeDashoffset}
       />
-    </>
+    </svg>
   );
 };

@@ -3,84 +3,242 @@ import type { VideoProps } from "../Root";
 import { useEntrance, useDrawOn, staggerDelay } from "./animations";
 
 /**
- * DiagramReveal — General-purpose animated SVG diagram with draw-on effect.
+ * DiagramReveal — Animated SVG diagram with auto-layout and draw-on effect.
  *
- * Accepts nodes (positioned boxes) and edges (connections between them).
- * Edges draw themselves progressively, then nodes fade in.
+ * Nodes are auto-positioned if x/y are omitted. The layout algorithm:
+ * 1. Topological sort based on edges
+ * 2. Assign layers (depth from root nodes)
+ * 3. Center nodes within each layer
  *
- * Usage:
+ * Auto-layout usage (recommended):
  *   <DiagramReveal
  *     props={props}
  *     nodes={[
- *       { id: "a", label: "Input", x: 100, y: 50 },
- *       { id: "b", label: "Process", x: 400, y: 50 },
- *       { id: "c", label: "Output", x: 700, y: 50 },
+ *       { id: "a", label: "Input" },
+ *       { id: "b", label: "Process" },
+ *       { id: "c", label: "Output" },
  *     ]}
  *     edges={[
  *       { from: "a", to: "b" },
  *       { from: "b", to: "c" },
  *     ]}
- *     width={900}
- *     height={200}
+ *   />
+ *
+ * Manual layout (override x/y):
+ *   <DiagramReveal
+ *     props={props}
+ *     nodes={[
+ *       { id: "a", label: "Input", x: 100, y: 80 },
+ *       ...
+ *     ]}
+ *     edges={[...]}
  *   />
  */
 
 export interface DiagramNode {
   id: string;
   label: string;
-  x: number;        // center x in SVG viewBox
-  y: number;        // center y in SVG viewBox
+  x?: number;       // auto-computed if omitted
+  y?: number;       // auto-computed if omitted
   icon?: string;
-  width?: number;    // default 160
-  height?: number;   // default 72
+  width?: number;   // default: auto from label length
+  height?: number;  // default 56
 }
 
 export interface DiagramEdge {
   from: string;
   to: string;
   label?: string;
-  style?: "straight" | "curve" | "elbow"; // default "curve"
+  style?: "straight" | "curve" | "elbow"; // default "straight"
 }
 
-// Build SVG path for an edge between two nodes
+// --- Auto-layout algorithm ---
+
+interface LayoutNode extends DiagramNode {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  layer: number;
+}
+
+const autoLayout = (
+  nodes: DiagramNode[],
+  edges: DiagramEdge[],
+  viewWidth: number,
+  viewHeight: number,
+  direction: "vertical" | "horizontal",
+): LayoutNode[] => {
+  // Build adjacency lists
+  const children = new Map<string, string[]>();
+  const parents = new Map<string, string[]>();
+  for (const n of nodes) {
+    children.set(n.id, []);
+    parents.set(n.id, []);
+  }
+  for (const e of edges) {
+    children.get(e.from)?.push(e.to);
+    parents.get(e.to)?.push(e.from);
+  }
+
+  // Assign layers via BFS from root nodes (nodes with no parents)
+  const layerMap = new Map<string, number>();
+  const roots = nodes.filter((n) => (parents.get(n.id)?.length ?? 0) === 0);
+  // If no roots found (cycle), use all nodes as roots
+  const startNodes = roots.length > 0 ? roots : [nodes[0]];
+
+  const queue: { id: string; layer: number }[] = startNodes.map((n) => ({ id: n.id, layer: 0 }));
+  const visited = new Set<string>();
+
+  while (queue.length > 0) {
+    const { id, layer } = queue.shift()!;
+    if (visited.has(id)) {
+      // Update to deeper layer if found via longer path
+      const existing = layerMap.get(id) ?? 0;
+      if (layer > existing) layerMap.set(id, layer);
+      continue;
+    }
+    visited.add(id);
+    layerMap.set(id, layer);
+    for (const childId of children.get(id) ?? []) {
+      queue.push({ id: childId, layer: layer + 1 });
+    }
+  }
+
+  // Handle unvisited nodes (disconnected)
+  for (const n of nodes) {
+    if (!layerMap.has(n.id)) layerMap.set(n.id, 0);
+  }
+
+  // Group nodes by layer
+  const maxLayer = Math.max(...layerMap.values());
+  const layers: DiagramNode[][] = Array.from({ length: maxLayer + 1 }, () => []);
+  for (const n of nodes) {
+    layers[layerMap.get(n.id) ?? 0].push(n);
+  }
+
+  // Compute node dimensions
+  const getNodeWidth = (n: DiagramNode) => n.width ?? Math.max(120, n.label.length * 16 + 40);
+  const getNodeHeight = (n: DiagramNode) => n.height ?? 56;
+
+  // Layout padding
+  const padX = 60;
+  const padY = 40;
+  const usableW = viewWidth - padX * 2;
+  const usableH = viewHeight - padY * 2;
+
+  const layerCount = maxLayer + 1;
+
+  // Position each node
+  const result: LayoutNode[] = [];
+
+  if (direction === "vertical") {
+    // Top-to-bottom flow
+    const layerSpacing = layerCount > 1 ? usableH / (layerCount - 1) : 0;
+
+    for (let layer = 0; layer <= maxLayer; layer++) {
+      const nodesInLayer = layers[layer];
+      const count = nodesInLayer.length;
+      const totalWidth = nodesInLayer.reduce((sum, n) => sum + getNodeWidth(n), 0);
+      const gapCount = Math.max(count - 1, 1);
+      const gap = count > 1 ? Math.min(40, (usableW - totalWidth) / gapCount) : 0;
+      const rowWidth = totalWidth + gap * (count - 1);
+      let cx = padX + (usableW - rowWidth) / 2;
+
+      for (const n of nodesInLayer) {
+        const w = getNodeWidth(n);
+        const h = getNodeHeight(n);
+        const y = layerCount === 1
+          ? padY + usableH / 2
+          : padY + layer * layerSpacing;
+
+        result.push({
+          ...n,
+          x: n.x ?? (cx + w / 2),
+          y: n.y ?? y,
+          width: w,
+          height: h,
+          layer,
+        });
+        cx += w + gap;
+      }
+    }
+  } else {
+    // Left-to-right flow
+    const layerSpacing = layerCount > 1 ? usableW / (layerCount - 1) : 0;
+
+    for (let layer = 0; layer <= maxLayer; layer++) {
+      const nodesInLayer = layers[layer];
+      const count = nodesInLayer.length;
+      const totalHeight = nodesInLayer.reduce((sum, n) => sum + getNodeHeight(n), 0);
+      const gapCount = Math.max(count - 1, 1);
+      const gap = count > 1 ? Math.min(30, (usableH - totalHeight) / gapCount) : 0;
+      const colHeight = totalHeight + gap * (count - 1);
+      let cy = padY + (usableH - colHeight) / 2;
+
+      for (const n of nodesInLayer) {
+        const w = getNodeWidth(n);
+        const h = getNodeHeight(n);
+        const x = layerCount === 1
+          ? padX + usableW / 2
+          : padX + layer * layerSpacing;
+
+        result.push({
+          ...n,
+          x: n.x ?? x,
+          y: n.y ?? (cy + h / 2),
+          width: w,
+          height: h,
+          layer,
+        });
+        cy += h + gap;
+      }
+    }
+  }
+
+  return result;
+};
+
+// Detect if nodes need auto-layout (any node missing x or y)
+const needsAutoLayout = (nodes: DiagramNode[]): boolean =>
+  nodes.some((n) => n.x === undefined || n.y === undefined);
+
+// --- Edge path builders ---
+
 const buildEdgePath = (
-  fromNode: DiagramNode,
-  toNode: DiagramNode,
-  style: "straight" | "curve" | "elbow" = "curve",
+  fromNode: LayoutNode,
+  toNode: LayoutNode,
+  style: "straight" | "curve" | "elbow" = "straight",
 ): string => {
-  const fw = (fromNode.width ?? 160) / 2;
-  const fh = (fromNode.height ?? 72) / 2;
-  const tw = (toNode.width ?? 160) / 2;
+  const fw = fromNode.width / 2;
+  const fh = fromNode.height / 2;
+  const tw = toNode.width / 2;
+  const th = toNode.height / 2;
 
   const dx = toNode.x - fromNode.x;
   const dy = toNode.y - fromNode.y;
-
-  // Determine exit/entry direction based on relative position
   const horizontal = Math.abs(dx) > Math.abs(dy);
 
   let x1: number, y1: number, x2: number, y2: number;
 
   if (horizontal) {
-    // Exit from right/left edge of node
     x1 = fromNode.x + (dx > 0 ? fw : -fw);
     y1 = fromNode.y;
     x2 = toNode.x + (dx > 0 ? -tw : tw);
     y2 = toNode.y;
   } else {
-    // Exit from top/bottom edge
     x1 = fromNode.x;
     y1 = fromNode.y + (dy > 0 ? fh : -fh);
     x2 = toNode.x;
-    y2 = toNode.y + (dy > 0 ? -fh : fh);
+    y2 = toNode.y + (dy > 0 ? -th : th);
   }
 
   switch (style) {
     case "straight":
       return `M ${x1} ${y1} L ${x2} ${y2}`;
     case "elbow": {
-      const midX = (x1 + x2) / 2;
       return horizontal
-        ? `M ${x1} ${y1} L ${midX} ${y1} L ${midX} ${y2} L ${x2} ${y2}`
+        ? `M ${x1} ${y1} L ${(x1 + x2) / 2} ${y1} L ${(x1 + x2) / 2} ${y2} L ${x2} ${y2}`
         : `M ${x1} ${y1} L ${x1} ${(y1 + y2) / 2} L ${x2} ${(y1 + y2) / 2} L ${x2} ${y2}`;
     }
     case "curve":
@@ -95,17 +253,16 @@ const buildEdgePath = (
   }
 };
 
-// Arrowhead at end of edge
 const buildArrowHead = (
-  fromNode: DiagramNode,
-  toNode: DiagramNode,
-  size = 8,
+  fromNode: LayoutNode,
+  toNode: LayoutNode,
+  size = 7,
 ): string => {
   const dx = toNode.x - fromNode.x;
   const dy = toNode.y - fromNode.y;
   const horizontal = Math.abs(dx) > Math.abs(dy);
-  const tw = (toNode.width ?? 160) / 2;
-  const th = (toNode.height ?? 72) / 2;
+  const tw = toNode.width / 2;
+  const th = toNode.height / 2;
 
   if (horizontal) {
     const x = toNode.x + (dx > 0 ? -tw : tw);
@@ -119,11 +276,12 @@ const buildArrowHead = (
   return `M ${x - size} ${y + dir * size} L ${x} ${y} L ${x + size} ${y + dir * size}`;
 };
 
-// Single animated edge
+// --- Animated sub-components ---
+
 const AnimatedEdge = ({
   fromNode, toNode, edge, color, enabled, delay,
 }: {
-  fromNode: DiagramNode; toNode: DiagramNode; edge: DiagramEdge;
+  fromNode: LayoutNode; toNode: LayoutNode; edge: DiagramEdge;
   color: string; enabled: boolean; delay: number;
 }) => {
   const edgePath = buildEdgePath(fromNode, toNode, edge.style);
@@ -170,18 +328,16 @@ const AnimatedEdge = ({
   );
 };
 
-// Single animated node box
 const AnimatedNode = ({
   node, color, textColor, bgColor, enabled, delay,
 }: {
-  node: DiagramNode; color: string; textColor: string;
+  node: LayoutNode; color: string; textColor: string;
   bgColor: string; enabled: boolean; delay: number;
 }) => {
-  const w = node.width ?? 160;
-  const h = node.height ?? 72;
-  const r = 12; // border radius
+  const w = node.width;
+  const h = node.height;
+  const r = 12;
 
-  // Rounded rectangle as SVG path for draw-on
   const rectPath = `M ${node.x - w / 2 + r} ${node.y - h / 2}
     L ${node.x + w / 2 - r} ${node.y - h / 2}
     Q ${node.x + w / 2} ${node.y - h / 2} ${node.x + w / 2} ${node.y - h / 2 + r}
@@ -196,7 +352,6 @@ const AnimatedNode = ({
 
   return (
     <>
-      {/* Fill background (fades in with draw progress) */}
       <rect
         x={node.x - w / 2}
         y={node.y - h / 2}
@@ -206,7 +361,6 @@ const AnimatedNode = ({
         fill={bgColor}
         opacity={draw.progress * 0.08}
       />
-      {/* Animated border */}
       <path
         d={rectPath}
         fill="none"
@@ -216,13 +370,12 @@ const AnimatedNode = ({
         strokeDasharray={draw.strokeDasharray}
         strokeDashoffset={draw.strokeDashoffset}
       />
-      {/* Label (appears after border draws) */}
       <text
         x={node.x}
         y={node.y + 6}
         textAnchor="middle"
         fill={textColor}
-        fontSize={22}
+        fontSize={20}
         fontWeight={600}
         opacity={Math.min(1, draw.progress * 2)}
       >
@@ -232,12 +385,15 @@ const AnimatedNode = ({
   );
 };
 
+// --- Main component ---
+
 export const DiagramReveal = ({
   props,
   nodes,
   edges,
   width = 900,
-  height = 300,
+  height = 400,
+  direction = "vertical",
   delay = 0,
 }: {
   props: VideoProps;
@@ -245,10 +401,25 @@ export const DiagramReveal = ({
   edges: DiagramEdge[];
   width?: number;
   height?: number;
+  /** Layout direction: "vertical" (top-to-bottom) or "horizontal" (left-to-right) */
+  direction?: "vertical" | "horizontal";
   delay?: number;
 }) => {
   const a = useEntrance(props.enableAnimations, delay, "gentle");
-  const nodeMap = new Map(nodes.map((n) => [n.id, n]));
+
+  // Auto-layout or use provided coordinates
+  const layoutNodes: LayoutNode[] = needsAutoLayout(nodes)
+    ? autoLayout(nodes, edges, width, height, direction)
+    : nodes.map((n) => ({
+        ...n,
+        x: n.x!,
+        y: n.y!,
+        width: n.width ?? Math.max(120, n.label.length * 16 + 40),
+        height: n.height ?? 56,
+        layer: 0,
+      }));
+
+  const nodeMap = new Map(layoutNodes.map((n) => [n.id, n]));
 
   return (
     <div style={{
@@ -261,7 +432,6 @@ export const DiagramReveal = ({
         viewBox={`0 0 ${width} ${height}`}
         style={{ overflow: "visible" }}
       >
-        {/* Draw edges first (behind nodes) */}
         {edges.map((edge, i) => {
           const fromNode = nodeMap.get(edge.from);
           const toNode = nodeMap.get(edge.to);
@@ -278,8 +448,7 @@ export const DiagramReveal = ({
             />
           );
         })}
-        {/* Draw nodes on top */}
-        {nodes.map((node, i) => (
+        {layoutNodes.map((node, i) => (
           <AnimatedNode
             key={node.id}
             node={node}
