@@ -10,8 +10,10 @@ import React from "react";
 import { Audio, staticFile, AbsoluteFill, Sequence } from "remotion";
 import { TransitionSeries, linearTiming } from "@remotion/transitions";
 import { fade } from "@remotion/transitions/fade";
-import { defaultVideoProps } from "./Root";
 import type { VideoProps } from "./Root";
+
+// Inline vertical props to avoid circular dependency (Root imports this file)
+// These match defaultVideoProps with orientation: "vertical" overrides
 
 import {
   Scale4K,
@@ -64,8 +66,24 @@ const SectionContent = ({ props }: { props: VideoProps }) => {
 
 // ─── Main Short Composition ───────────────────────────────────────────────────
 const shortProps: VideoProps = {
-  ...defaultVideoProps,
+  primaryColor: "#4f6ef7",
+  backgroundColor: "#ffffff",
+  textColor: "#1a1a1a",
+  accentColor: "#FF6B6B",
+  titleSize: 96,
+  subtitleSize: 48,
+  bodySize: 36,
+  showProgressBar: false,
+  progressBarHeight: 130,
+  progressFontSize: 38,
+  progressActiveColor: "#4f6ef7",
+  bgmVolume: 0,
+  enableAnimations: true,
+  transitionType: "fade",
+  transitionDuration: 15,
   orientation: "vertical",
+  iconStyle: "lucide",
+  iconAnimation: "entrance",
 };
 
 export const ShortVideo = () => {
