@@ -6,7 +6,6 @@
  * Audio: short_audio.wav contains only the section content audio (no intro silence).
  */
 
-import React from "react";
 import { Audio, staticFile, AbsoluteFill, Sequence } from "remotion";
 import { TransitionSeries, linearTiming } from "@remotion/transitions";
 import { fade } from "@remotion/transitions/fade";

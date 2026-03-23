@@ -642,7 +642,7 @@ if len(sections) > 1 and word_boundaries:
 
     for sec_idx, section in enumerate(sections[1:], 1):
         target = section['first_text'][:30]
-        target_clean = re.sub(r'[，。！？、：；""''\s]', '', target)
+        target_clean = re.sub(r"""[，。！？、：；""''\s]""", '', target)
 
         found = False
         # 从 search_start 开始搜索（确保章节按顺序）
@@ -650,7 +650,7 @@ if len(sections) > 1 and word_boundaries:
             window = ''
             for j in range(i, min(i + 30, len(word_boundaries))):
                 window += wb_texts[j]
-                window_clean = re.sub(r'[，。！？、：；""''\s]', '', window)
+                window_clean = re.sub(r"""[，。！？、：；""''\s]""", '', window)
 
                 # 检查窗口开头是否匹配目标开头（而不是包含）
                 if len(window_clean) >= 10 and window_clean.startswith(target_clean[:12]):
@@ -758,7 +758,7 @@ for i, wb in enumerate(word_boundaries):
 
     if should_break:
         # 清理首尾标点
-        clean_subtitle = re.sub(r'^[，。！？、：；""''…—\s]+|[，。！？、：；""''…—\s]+$', '', current_text.strip())
+        clean_subtitle = re.sub(r"""^[，。！？、：；""''…—\s]+|[，。！？、：；""''…—\s]+$""", '', current_text.strip())
         if clean_subtitle:
             srt_lines.append(f"{subtitle_idx}\n{format_time(start_time)} --> {format_time(end_time)}\n{clean_subtitle}\n\n")
             subtitle_idx += 1

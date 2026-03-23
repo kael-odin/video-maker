@@ -1,4 +1,4 @@
-import type React from "react";
+// React import not needed with react-jsx transform
 import type { VideoProps } from "../Root";
 import { useEntrance, useDrawOn, staggerDelay } from "./animations";
 

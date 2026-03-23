@@ -1,4 +1,4 @@
-import React from "react";
+// React import not needed with react-jsx transform
 import { useCurrentFrame } from "remotion";
 import type { VideoProps } from "../Root";
 import timing from "../../public/timing.json";
