@@ -52,12 +52,17 @@ ffmpeg -y -i videos/{name}/output.mp4 -stream_loop -1 -i videos/{name}/bgm.mp3 \
 ffmpeg -y -i videos/{name}/video_with_bgm.mp4 \
   -vf "subtitles=videos/{name}/podcast_audio.srt:force_style='FontName=PingFang SC,FontSize=14,PrimaryColour=&H00333333,OutlineColour=&H00FFFFFF,Bold=1,Outline=2'" \
   -c:v libx264 -crf 18 -preset slow -s 3840x2160 -c:a copy videos/{name}/final_video.mp4
+
+# Vertical shorts generation
+python3 generate_shorts.py --input-dir videos/{name}/ --title "视频标题"           # Generate short compositions
+python3 generate_shorts.py --input-dir videos/{name}/ --title "视频标题" --render   # Generate + render all shorts
 ```
 
 ## Architecture
 
 ```
 generate_tts.py                  # TTS (Azure/CosyVoice/Edge) + SRT + timing.json
+generate_shorts.py               # Vertical shorts: section filtering, audio extraction, composition generation
 SKILL.md                         # Core workflow overview (<500 lines)
 references/
   workflow-steps.md              # Detailed step instructions (Steps 1-14)
@@ -67,6 +72,7 @@ templates/
   Video.tsx                      # Main composition — section renderer + audio + transitions
   Root.tsx                       # Remotion root, Zod schema for Studio props
   Thumbnail.tsx                  # Cover image component (16:9 + 4:3 + 9:16)
+  ShortVideo.tsx                 # Short video composition template (intro + content + cta)
   podcast.txt                    # Script template with [SECTION:xxx] markers
   components/                    # Reusable visual building blocks
     index.ts                     # Barrel export
@@ -85,6 +91,8 @@ templates/
     ChapterProgressBar.tsx       # Bottom progress bar (renders outside Scale4K)
     AnimatedBackground.tsx       # MovingGradient, FloatingShapes, GridPattern, GlowOrb, AccentLine
     SectionLayouts.tsx           # SplitLayout, StatHighlight, ZigzagCards, CenteredShowcase, MetricsRow, StepProgress
+    ShortIntroCard.tsx           # Full-screen title card for short video intros (3s)
+    ShortCTACard.tsx             # End CTA card "关注看完整版" for shorts (3s)
     DiagramReveal.tsx            # General-purpose animated SVG diagram with draw-on effect (nodes + edges)
     AudioWaveform.tsx            # Real-time audio frequency visualization (bars, wave, dots modes)
     LottieAnimation.tsx          # After Effects animation player via @remotion/lottie (staticFile or URL)

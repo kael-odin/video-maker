@@ -594,3 +594,43 @@ echo "✓ Temp files cleaned"
 ✓ Publish info: publish_info.md
 ✓ Temp files cleaned
 ```
+
+---
+
+## Step 13: Generate Vertical Shorts (Optional)
+
+**When:** After long-form video is complete (Step 12). Optional step.
+
+**Claude behavior:** Offer to generate vertical shorts. If user agrees, run automatically.
+
+### Generate shorts from sections
+
+```bash
+python3 generate_shorts.py --input-dir videos/{name}/ --title "视频标题"
+```
+
+This produces `videos/{name}/shorts/{section_name}/` for each qualifying section (>20s, not hero/outro) with:
+- `short_audio.wav` — extracted audio slice
+- `short_timing.json` — timing for intro (3s) + content + CTA (3s)
+- `short_info.json` — composition metadata
+- `register_snippet.tsx` — Root.tsx registration code
+
+### Create short compositions
+
+For each generated short:
+1. Copy `templates/ShortVideo.tsx` as `src/remotion/{SectionName}ShortVideo.tsx`
+2. Replace `SectionContent` placeholder with the actual section component from the long-form video
+3. Update `SHORT_CONFIG` with values from `short_info.json`
+4. Register composition in `Root.tsx` using `register_snippet.tsx`
+5. Copy `short_audio.wav` to `public/`
+
+### Render shorts
+
+```bash
+npx remotion render src/remotion/index.ts {CompId} videos/{name}/shorts/{section}/short.mp4 --video-bitrate 16M
+```
+
+Each short is a standalone 9:16 4K video (2160×3840) with:
+- 3-second intro title card
+- Section content (vertical layout, all components auto-adapt)
+- 3-second CTA card ("关注看完整版")
