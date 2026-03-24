@@ -80,15 +80,31 @@ ffmpeg -i reference.mp4 -vf "select='gt(scene,0.3)'" -vsync vfn frames/scene_%03
 
 ### Frame limit: max 8 content frames + 1 cover
 
+### Frame deduplication
+Scene-change frames that fall within 2 seconds of an evenly-spaced frame are discarded. Remaining frames are sorted chronologically and capped at 8.
+
+### Error handling
+- **ffmpeg not installed**: skip local video input, prompt user for screenshots instead
+- **Playwright not installed or blocked**: skip URL input, prompt for local file or screenshots
+- **Corrupt/unsupported files**: report error, skip file, continue with remaining inputs
+- **Video file > 2GB**: warn user, extract frames from first 30 minutes only
+- **Vision analysis returns low-confidence results**: present results with confidence caveat, let user adjust
+
+### Orientation awareness
+Analysis detects video orientation (16:9 vs 9:16). When reference orientation mismatches target video, the report flags this: "Reference is vertical — layout patterns may not transfer directly to horizontal output."
+
 ## Report Schema (`report.json`)
+
+**Note on precision:** Color values are approximate suggestions extracted by Claude Vision — treat as "closest match" rather than exact hex codes. Claude may propose 2-3 candidate palettes for user selection. Layout pattern names are Claude's best mapping to the project's component vocabulary; the user confirms or adjusts at review time.
 
 ```json
 {
-  "version": "1.0",
+  "report_version": "1.0",
   "source": {
     "type": "url|local_video|images",
     "url": "https://bilibili.com/video/BVxxxx",
     "title": "AI Agent 2026 完全指南",
+    "orientation": "horizontal|vertical",
     "analyzed_at": "2026-03-25T10:30:00Z"
   },
   "cover_design": {
@@ -103,10 +119,10 @@ ffmpeg -i reference.mp4 -vf "select='gt(scene,0.3)'" -vsync vfn frames/scene_%03
   "content_design": {
     "theme": "light|dark",
     "palette": {
-      "primary": "#4f6ef7",
-      "accent": "#e94560",
-      "background": "#0f0f23",
-      "text": "#ffffff"
+      "primaryColor": "#4f6ef7",
+      "accentColor": "#e94560",
+      "backgroundColor": "#0f0f23",
+      "textColor": "#ffffff"
     },
     "typography_feel": "bold-clean|elegant-serif|casual-rounded",
     "density": "spacious|balanced|dense",
@@ -129,23 +145,30 @@ ffmpeg -i reference.mp4 -vf "select='gt(scene,0.3)'" -vsync vfn frames/scene_%03
     "titleSize": 96,
     "subtitleSize": 52,
     "bodySize": 32,
+    "enableAnimations": true,
     "transitionType": "fade",
-    "iconStyle": "lucide"
+    "transitionDuration": 15,
+    "showProgressBar": true,
+    "iconStyle": "lucide",
+    "iconAnimation": "entrance",
+    "orientation": "horizontal"
   },
   "summary": "Human-readable one-line summary of the design style",
   "tags": ["tech", "dark", "minimalist", "gradient"]
 }
 ```
 
+**Field naming convention:** `content_design.palette` and `props_mapping` both use Root.tsx prop names (`primaryColor`, `accentColor`, `backgroundColor`, `textColor`) — no translation needed. `props_mapping` is an exhaustive subset of `videoSchema` props; fields not extractable from visual analysis (e.g., `bgmVolume`) are omitted intentionally.
+
 ## Style Profile System
 
 ### user_prefs.json evolution (v1.0 → v1.1)
 
-New top-level fields added:
+New top-level fields added. **Migration:** at skill startup (Step 1), if `version` is `"1.0"`, silently upgrade to `"1.1"` by adding empty `style_profiles: {}` and `design_references: {}`. Existing fields are untouched.
 
 ```json
 {
-  "version": "1.1",
+  "prefs_version": "1.1",
   "global": { },
   "topic_patterns": { },
 
@@ -184,6 +207,18 @@ New top-level fields added:
 - Fully user-controlled — no restrictions
 - Can organize by topic ("tech-explainer"), aesthetic ("neon-gradient"), channel ("某UP主风格"), or use case ("conference-talk")
 
+### Reference ID naming convention
+- **URL input**: `{platform}-{video_id}` (e.g., `bilibili-BV1xx411c7xx`, `youtube-dQw4w9WgXcQ`)
+- **Local video**: `local-{filename_without_ext}` (e.g., `local-my-reference`)
+- **Image set**: `images-{user_provided_name}` or `images-{timestamp}` if no name given
+- Collision: append `-2`, `-3` suffix
+
+### Relationship: style_profiles vs topic_patterns
+- `topic_patterns` is **retained for backward compatibility** — auto-detected topic still applies as a base layer
+- `style_profiles` are user-created, override topic_patterns when explicitly specified
+- No migration of topic_patterns → style_profiles; they coexist independently
+- Long-term: as users build style profiles, topic_patterns becomes less relevant but is never removed
+
 ### Priority chain (updated)
 ```
 Root.tsx defaults < global < topic_patterns[type] < style_profiles[name] < current instructions
@@ -197,8 +232,8 @@ Root.tsx defaults < global < topic_patterns[type] < style_profiles[name] < curre
 
 ## Workflow Integration
 
-### New Step 0 (optional)
-Before existing Step 1. User provides a reference with the video creation request:
+### Pre-workflow: Design Reference (optional)
+Before existing Step 1 (not a numbered step). User provides a reference with the video creation request:
 - Quick learn → analysis report → user confirms
 - Extracted props applied as session overrides
 - NOT saved to design_references/ unless user explicitly asks
@@ -231,20 +266,29 @@ design_references/
       ...
 ```
 
+### Subcommand dispatch
+The `learn`, `references`, and `profiles` subcommands are **Claude-driven, not code-driven**. SKILL.md defines the subcommand syntax; Claude parses the user's arguments and executes the appropriate workflow (vision analysis, JSON read/write, file management). No separate dispatch code needed — this follows the same pattern as the existing 14-step workflow where Claude orchestrates each step. `learn_design.py` only handles image extraction (ffmpeg commands); all analysis, report generation, and preference management happen in Claude's conversation context.
+
+### CLI flag semantics
+- `--profile <name>`: **create new** profile if name doesn't exist, **add to existing** if it does. Claude confirms which action before proceeding.
+- `--tags <tag1,tag2>`: tags the **reference** (stored in `design_references` index), not the profile. Profiles inherit tags from their linked references for search purposes.
+
 ## Files to Create/Modify
 
 | Action | File | Change |
 |--------|------|--------|
-| Create | `learn_design.py` | Image extraction pipeline (ffmpeg + Playwright orchestration) |
+| Create | `learn_design.py` | Image extraction pipeline (ffmpeg frame extraction, file validation) |
 | Create | `design_references/` | Directory for stored analyses |
 | Create | `design_references/.gitkeep` | Ensure directory exists in git |
-| Modify | `user_prefs.json` | Add `style_profiles` + `design_references` fields |
+| Modify | `.gitignore` | Add `design_references/*/frames/` and `design_references/*/cover.png` |
+| Modify | `user_prefs.json` | Add `style_profiles` + `design_references` fields, bump version to 1.1 |
 | Modify | `user_prefs.template.json` | Add empty defaults for new fields |
-| Modify | `prefs_schema.json` | Add JSON Schema for new fields |
-| Modify | `SKILL.md` | Add Step 0, learn command, reference/profile commands |
-| Modify | `references/workflow-steps.md` | Detail Step 0 + Step 9 enhancements |
+| Modify | `prefs_schema.json` | Add JSON Schema definitions for `style_profiles` and `design_references` |
+| Modify | `SKILL.md` | Add pre-workflow step, learn/references/profiles commands, update description frontmatter for discoverability |
+| Modify | `references/workflow-steps.md` | Detail pre-workflow design reference + Step 9 enhancements |
 | Modify | `references/troubleshooting.md` | Add learn-related troubleshooting |
 | Modify | `CLAUDE.md` | Add learn commands, update architecture section |
+| Modify | `templates/Thumbnail.tsx` | Support `cover_design` overrides from style profiles |
 
 ## Implementation Priority
 
@@ -253,5 +297,12 @@ design_references/
 | Phase 1 | Image input + vision analysis + report.json | Core learn loop works with screenshots |
 | Phase 2 | Style profiles + user_prefs.json evolution | Profiles can be created, listed, applied |
 | Phase 3 | Local video extraction (ffmpeg) | `learn ./video.mp4` works |
-| Phase 4 | URL extraction (Playwright) | `learn https://bilibili.com/...` works |
-| Phase 5 | Step 9 integration + Step 0 | Design references inform video creation |
+| Phase 4 | URL extraction (Playwright — experimental) | `learn https://bilibili.com/...` works; fallback-first approach, Playwright is a bonus |
+| Phase 5 | Step 9 integration + pre-workflow step | Design references inform video creation |
+
+## Disk Management
+
+- Recommended max: **30 references** (approx 300MB with 8 frames each at 1080p PNG)
+- `references list` shows total disk usage
+- `references delete` removes directory and index entry
+- Stale reference cleanup: if `design_references/{id}/` directory is manually deleted, next `references list` detects missing path and removes the orphaned index entry from `user_prefs.json`
