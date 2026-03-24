@@ -168,7 +168,7 @@ New top-level fields added. **Migration:** at skill startup (Step 1), if `versio
 
 ```json
 {
-  "prefs_version": "1.1",
+  "version": "1.1",
   "global": { },
   "topic_patterns": { },
 
