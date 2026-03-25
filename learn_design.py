@@ -20,7 +20,6 @@ from datetime import datetime, timezone
 SUPPORTED_IMAGE_EXTS = {".png", ".jpg", ".jpeg", ".webp"}
 SUPPORTED_VIDEO_EXTS = {".mp4", ".mkv", ".avi", ".mov", ".webm", ".flv"}
 MAX_FRAMES = 8
-SCENE_THRESHOLD = 0.3
 MAX_VIDEO_SIZE_BYTES = 2 * 1024 * 1024 * 1024  # 2 GB
 
 PREFS_VERSION = "1.1"
@@ -241,12 +240,12 @@ def extract_video_frames(video_path, ref_dir):
     ]
 
     try:
-        subprocess.run(cmd, capture_output=True, check=True)
+        subprocess.run(cmd, capture_output=True, text=True, check=True)
     except FileNotFoundError:
         print("Error: ffmpeg not found. Install ffmpeg to enable video frame extraction.", file=sys.stderr)
         return []
     except subprocess.CalledProcessError as e:
-        print(f"Error: ffmpeg failed: {e.stderr.decode()}", file=sys.stderr)
+        print(f"Error: ffmpeg failed: {e.stderr}", file=sys.stderr)
         return []
 
     # Collect extracted frames
