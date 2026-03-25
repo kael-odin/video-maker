@@ -510,72 +510,107 @@ def main():
 
     existing_ids = set(prefs.get("design_references", {}).keys())
 
+    # Classify inputs
+    images = []
+    videos = []
+    urls = []
+
     for input_path in args.inputs:
         input_type = detect_input_type(input_path)
-
-        if input_type == "not_found":
+        if input_type == "image":
+            images.append(input_path)
+        elif input_type == "local_video":
+            videos.append(input_path)
+        elif input_type == "url":
+            urls.append(input_path)
+        elif input_type == "not_found":
             print(f"Warning: not found — skipping: {input_path}", file=sys.stderr)
-            continue
-
-        if input_type == "unsupported":
+        else:
             print(f"Warning: unsupported file type — skipping: {input_path}", file=sys.stderr)
-            continue
 
-        ref_id = generate_reference_id(input_path, name=args.name, existing_ids=existing_ids)
+    if not images and not videos and not urls:
+        print("Error: No valid inputs provided.", file=sys.stderr)
+        return
+
+    # Multiple images → group into one reference
+    if images:
+        source = "images" if len(images) > 1 or (not videos and not urls) else images[0]
+        ref_id = generate_reference_id(source, name=args.name, existing_ids=existing_ids)
         existing_ids.add(ref_id)
         ref_dir = create_reference_dir(output_dir, ref_id)
 
-        print(f"\nProcessing: {input_path}")
+        print(f"\nProcessing {len(images)} image(s)")
         print(f"  Reference ID: {ref_id}")
         print(f"  Output: {ref_dir}")
 
-        frames = []
-        orientation = "unknown"
-        source_meta = {}
-
-        if input_type == "image":
-            frames = copy_images([input_path], ref_dir)
-            source_meta["source_type"] = "image"
-
-        elif input_type == "local_video":
-            w, h = get_video_dimensions(input_path)
-            if w and h:
-                orientation = detect_orientation(w, h)
-            duration = get_video_duration(input_path)
-            frames = extract_video_frames(input_path, ref_dir)
-            source_meta.update({
-                "source_type": "local_video",
-                "duration_seconds": duration,
-                "width": w,
-                "height": h,
-            })
-
-        elif input_type == "url":
-            print(f"  URL input detected — download not implemented; add frames manually to {ref_dir}/frames/")
-            source_meta["source_type"] = "url"
+        frames = copy_images(images, ref_dir)
 
         report = {
             "ref_id": ref_id,
-            "source": input_path,
-            "input_type": input_type,
+            "source": images,
+            "input_type": "images",
+            "orientation": "unknown",
+            "frame_count": len(frames),
+            "frames": [os.path.relpath(f, ref_dir) for f in frames],
+            "extracted_at": datetime.now(timezone.utc).isoformat(),
+        }
+        save_report(report, ref_dir)
+        add_reference_index(prefs, ref_id=ref_id, title=args.name or "Image set", source_url=None, tags=[])
+        print(f"  Extracted {len(frames)} frames")
+
+    # Each video → separate reference
+    for video_path in videos:
+        ref_id = generate_reference_id(video_path, name=args.name, existing_ids=existing_ids)
+        existing_ids.add(ref_id)
+        ref_dir = create_reference_dir(output_dir, ref_id)
+
+        print(f"\nProcessing video: {video_path}")
+        print(f"  Reference ID: {ref_id}")
+        print(f"  Output: {ref_dir}")
+
+        w, h = get_video_dimensions(video_path)
+        orientation = detect_orientation(w, h) if w and h else "unknown"
+        duration = get_video_duration(video_path)
+        frames = extract_video_frames(video_path, ref_dir)
+
+        report = {
+            "ref_id": ref_id,
+            "source": video_path,
+            "input_type": "local_video",
             "orientation": orientation,
             "frame_count": len(frames),
             "frames": [os.path.relpath(f, ref_dir) for f in frames],
             "extracted_at": datetime.now(timezone.utc).isoformat(),
-            **source_meta,
+            "duration_seconds": duration,
+            "width": w,
+            "height": h,
         }
         save_report(report, ref_dir)
-
-        add_reference_index(
-            prefs,
-            ref_id=ref_id,
-            title=os.path.basename(input_path),
-            source_url=input_path if input_type == "url" else None,
-            tags=[],
-        )
-
+        add_reference_index(prefs, ref_id=ref_id, title=os.path.basename(video_path), source_url=None, tags=[])
         print(f"  Extracted {len(frames)} frames")
-        print(f"  Saved: {ref_dir}/report.json")
+
+    # URLs → placeholder (Playwright not yet implemented)
+    for url in urls:
+        ref_id = generate_reference_id(url, name=args.name, existing_ids=existing_ids)
+        existing_ids.add(ref_id)
+        ref_dir = create_reference_dir(output_dir, ref_id)
+
+        print(f"\nURL: {url}")
+        print(f"  Reference ID: {ref_id}")
+        print(f"  Output: {ref_dir}")
+        print(f"  URL extraction requires Playwright. Add frames manually to {ref_dir}/frames/")
+
+        report = {
+            "ref_id": ref_id,
+            "source": url,
+            "input_type": "url",
+            "orientation": "unknown",
+            "frame_count": 0,
+            "frames": [],
+            "extracted_at": datetime.now(timezone.utc).isoformat(),
+        }
+        save_report(report, ref_dir)
+        add_reference_index(prefs, ref_id=ref_id, title=url, source_url=url, tags=[])
 
     save_prefs(prefs, prefs_path)
     print("\nDone. Pass the frames/ directory to Claude for design analysis.")
