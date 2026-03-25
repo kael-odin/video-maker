@@ -41,3 +41,10 @@ shorts_module = _load_module(
     os.path.join(_project_root, "generate_shorts.py"),
     fake_argv=["generate_shorts.py", "--input-dir", "/dev/null"],
 )
+
+# learn_design.py
+learn_module = _load_module(
+    "learn_design",
+    os.path.join(_project_root, "learn_design.py"),
+    fake_argv=["learn_design.py", "--help"],
+)
