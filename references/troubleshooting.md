@@ -284,3 +284,33 @@ After learning, update `user_prefs.json` and add `learning_history` record:
   "context": "User adjusted title size 3 times in Studio"
 }
 ```
+
+---
+
+## Design Learning Troubleshooting
+
+### "ffmpeg not found" when learning from video
+
+Install ffmpeg: `brew install ffmpeg` (macOS) or use image input instead.
+
+### Playwright fails on Bilibili/YouTube
+
+URL extraction is experimental. Fallback options:
+1. Download the video and use: `learn ./video.mp4`
+2. Take screenshots manually and use: `learn ./screenshot1.png ./screenshot2.png`
+
+### Vision analysis colors look wrong
+
+Color values from Claude Vision are approximate. After reviewing the report:
+- Adjust colors manually: edit report.json or override when creating the style profile
+- Use a color picker tool on the screenshots for precise hex values
+
+### Style profile not applied
+
+Check priority chain: `style_profiles` only override when explicitly specified by name.
+Verify: `python3 learn_design.py --list` shows the reference exists.
+Verify: `user_prefs.json` → `style_profiles` → your profile name exists with correct props_override.
+
+### Orphaned references (deleted directory but still in index)
+
+Run `references list` — orphaned entries are auto-cleaned on list.
