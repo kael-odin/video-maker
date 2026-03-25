@@ -1,6 +1,6 @@
 ---
 name: video-podcast-maker
-description: Use when user provides a topic and wants an automated video podcast created - handles research, script writing, TTS audio synthesis, Remotion video creation, and final MP4 output with background music
+description: Use when user provides a topic and wants an automated video podcast created, OR when user wants to learn/analyze video design patterns from reference videos — handles research, script writing, TTS audio synthesis, Remotion video creation, and final MP4 output with background music. Also supports design learning from reference videos (learn command), style profile management, and design reference library.
 argument-hint: "[topic]"
 effort: high
 allowed-tools: Bash, Read, Write, Edit, Glob, Grep, WebFetch, WebSearch, Agent
@@ -49,6 +49,53 @@ metadata:
 Open Claude Code and say: **"Make a video podcast about $ARGUMENTS"**
 
 Or invoke directly: `/video-podcast-maker AI Agent tutorial`
+
+---
+
+## Design Learning
+
+Extract visual design patterns from reference videos or images, store them in a searchable library, and apply them to new video compositions.
+
+### Commands
+
+```bash
+# Learn from images (Claude Vision analyzes design patterns)
+python3 learn_design.py ./screenshot1.png ./screenshot2.png
+
+# Learn from a local video (ffmpeg extracts frames automatically)
+python3 learn_design.py ./reference.mp4
+
+# Learn from a URL (Playwright captures screenshots — experimental)
+python3 learn_design.py https://www.bilibili.com/video/BV1xx411c7mD
+
+# Save with a named profile and tags
+python3 learn_design.py ./reference.mp4 --profile "tech-minimal" --tags "tech,minimal,dark"
+```
+
+### Reference Library Commands
+
+```
+references list          # List all stored references (auto-cleans orphaned entries)
+references show <id>     # Show full design report for a reference
+references delete <id>   # Delete a reference and its files
+```
+
+### Style Profile Commands
+
+```
+profiles list            # List all saved style profiles
+profiles show <name>     # Show profile props_override
+profiles delete <name>   # Delete a style profile
+profiles create <name>   # Create a new style profile interactively
+```
+
+### Pre-Workflow Usage
+
+When the user provides a reference video or image alongside a video creation request, extract design patterns before Step 1 and apply them as session overrides. See `references/workflow-steps.md` → Pre-workflow section for the full extraction flow.
+
+### Step 9 Integration
+
+Before choosing visual design in Step 9, check for matching style profiles or reference library entries. Apply the best match as a starting point for Remotion composition props. See `references/workflow-steps.md` → Step 9 Style Profile Integration for the priority chain.
 
 ---
 
