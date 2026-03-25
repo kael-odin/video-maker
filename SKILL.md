@@ -7,9 +7,9 @@ allowed-tools: Bash, Read, Write, Edit, Glob, Grep, WebFetch, WebSearch, Agent
 # --- Claude Code fields above, OpenClaw/SkillsMP fields below ---
 author: Agents365-ai
 category: Content Creation
-version: 1.2.0
+version: 1.3.0
 created: 2025-01-27
-updated: 2026-03-23
+updated: 2026-03-25
 bilibili: https://space.bilibili.com/441831884
 github: https://github.com/Agents365-ai/video-podcast-maker
 dependencies:
