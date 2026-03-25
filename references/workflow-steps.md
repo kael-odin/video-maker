@@ -4,6 +4,19 @@
 
 ---
 
+## Pre-workflow: Design Reference (Optional)
+
+When the user provides a reference video/image with their video creation request:
+
+1. Run extraction: `python3 learn_design.py <input>`
+2. Read extracted frames using the Read tool (Claude Vision)
+3. Analyze against design-guide.md component vocabulary
+4. Present design analysis report to user
+5. User confirms/adjusts extracted attributes
+6. Apply as session overrides for this video (do NOT save to library unless user asks)
+
+---
+
 ## Startup: Load User Preferences
 
 **Claude behavior:** Auto-execute before Step 1, no user interaction needed.
@@ -252,6 +265,16 @@ Copy files to public/:
 ```bash
 cp videos/{name}/podcast_audio.wav videos/{name}/timing.json public/
 ```
+
+### Style Profile Integration
+
+Before choosing visual design, check in order:
+1. Session-specified style profile? → Load `user_prefs.json` style_profiles[name], apply props_override
+2. No profile? → Check design_references index for tag matches against detected topic
+3. Found matches? → Suggest: "Your reference library has N references matching '{topic}'. Apply style '{profile_name}'?"
+4. Nothing matches? → Fall back to global + topic_patterns (existing behavior)
+
+Priority chain: Root.tsx defaults < global < topic_patterns[type] < style_profiles[name] < current instructions
 
 ### Standard Video Template
 
