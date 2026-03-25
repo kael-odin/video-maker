@@ -56,6 +56,13 @@ ffmpeg -y -i videos/{name}/video_with_bgm.mp4 \
 # Vertical shorts generation
 python3 generate_shorts.py --input-dir videos/{name}/ --title "视频标题"           # Generate short compositions
 python3 generate_shorts.py --input-dir videos/{name}/ --title "视频标题" --render   # Generate + render all shorts
+
+# Design learning
+python3 learn_design.py ./screenshot1.png ./screenshot2.png           # Learn from images
+python3 learn_design.py ./reference.mp4                                # Learn from local video
+python3 learn_design.py --list                                         # List all references
+python3 learn_design.py --show <ref-id>                                # Show reference report
+python3 learn_design.py --delete <ref-id>                              # Delete a reference
 ```
 
 ## Architecture
@@ -63,6 +70,8 @@ python3 generate_shorts.py --input-dir videos/{name}/ --title "视频标题" --r
 ```
 generate_tts.py                  # TTS (Azure/CosyVoice/Edge) + SRT + timing.json
 generate_shorts.py               # Vertical shorts: section filtering, audio extraction, composition generation
+learn_design.py                  # Design reference extraction (images, ffmpeg, Playwright)
+design_references/               # Stored design analysis reports + frame screenshots
 SKILL.md                         # Core workflow overview (<500 lines)
 references/
   workflow-steps.md              # Detailed step instructions (Steps 1-14)
@@ -111,6 +120,16 @@ podcast.txt → generate_tts.py → podcast_audio.wav + podcast_audio.srt + timi
                          npx remotion render → 4K MP4 (3840×2160)
                                         ↓
                          FFmpeg: mix BGM → burn subtitles → final_video.mp4
+```
+
+```
+reference input → learn_design.py → frames/ + cover.*
+                         ↓
+               Claude Vision analysis → report.json
+                         ↓
+               user confirms → style_profiles in user_prefs.json
+                         ↓
+               Step 9: apply style_profiles → Remotion composition
 ```
 
 ### generate_tts.py Internals
