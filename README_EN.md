@@ -212,6 +212,10 @@ Included tracks in `assets/`:
 - [x] Dry-run mode (`--dry-run` for duration estimation)
 - [x] User preference self-evolution (auto-learns visual/TTS/content style preferences)
 - [x] Refactor to latest Claude Code SKILL spec (`references/` layered docs, `${CLAUDE_SKILL_DIR}` variable, `argument-hint`/`effort`/`allowed-tools` frontmatter fields)
+- [x] Design learning system — Learn design styles from reference videos/images, build a design reference library and reusable style profiles
+- [ ] Playwright auto-capture — Analyze Bilibili/YouTube video design styles directly via URL (Phase 4)
+- [ ] Step 9 smart suggestions — Auto-match and recommend existing style profiles when creating videos (Phase 5)
+- [ ] Cover design learning — Apply learned cover styles to Thumbnail.tsx template (Phase 5)
 - [ ] Additional TTS engines (based on user demand)
 - [ ] Windows compatibility (WSL verification + docs)
 

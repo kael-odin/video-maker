@@ -209,6 +209,10 @@ videos/{视频名称}/
 - [x] 用户偏好自我进化（自动学习视觉/TTS/内容风格偏好）
 - [x] 视觉检查 - 对生成后的页面进行视觉检查，检查其美观性、布局合理性等
 - [x] 重构为 Claude Code 最新 SKILL 规范（`references/` 分层、`${CLAUDE_SKILL_DIR}` 变量、`argument-hint`/`effort`/`allowed-tools` 等新 frontmatter 字段）
+- [x] 设计学习系统 — 从参考视频/图片中学习设计风格，构建设计参考库和可复用的风格档案
+- [ ] Playwright 自动抓取 — 通过 URL 直接分析 B站/YouTube 视频设计风格（Phase 4）
+- [ ] Step 9 智能推荐 — 制作视频时自动匹配并推荐已有风格档案（Phase 5）
+- [ ] 封面设计学习 — 将学到的封面风格应用到 Thumbnail.tsx 模板（Phase 5）
 - [ ] 更多 TTS 引擎 (看用户需求)
 - [ ] Windows 适配 (WSL 验证 + 文档)
 
