@@ -1,5 +1,5 @@
 {
-  "version": "1.0",
+  "version": "1.1",
   "updated_at": null,
   "global": {
     "visual": {
@@ -63,5 +63,7 @@
       "content": { "tone": "professional", "verbosity": "concise" }
     }
   },
+  "style_profiles": {},
+  "design_references": {},
   "learning_history": []
 }

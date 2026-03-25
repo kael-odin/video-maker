@@ -200,6 +200,88 @@
         }
       }
     },
+    "style_profiles": {
+      "type": "object",
+      "description": "User-defined style profiles, each linking design preferences to reference videos",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["description", "props_override", "references", "created_at", "updated_at"],
+        "properties": {
+          "description": {
+            "type": "string",
+            "description": "Human-readable description of this style"
+          },
+          "props_override": {
+            "type": "object",
+            "description": "Remotion videoSchema prop overrides (primaryColor, backgroundColor, etc.)",
+            "additionalProperties": true
+          },
+          "preferred_layouts": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Preferred section layout component names (CenteredShowcase, SplitLayout, etc.)"
+          },
+          "preferred_backgrounds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["gradient", "shapes", "grid", "clean"]
+            }
+          },
+          "animation_feel": {
+            "type": "string",
+            "enum": ["gentle", "snappy", "bouncy"]
+          },
+          "density": {
+            "type": "string",
+            "enum": ["spacious", "balanced", "dense"]
+          },
+          "references": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Reference IDs linked to this profile"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date"
+          }
+        }
+      }
+    },
+    "design_references": {
+      "type": "object",
+      "description": "Index of analyzed design references (data stored in design_references/ directory)",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["path", "analyzed_at"],
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "Relative path to reference directory"
+          },
+          "title": {
+            "type": "string",
+            "description": "Title of the reference video"
+          },
+          "source_url": {
+            "type": "string",
+            "description": "Original URL if applicable"
+          },
+          "analyzed_at": {
+            "type": "string",
+            "format": "date"
+          },
+          "tags": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        }
+      }
+    },
     "learning_history": {
       "type": "array",
       "items": {
