@@ -314,3 +314,24 @@ Verify: `user_prefs.json` → `style_profiles` → your profile name exists with
 ### Orphaned references (deleted directory but still in index)
 
 Run `references list` — orphaned entries are auto-cleaned on list.
+
+---
+
+### Doubao TTS: Phoneme System Not Supported
+
+**Symptoms**: Inline phoneme markers `执行器[zhí xíng qì]` and `phonemes.json` entries are ignored when using Doubao backend.
+
+**Explanation**: Doubao TTS uses a plain-text HTTP API that does not support SSML or phoneme tags. The phoneme system (inline markers, project `phonemes.json`, built-in `BUILTIN_POLYPHONES`) only works with Azure TTS. CosyVoice and Edge TTS also do not apply phonemes.
+
+**Workaround**: If pronunciation accuracy is critical, use Azure TTS (`TTS_BACKEND=azure`).
+
+---
+
+### Doubao TTS: API Error Codes
+
+**Symptoms**: `Doubao API error code=XXXX`
+
+**Common codes**:
+- `code != 3000`: Non-success response. Check VOLCENGINE_APPID and VOLCENGINE_ACCESS_TOKEN.
+- HTTP 401/403: Invalid or expired access token. Regenerate at [Volcengine Console](https://console.volcengine.com/speech/service/8).
+- Timeout: Increase via `VOLCENGINE_TIMEOUT_SEC` env var (default: 60s).
