@@ -631,6 +631,154 @@ def synth_edge(chunks, phoneme_dict, speech_rate, output_dir, resume=False):
     return part_files, word_boundaries, accumulated_duration
 
 
+def synth_doubao(chunks, speech_rate, output_dir, resume=False):
+    """Synthesize audio chunks using Volcengine Doubao TTS HTTP API.
+
+    Note: Doubao does not support the phoneme system (inline markers, phonemes.json).
+    Word boundaries are extracted from the API's frontend timestamp response.
+    """
+    import requests
+
+    uid = os.environ.get("VOLCENGINE_UID", "video-podcast-maker")
+    timeout_sec = int(os.environ.get("VOLCENGINE_TIMEOUT_SEC", "60"))
+    sample_rate = int(os.environ.get("VOLCENGINE_SAMPLE_RATE", "48000"))
+    part_files = []
+    word_boundaries = []
+    accumulated_duration = 0
+
+    # Convert "+5%" to 1.05, clamp to API range [0.2, 3.0]
+    rate_match = re.match(r'([+-]?\d+)%', speech_rate)
+    speed_ratio = 1.0 + int(rate_match.group(1)) / 100.0 if rate_match else 1.0
+    speed_ratio = max(0.2, min(3.0, speed_ratio))
+
+    # Volcengine TTS uses non-standard "Bearer;" (semicolon) auth format
+    headers = {
+        "Authorization": f"Bearer; {doubao_token}",
+        "Content-Type": "application/json",
+    }
+
+    for i, chunk in enumerate(chunks):
+        part_file = os.path.join(output_dir, f"part_{i}.wav")
+        part_files.append(part_file)
+
+        if resume and os.path.exists(part_file):
+            probe = subprocess.run(
+                ["ffprobe", "-v", "quiet", "-show_entries", "format=duration", "-of", "csv=p=0", part_file],
+                capture_output=True, text=True)
+            chunk_duration = float(probe.stdout.strip()) if probe.stdout.strip() else 0
+            print(f"  ⏭ Part {i + 1}/{len(chunks)} skipped (resume, {chunk_duration:.1f}s)")
+            accumulated_duration += chunk_duration
+            continue
+
+        success = False
+        for attempt in range(1, 4):
+            try:
+                req_id = str(uuid.uuid4())
+                payload = {
+                    "app": {
+                        "appid": doubao_appid,
+                        "token": doubao_token,
+                        "cluster": doubao_cluster,
+                    },
+                    "user": {"uid": uid},
+                    "audio": {
+                        "voice_type": doubao_voice,
+                        "encoding": "wav",
+                        "rate": sample_rate,
+                        "speed_ratio": speed_ratio,
+                        "volume_ratio": 1.0,
+                        "pitch_ratio": 1.0,
+                    },
+                    "request": {
+                        "reqid": req_id,
+                        "text": chunk,
+                        "text_type": "plain",
+                        "operation": "query",
+                        "with_timestamp": 1,
+                    },
+                }
+
+                resp = requests.post(doubao_endpoint, headers=headers, json=payload, timeout=timeout_sec)
+                resp.raise_for_status()
+                data = resp.json()
+
+                code = data.get("code")
+                if code != 3000:
+                    raise RuntimeError(f"Doubao API error code={code}, message={data.get('message')}")
+
+                audio_b64 = data.get("data")
+                if not audio_b64:
+                    raise RuntimeError("Doubao API returned empty audio data")
+                audio_bytes = base64.b64decode(audio_b64)
+                with open(part_file, "wb") as f:
+                    f.write(audio_bytes)
+
+                # Normalize to mono 48kHz WAV
+                normalized_file = part_file + ".norm.wav"
+                subprocess.run(
+                    ["ffmpeg", "-y", "-i", part_file, "-ar", "48000", "-ac", "1", normalized_file],
+                    capture_output=True)
+                os.replace(normalized_file, part_file)
+
+                probe = subprocess.run(
+                    ["ffprobe", "-v", "quiet", "-show_entries", "format=duration", "-of", "csv=p=0", part_file],
+                    capture_output=True, text=True)
+                chunk_duration = float(probe.stdout.strip()) if probe.stdout.strip() else 0
+
+                # Parse frontend timestamps from addition.frontend (stringified JSON)
+                added = data.get("addition", {}) or {}
+                frontend = added.get("frontend")
+                words = []
+                if isinstance(frontend, str) and frontend.strip():
+                    try:
+                        frontend_obj = json.loads(frontend)
+                        words = frontend_obj.get("words", []) or []
+                    except json.JSONDecodeError:
+                        words = []
+                elif isinstance(frontend, dict):
+                    words = frontend.get("words", []) or []
+
+                chunk_words = []
+                for w in words:
+                    text = str(w.get("word", "")).strip()
+                    st = float(w.get("start_time", 0))
+                    et = float(w.get("end_time", st))
+                    if not text:
+                        continue
+                    chunk_words.append({
+                        "text": text,
+                        "offset": accumulated_duration + st,
+                        "duration": max(0.01, et - st),
+                    })
+
+                # Fallback: estimate per-character timestamps if API provides none
+                if not chunk_words and chunk_duration > 0:
+                    chars = [c for c in chunk if c.strip()]
+                    if chars:
+                        per = chunk_duration / len(chars)
+                        for idx, ch in enumerate(chars):
+                            chunk_words.append({
+                                "text": ch,
+                                "offset": accumulated_duration + idx * per,
+                                "duration": max(0.01, per),
+                            })
+
+                word_boundaries.extend(chunk_words)
+                print(f"  ✓ Part {i + 1}/{len(chunks)} done ({len(chunk)} chars, {chunk_duration:.1f}s)")
+                accumulated_duration += chunk_duration
+                success = True
+                break
+            except Exception as e:
+                print(f"  ✗ Part {i + 1} failed (attempt {attempt}/3): {e}")
+                if attempt < 3:
+                    time.sleep(attempt * 2)
+
+        if not success:
+            raise RuntimeError(f"Part {i + 1} synthesis failed")
+
+    return part_files, word_boundaries, accumulated_duration
+
+
 # TTS synthesis
 if BACKEND == "azure":
     part_files, word_boundaries, total_duration = synth_azure(chunks, phoneme_dict, SPEECH_RATE, args.output_dir, resume=args.resume)
@@ -638,6 +786,8 @@ elif BACKEND == "cosyvoice":
     part_files, word_boundaries, total_duration = synth_cosyvoice(chunks, phoneme_dict, SPEECH_RATE, args.output_dir, resume=args.resume)
 elif BACKEND == "edge":
     part_files, word_boundaries, total_duration = synth_edge(chunks, phoneme_dict, SPEECH_RATE, args.output_dir, resume=args.resume)
+elif BACKEND == "doubao":
+    part_files, word_boundaries, total_duration = synth_doubao(chunks, SPEECH_RATE, args.output_dir, resume=args.resume)
 print(f"\n✓ 收集到 {len(word_boundaries)} 个词边界")
 print(f"✓ 总时长: {total_duration:.1f} 秒")
 
