@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-TTS Script for Video Podcast Maker (Azure / CosyVoice / Edge TTS)
+TTS Script for Video Podcast Maker (Azure / Doubao / CosyVoice / Edge TTS)
 Generates audio from podcast.txt and creates SRT subtitles + timing.json for Remotion sync
 """
 import os
@@ -11,6 +11,7 @@ import subprocess
 import re
 import time
 import uuid
+import base64
 from xml.sax.saxutils import escape
 
 
@@ -152,13 +153,13 @@ BUILTIN_POLYPHONES = {
 
 parser = argparse.ArgumentParser(
     description='Generate TTS audio from podcast script',
-    epilog='Backends: azure (default), cosyvoice, edge (free). Env: TTS_BACKEND, AZURE_SPEECH_KEY, DASHSCOPE_API_KEY, EDGE_TTS_VOICE, TTS_RATE'
+    epilog='Backends: azure (default), doubao, cosyvoice, edge (free). Env: TTS_BACKEND, AZURE_SPEECH_KEY, VOLCENGINE_APPID, VOLCENGINE_ACCESS_TOKEN, DASHSCOPE_API_KEY, EDGE_TTS_VOICE, TTS_RATE'
 )
 parser.add_argument('--input', '-i', default='podcast.txt', help='Input script file (default: podcast.txt)')
 parser.add_argument('--output-dir', '-o', default='.', help='Output directory for podcast_audio.wav, podcast_audio.srt, timing.json (default: current dir)')
 parser.add_argument('--phonemes', '-p', default=None, help='Phoneme dictionary JSON file (default: phonemes.json in input dir)')
 parser.add_argument('--backend', '-b', default=None,
-    help='TTS backend: azure, cosyvoice, or edge (default: env TTS_BACKEND or azure)')
+    help='TTS backend: azure, doubao, cosyvoice, or edge (default: env TTS_BACKEND or azure)')
 parser.add_argument('--resume', action='store_true',
     help='Resume from last breakpoint, skip already synthesized parts')
 parser.add_argument('--dry-run', action='store_true',
@@ -191,10 +192,23 @@ elif BACKEND == "cosyvoice":
         sys.exit(1)
 elif BACKEND == "edge":
     check_import("edge_tts", "edge-tts", "pip install edge-tts")
+elif BACKEND == "doubao":
+    check_import("requests", "requests", "pip install requests")
+    doubao_appid = os.environ.get("VOLCENGINE_APPID")
+    doubao_token = os.environ.get("VOLCENGINE_ACCESS_TOKEN")
+    doubao_cluster = os.environ.get("VOLCENGINE_CLUSTER", "volcano_tts")
+    doubao_voice = os.environ.get("VOLCENGINE_VOICE_TYPE", "BV001_streaming")
+    doubao_endpoint = os.environ.get("VOLCENGINE_TTS_ENDPOINT", "https://openspeech.bytedance.com/api/v1/tts")
+    if not doubao_appid:
+        print("Error: VOLCENGINE_APPID not set", file=sys.stderr)
+        sys.exit(1)
+    if not doubao_token:
+        print("Error: VOLCENGINE_ACCESS_TOKEN not set", file=sys.stderr)
+        sys.exit(1)
 else:
-    print(f"Error: Unknown backend '{BACKEND}'. Use 'azure', 'cosyvoice', or 'edge'", file=sys.stderr)
+    print(f"Error: Unknown backend '{BACKEND}'. Use 'azure', 'doubao', 'cosyvoice', or 'edge'", file=sys.stderr)
     sys.exit(1)
-MAX_CHARS = 400
+MAX_CHARS = 280 if BACKEND == "doubao" else 400  # Doubao HTTP /api/v1/tts has a 1024-byte text limit (UTF-8), use smaller chunks
 
 # Speech rate: -50% ~ +200%, or x-slow/slow/medium/fast/x-fast
 SPEECH_RATE = os.environ.get("TTS_RATE", "+5%")
