@@ -677,7 +677,7 @@ def synth_doubao(chunks, speech_rate, output_dir, resume=False):
                 payload = {
                     "app": {
                         "appid": doubao_appid,
-                        "token": doubao_token,
+                        "token": doubao_token,  # Volcengine API requires token in both header and body
                         "cluster": doubao_cluster,
                     },
                     "user": {"uid": uid},
@@ -715,9 +715,11 @@ def synth_doubao(chunks, speech_rate, output_dir, resume=False):
 
                 # Normalize to mono 48kHz WAV
                 normalized_file = part_file + ".norm.wav"
-                subprocess.run(
+                norm_result = subprocess.run(
                     ["ffmpeg", "-y", "-i", part_file, "-ar", "48000", "-ac", "1", normalized_file],
                     capture_output=True)
+                if norm_result.returncode != 0:
+                    raise RuntimeError(f"ffmpeg normalization failed: {norm_result.stderr.decode()[:200]}")
                 os.replace(normalized_file, part_file)
 
                 probe = subprocess.run(
