@@ -395,53 +395,7 @@ npx remotion studio src/remotion/index.ts --public-dir videos/{name}/
 
 ### Visual QA (Automated, part of Step 9)
 
-**Claude behavior:** Auto-run after composition is created, before Step 10. No user prompt needed.
-
-### Render Section Stills
-
-Read `timing.json`, render still at each section's midpoint:
-
-```bash
-# midpoint_frame = start_frame + (duration_frames / 2)
-npx remotion still src/remotion/index.ts CompositionId videos/{name}/qa_{section_name}.png --frame {midpoint_frame} --public-dir videos/{name}/
-```
-
-### Visual Inspection
-
-Claude reads each still image (multimodal) and checks:
-
-| Check | What to Look For | Severity |
-|-------|-----------------|----------|
-| **Blank frame** | All-white or all-black | FAIL |
-| **Text size** | Too small at 1080p | FAIL |
-| **Space utilization** | Content <50% of screen | WARN |
-| **Text overflow** | Clipped at edges | FAIL |
-| **Color contrast** | Text unreadable | FAIL |
-| **Layout alignment** | Misaligned/overlapping | WARN |
-| **Visual variety** | Consecutive sections identical | WARN |
-
-### QA Report
-
-```
-=== Visual QA ===
-✓ hero: Large title centered, good contrast
-✓ features: 3 cards with distinct colors
-⚠ demo: Content ~60% width — consider wider layout
-✓ summary: Clean layout, readable
-✓ outro: Triple-click animation visible
-
-Result: 4/5 PASS, 1 WARNING
-```
-
-**On FAIL:** Auto-fix, re-render still, re-check.
-**On WARN:** Note in report, proceed.
-**All PASS:** Proceed to Step 10 silently.
-
-### Cleanup
-
-```bash
-rm -f videos/{name}/qa_*.png
-```
+> **Planned feature.** Automated still rendering and multimodal inspection is not yet implemented. Currently, visual quality is verified manually via Remotion Studio preview. Claude may offer to render section stills for manual inspection if requested.
 
 ---
 
