@@ -153,13 +153,13 @@ BUILTIN_POLYPHONES = {
 
 parser = argparse.ArgumentParser(
     description='Generate TTS audio from podcast script',
-    epilog='Backends: edge (default, free), azure, doubao, cosyvoice. Env: TTS_BACKEND, AZURE_SPEECH_KEY, VOLCENGINE_APPID, VOLCENGINE_ACCESS_TOKEN, DASHSCOPE_API_KEY, EDGE_TTS_VOICE, TTS_RATE'
+    epilog='Backends: edge (default, free), azure, doubao, cosyvoice, elevenlabs, openai. Env: TTS_BACKEND, AZURE_SPEECH_KEY, VOLCENGINE_APPID, VOLCENGINE_ACCESS_TOKEN, DASHSCOPE_API_KEY, EDGE_TTS_VOICE, ELEVENLABS_API_KEY, OPENAI_API_KEY, TTS_RATE'
 )
 parser.add_argument('--input', '-i', default='podcast.txt', help='Input script file (default: podcast.txt)')
 parser.add_argument('--output-dir', '-o', default='.', help='Output directory for podcast_audio.wav, podcast_audio.srt, timing.json (default: current dir)')
 parser.add_argument('--phonemes', '-p', default=None, help='Phoneme dictionary JSON file (default: phonemes.json in input dir)')
 parser.add_argument('--backend', '-b', default=None,
-    help='TTS backend: edge, azure, doubao, or cosyvoice (default: env TTS_BACKEND or edge)')
+    help='TTS backend: edge, azure, doubao, cosyvoice, elevenlabs, or openai (default: env TTS_BACKEND or edge)')
 parser.add_argument('--resume', action='store_true',
     help='Resume from last breakpoint, skip already synthesized parts')
 parser.add_argument('--dry-run', action='store_true',
@@ -205,8 +205,24 @@ elif BACKEND == "doubao":
     if not doubao_token:
         print("Error: VOLCENGINE_ACCESS_TOKEN not set", file=sys.stderr)
         sys.exit(1)
+elif BACKEND == "elevenlabs":
+    check_import("requests", "requests", "pip install requests")
+    elevenlabs_key = os.environ.get("ELEVENLABS_API_KEY")
+    elevenlabs_voice = os.environ.get("ELEVENLABS_VOICE_ID", "21m00Tcm4TlvDq8ikWAM")  # Rachel
+    elevenlabs_model = os.environ.get("ELEVENLABS_MODEL", "eleven_multilingual_v2")
+    if not elevenlabs_key:
+        print("Error: ELEVENLABS_API_KEY not set", file=sys.stderr)
+        sys.exit(1)
+elif BACKEND == "openai":
+    check_import("requests", "requests", "pip install requests")
+    openai_key = os.environ.get("OPENAI_API_KEY")
+    openai_voice = os.environ.get("OPENAI_TTS_VOICE", "alloy")
+    openai_model = os.environ.get("OPENAI_TTS_MODEL", "tts-1-hd")
+    if not openai_key:
+        print("Error: OPENAI_API_KEY not set", file=sys.stderr)
+        sys.exit(1)
 else:
-    print(f"Error: Unknown backend '{BACKEND}'. Use 'azure', 'doubao', 'cosyvoice', or 'edge'", file=sys.stderr)
+    print(f"Error: Unknown backend '{BACKEND}'. Use 'edge', 'azure', 'doubao', 'cosyvoice', 'elevenlabs', or 'openai'", file=sys.stderr)
     sys.exit(1)
 MAX_CHARS = 280 if BACKEND == "doubao" else 400  # Doubao HTTP /api/v1/tts has a 1024-byte text limit (UTF-8), use smaller chunks
 
@@ -267,6 +283,10 @@ phoneme_dict = {**BUILTIN_POLYPHONES, **file_phonemes, **inline_phonemes}
 print(f"✓ 多音字词典: {len(phoneme_dict)} 条 (内置{len(BUILTIN_POLYPHONES)} + 文件{len(file_phonemes)} + 内联{len(inline_phonemes)})")
 if BACKEND == "doubao" and (len(file_phonemes) > 0 or len(inline_phonemes) > 0):
     print("⚠ Warning: Doubao TTS does not support the phoneme system. "
+          "Inline markers and phonemes.json will be ignored. "
+          "Consider using Azure or CosyVoice for phoneme support.", file=sys.stderr)
+if BACKEND in ("elevenlabs", "openai") and (len(file_phonemes) > 0 or len(inline_phonemes) > 0):
+    print("⚠ Warning: ElevenLabs/OpenAI TTS do not support the phoneme system. "
           "Inline markers and phonemes.json will be ignored. "
           "Consider using Azure or CosyVoice for phoneme support.", file=sys.stderr)
 
@@ -785,6 +805,204 @@ def synth_doubao(chunks, speech_rate, output_dir, resume=False):
     return part_files, word_boundaries, accumulated_duration
 
 
+def synth_elevenlabs(chunks, speech_rate, output_dir, resume=False):
+    """Synthesize using ElevenLabs TTS API with character-level timestamps."""
+    import requests
+
+    part_files = []
+    word_boundaries = []
+    accumulated_duration = 0
+
+    headers = {
+        "xi-api-key": elevenlabs_key,
+        "Content-Type": "application/json",
+    }
+
+    for i, chunk in enumerate(chunks):
+        part_file = os.path.join(output_dir, f"part_{i}.wav")
+        part_files.append(part_file)
+
+        if resume and os.path.exists(part_file):
+            probe = subprocess.run(
+                ["ffprobe", "-v", "quiet", "-show_entries", "format=duration", "-of", "csv=p=0", part_file],
+                capture_output=True, text=True)
+            chunk_duration = float(probe.stdout.strip()) if probe.stdout.strip() else 0
+            print(f"  ⏭ Part {i + 1}/{len(chunks)} skipped (resume, {chunk_duration:.1f}s)")
+            accumulated_duration += chunk_duration
+            continue
+
+        success = False
+        for attempt in range(1, 4):
+            try:
+                url = f"https://api.elevenlabs.io/v1/text-to-speech/{elevenlabs_voice}/with-timestamps"
+                payload = {
+                    "text": chunk,
+                    "model_id": elevenlabs_model,
+                    "voice_settings": {
+                        "stability": 0.5,
+                        "similarity_boost": 0.75,
+                    },
+                }
+
+                resp = requests.post(url, headers=headers, json=payload, timeout=120)
+                resp.raise_for_status()
+                data = resp.json()
+
+                audio_b64 = data.get("audio_base64")
+                if not audio_b64:
+                    raise RuntimeError("ElevenLabs returned empty audio")
+                audio_bytes = base64.b64decode(audio_b64)
+
+                # Write MP3, convert to WAV
+                mp3_file = part_file.replace('.wav', '.mp3')
+                with open(mp3_file, 'wb') as f:
+                    f.write(audio_bytes)
+
+                result = subprocess.run(
+                    ["ffmpeg", "-y", "-i", mp3_file, "-ar", "48000", "-ac", "1", part_file],
+                    capture_output=True, text=True)
+                if result.returncode != 0:
+                    raise RuntimeError(f"FFmpeg convert failed: {result.stderr}")
+                os.remove(mp3_file)
+
+                # Get duration
+                probe = subprocess.run(
+                    ["ffprobe", "-v", "quiet", "-show_entries", "format=duration", "-of", "csv=p=0", part_file],
+                    capture_output=True, text=True)
+                chunk_duration = float(probe.stdout.strip()) if probe.stdout.strip() else 0
+
+                # Extract word boundaries from alignment
+                alignment = data.get("alignment", {})
+                chars = alignment.get("characters", [])
+                char_starts = alignment.get("character_start_times_seconds", [])
+                char_ends = alignment.get("character_end_times_seconds", [])
+
+                if chars and char_starts and char_ends:
+                    # Group characters into words (split on spaces/punctuation)
+                    current_word = ""
+                    word_start = 0
+                    for ci, ch in enumerate(chars):
+                        if ci < len(char_starts) and ci < len(char_ends):
+                            if not current_word:
+                                word_start = char_starts[ci]
+                            current_word += ch
+                            is_boundary = ch in " \t\n" or ci == len(chars) - 1
+                            if is_boundary and current_word.strip():
+                                word_end = char_ends[ci]
+                                word_boundaries.append({
+                                    "text": current_word.strip(),
+                                    "offset": accumulated_duration + word_start,
+                                    "duration": word_end - word_start,
+                                })
+                                current_word = ""
+
+                print(f"  ✓ Part {i + 1}/{len(chunks)} done ({len(chunk)} chars, {chunk_duration:.1f}s)")
+                accumulated_duration += chunk_duration
+                success = True
+                break
+            except Exception as e:
+                print(f"  ✗ Part {i + 1} failed (attempt {attempt}/3): {e}")
+                if attempt < 3:
+                    time.sleep(attempt * 2)
+
+        if not success:
+            raise RuntimeError(f"Part {i + 1} synthesis failed")
+
+    return part_files, word_boundaries, accumulated_duration
+
+
+def synth_openai(chunks, speech_rate, output_dir, resume=False):
+    """Synthesize using OpenAI TTS API. Note: no word boundaries available."""
+    import requests
+
+    part_files = []
+    word_boundaries = []
+    accumulated_duration = 0
+
+    # Convert "+5%" to speed float: 1.05. OpenAI range is 0.25-4.0
+    rate_match = re.match(r'([+-]?\d+)%', speech_rate)
+    speed = 1.0 + int(rate_match.group(1)) / 100.0 if rate_match else 1.0
+    speed = max(0.25, min(4.0, speed))
+
+    headers = {
+        "Authorization": f"Bearer {openai_key}",
+        "Content-Type": "application/json",
+    }
+
+    for i, chunk in enumerate(chunks):
+        part_file = os.path.join(output_dir, f"part_{i}.wav")
+        part_files.append(part_file)
+
+        if resume and os.path.exists(part_file):
+            probe = subprocess.run(
+                ["ffprobe", "-v", "quiet", "-show_entries", "format=duration", "-of", "csv=p=0", part_file],
+                capture_output=True, text=True)
+            chunk_duration = float(probe.stdout.strip()) if probe.stdout.strip() else 0
+            print(f"  ⏭ Part {i + 1}/{len(chunks)} skipped (resume, {chunk_duration:.1f}s)")
+            accumulated_duration += chunk_duration
+            continue
+
+        success = False
+        for attempt in range(1, 4):
+            try:
+                payload = {
+                    "model": openai_model,
+                    "input": chunk,
+                    "voice": openai_voice,
+                    "response_format": "wav",
+                    "speed": speed,
+                }
+
+                resp = requests.post(
+                    "https://api.openai.com/v1/audio/speech",
+                    headers=headers, json=payload, timeout=120)
+                resp.raise_for_status()
+
+                # Write raw WAV
+                tmp_file = part_file + ".tmp.wav"
+                with open(tmp_file, 'wb') as f:
+                    f.write(resp.content)
+
+                # Normalize to mono 48kHz
+                result = subprocess.run(
+                    ["ffmpeg", "-y", "-i", tmp_file, "-ar", "48000", "-ac", "1", part_file],
+                    capture_output=True, text=True)
+                if result.returncode != 0:
+                    raise RuntimeError(f"FFmpeg normalize failed: {result.stderr}")
+                os.remove(tmp_file)
+
+                # Get duration
+                probe = subprocess.run(
+                    ["ffprobe", "-v", "quiet", "-show_entries", "format=duration", "-of", "csv=p=0", part_file],
+                    capture_output=True, text=True)
+                chunk_duration = float(probe.stdout.strip()) if probe.stdout.strip() else 0
+
+                # Generate approximate word boundaries (OpenAI TTS has no timestamp API)
+                words = chunk.split()
+                if words and chunk_duration > 0:
+                    avg_word_duration = chunk_duration / len(words)
+                    for wi, word in enumerate(words):
+                        word_boundaries.append({
+                            "text": word,
+                            "offset": accumulated_duration + wi * avg_word_duration,
+                            "duration": avg_word_duration,
+                        })
+
+                print(f"  ✓ Part {i + 1}/{len(chunks)} done ({len(chunk)} chars, {chunk_duration:.1f}s)")
+                accumulated_duration += chunk_duration
+                success = True
+                break
+            except Exception as e:
+                print(f"  ✗ Part {i + 1} failed (attempt {attempt}/3): {e}")
+                if attempt < 3:
+                    time.sleep(attempt * 2)
+
+        if not success:
+            raise RuntimeError(f"Part {i + 1} synthesis failed")
+
+    return part_files, word_boundaries, accumulated_duration
+
+
 # TTS synthesis
 if BACKEND == "azure":
     part_files, word_boundaries, total_duration = synth_azure(chunks, phoneme_dict, SPEECH_RATE, args.output_dir, resume=args.resume)
@@ -794,6 +1012,10 @@ elif BACKEND == "edge":
     part_files, word_boundaries, total_duration = synth_edge(chunks, phoneme_dict, SPEECH_RATE, args.output_dir, resume=args.resume)
 elif BACKEND == "doubao":
     part_files, word_boundaries, total_duration = synth_doubao(chunks, SPEECH_RATE, args.output_dir, resume=args.resume)
+elif BACKEND == "elevenlabs":
+    part_files, word_boundaries, total_duration = synth_elevenlabs(chunks, SPEECH_RATE, args.output_dir, resume=args.resume)
+elif BACKEND == "openai":
+    part_files, word_boundaries, total_duration = synth_openai(chunks, SPEECH_RATE, args.output_dir, resume=args.resume)
 print(f"\n✓ 收集到 {len(word_boundaries)} 个词边界")
 print(f"✓ 总时长: {total_duration:.1f} 秒")
 
