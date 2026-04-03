@@ -30,9 +30,14 @@
       }
     },
     "tts": {
-      "backend": "azure",
+      "backend": "edge",
       "rate": "+5%",
-      "voice": "zh-CN-XiaoxiaoNeural"
+      "voices": {
+        "azure": "zh-CN-XiaoxiaoNeural",
+        "edge": "zh-CN-XiaoxiaoNeural",
+        "doubao": "BV001_streaming",
+        "cosyvoice": "longxiaochun"
+      }
     },
     "content": {
       "tone": "professional",

@@ -140,7 +140,7 @@
             "backend": {
               "type": "string",
               "enum": ["azure", "doubao", "cosyvoice", "edge"],
-              "default": "azure"
+              "default": "edge"
             },
             "rate": {
               "type": "string",
@@ -148,9 +148,27 @@
               "default": "+0%",
               "description": "Speech rate adjustment (e.g. +5%, -10%)"
             },
-            "voice": {
-              "type": "string",
-              "description": "TTS voice identifier"
+            "voices": {
+              "type": "object",
+              "description": "Per-backend voice identifiers",
+              "properties": {
+                "azure": {
+                  "type": "string",
+                  "default": "zh-CN-XiaoxiaoNeural"
+                },
+                "edge": {
+                  "type": "string",
+                  "default": "zh-CN-XiaoxiaoNeural"
+                },
+                "doubao": {
+                  "type": "string",
+                  "default": "BV001_streaming"
+                },
+                "cosyvoice": {
+                  "type": "string",
+                  "default": "longxiaochun"
+                }
+              }
             }
           }
         },
