@@ -30,14 +30,24 @@ Automated pipeline to create professional video podcasts from a topic. **Optimiz
 - **Bilibili Templates** - Ready-to-use Remotion templates (`Video.tsx`, `Root.tsx`, `Thumbnail.tsx`, `podcast.txt`) for quick project scaffolding
 - **Component Library** - Reusable visual building blocks (ComparisonCard, Timeline, CodeBlock, QuoteBlock, FeatureGrid, DataBar, StatCounter, FlowChart, IconCard, DiagramReveal, AudioWaveform, LottieAnimation, MediaSection, SectionLayouts, AnimatedBackground) for composing rich section layouts
 - **Preference Learning** - Auto-learns user style preferences (colors, fonts, speech rate) and applies them to future videos
+- **Multi-Platform** - Bilibili and YouTube with independent platform and language settings
+- **Multi-Language** - Chinese (zh-CN) and English (en-US) script templates, TTS voices, subtitle fonts
+- **Subtitle Preferences** - Custom font, size, color, outline; toggle subtitle burning on/off
+- **Configurable CTA** - Auto (Bilibili triple/YouTube subscribe), animation, text, or custom
 
-### Bilibili Optimizations
+### Platform Optimizations
 
+**Bilibili:**
 - **Script Structure** - Welcome intro + call-to-action outro (一键三连)
 - **Chapter Timestamps** - Auto-generated `MM:SS` format for B站 chapters
 - **Thumbnail Generation** - AI (imagen/imagenty) or Remotion, auto-generates 16:9 + 4:3 versions
 - **Visual Style** - Bold text, minimal whitespace, high information density
 - **Publish Info** - Title formulas, tag strategies, description templates
+
+**YouTube:**
+- **SEO Optimization** - Title <70 chars, keyword-rich description, tags and hashtags
+- **Chapters** - Auto-generated YouTube chapter timestamps (first line at 0:00)
+- **CTA** - "Like, Subscribe & Share" text animation or custom
 
 ## Workflow
 

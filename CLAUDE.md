@@ -12,7 +12,7 @@ Do NOT add "Co-Authored-By: Claude" to commit messages.
 
 ## What This Is
 
-A Claude Code skill for automated video podcast creation targeting **B站横屏视频 (16:9)** with optional **竖屏精华片段 (9:16)**. The 14-step workflow is defined in `SKILL.md`.
+A Claude Code skill for automated video podcast creation targeting **B站 (Bilibili)** and **YouTube** in **16:9** with optional **竖屏精华片段 (9:16)**. Supports multi-platform (bilibili/youtube) and multi-language (zh-CN/en-US) via user preferences. The 14-step workflow is defined in `SKILL.md`.
 
 ### Documentation Structure
 
