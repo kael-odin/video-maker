@@ -235,8 +235,9 @@ Included tracks in `assets/`:
 - [x] Remotion transitions (@remotion/transitions) for professional chapter transitions
 - [x] Component template library (ComparisonCard, Timeline, CodeBlock, QuoteBlock, FeatureGrid, DataBar, StatCounter, FlowChart, IconCard)
 - [x] Broadcast quality upgrade (gradient backgrounds, layered shadows, animated counters, quality checklists)
-- [x] Multi TTS engine support (Azure Speech + Doubao + CosyVoice + Edge TTS via `TTS_BACKEND` env var)
+- [x] Multi TTS engine support (7 engines: Edge, Azure, Doubao, CosyVoice, ElevenLabs, OpenAI, Google Cloud)
 - [x] Edge TTS free backend (no API key required)
+- [x] Multi-platform support (Bilibili + YouTube) with independent language configuration (zh-CN, en-US)
 - [x] Resume from breakpoint (`--resume` flag)
 - [x] Dry-run mode (`--dry-run` for duration estimation)
 - [x] User preference self-evolution (auto-learns visual/TTS/content style preferences)
@@ -245,7 +246,8 @@ Included tracks in `assets/`:
 - [ ] Playwright auto-capture — Analyze Bilibili/YouTube video design styles directly via URL (Phase 4)
 - [ ] Step 9 smart suggestions — Auto-match and recommend existing style profiles when creating videos (Phase 5)
 - [ ] Cover design learning — Apply learned cover styles to Thumbnail.tsx template (Phase 5)
-- [ ] Additional TTS engines (based on user demand)
+- [ ] YouTube automated publishing — Upload via YouTube Data API with metadata, chapters, thumbnails
+- [ ] Chinese platform expansion — 抖音 (Douyin), 小红书 (Xiaohongshu), 微信视频号 (WeChat Channels), 西瓜视频 (Xigua Video)
 - [ ] Windows compatibility (WSL verification + docs)
 
 ## License

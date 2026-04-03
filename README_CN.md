@@ -234,8 +234,9 @@ videos/{视频名称}/
 - [x] Remotion 转场效果 (@remotion/transitions)，章节间过渡更专业
 - [x] 组件模板库 (ComparisonCard, Timeline, CodeBlock, QuoteBlock, FeatureGrid, DataBar, StatCounter, FlowChart, IconCard)
 - [x] 广播级画质升级（渐变背景、多层阴影、动画计数器、质量检查清单）
-- [x] 多 TTS 引擎支持 (Azure Speech + Doubao + CosyVoice + Edge TTS)
+- [x] 多 TTS 引擎支持（7 引擎：Edge、Azure、豆包、CosyVoice、ElevenLabs、OpenAI、Google Cloud）
 - [x] Edge TTS 免费后端（无需 API 密钥）
+- [x] 多平台支持（B站 + YouTube），独立语言配置（zh-CN、en-US）
 - [x] 断点续传（`--resume` 参数）
 - [x] 预估模式（`--dry-run` 预估时长，不调用 API）
 - [x] 用户偏好自我进化（自动学习视觉/TTS/内容风格偏好）
@@ -245,7 +246,8 @@ videos/{视频名称}/
 - [ ] Playwright 自动抓取 — 通过 URL 直接分析 B站/YouTube 视频设计风格（Phase 4）
 - [ ] Step 9 智能推荐 — 制作视频时自动匹配并推荐已有风格档案（Phase 5）
 - [ ] 封面设计学习 — 将学到的封面风格应用到 Thumbnail.tsx 模板（Phase 5）
-- [ ] 更多 TTS 引擎 (看用户需求)
+- [ ] YouTube 自动化发布 — 通过 YouTube Data API 上传视频、元数据、章节、封面
+- [ ] 国内多平台扩展 — 抖音、小红书、微信视频号、西瓜视频
 - [ ] Windows 适配 (WSL 验证 + 文档)
 
 ## 开源协议
