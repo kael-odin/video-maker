@@ -229,7 +229,7 @@
           "properties": {
             "backend": {
               "type": "string",
-              "enum": ["azure", "doubao", "cosyvoice", "edge"],
+              "enum": ["azure", "doubao", "cosyvoice", "edge", "elevenlabs", "openai"],
               "default": "edge"
             },
             "rate": {
@@ -257,6 +257,16 @@
                 "cosyvoice": {
                   "type": "string",
                   "default": "longxiaochun"
+                },
+                "elevenlabs": {
+                  "type": "string",
+                  "default": "21m00Tcm4TlvDq8ikWAM",
+                  "description": "ElevenLabs voice ID (default: Rachel)"
+                },
+                "openai": {
+                  "type": "string",
+                  "default": "alloy",
+                  "description": "OpenAI TTS voice name"
                 }
               }
             }

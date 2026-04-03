@@ -16,7 +16,7 @@
 
 - **主题研究** - 网络搜索与内容收集
 - **脚本撰写** - 带章节标记的结构化旁白
-- **多 TTS 引擎** - Azure Speech、火山引擎豆包、CosyVoice（阿里云）、Edge TTS（免费，无需 API 密钥）
+- **多 TTS 引擎** - Edge TTS（免费）、Azure Speech、火山引擎豆包、CosyVoice、ElevenLabs、OpenAI TTS
 - **Remotion 视频** - 基于 React 的视频合成与动画
 - **可视化样式编辑** - 在 Remotion Studio 界面调整颜色、字体、布局
 - **实时预览** - Remotion Studio 即时调试，渲染前预览效果
@@ -122,6 +122,8 @@ npm install remotion @remotion/cli @remotion/player zod
 | **火山引擎豆包语音** | TTS 语音合成（备选后端） | [火山引擎控制台](https://console.volcengine.com/speech/service/8) |
 | **阿里云 CosyVoice** | TTS 语音合成（备选后端） | [百炼控制台](https://bailian.console.aliyun.com/) |
 | **Edge TTS** | TTS 语音合成（默认后端，免费，无需密钥） | `pip install edge-tts` |
+| **ElevenLabs** | TTS 语音合成（英文最高质量） | [ElevenLabs](https://elevenlabs.io/) |
+| **OpenAI** | TTS 语音合成（简洁 API） | [OpenAI Platform](https://platform.openai.com/) |
 | **Google Gemini** | AI 封面生成（可选） | [AI Studio](https://aistudio.google.com/) |
 | **阿里云百炼** | AI 封面生成 - 中文优化（可选） | [百炼控制台](https://bailian.console.aliyun.com/) |
 
@@ -130,8 +132,8 @@ npm install remotion @remotion/cli @remotion/player zod
 添加到 `~/.zshrc` 或 `~/.bashrc`：
 
 ```bash
-# TTS 后端选择：edge（默认，免费）、azure、doubao、cosyvoice
-export TTS_BACKEND="edge"                            # 默认值，或 "azure" / "doubao" / "cosyvoice"
+# TTS 后端选择：edge（默认，免费）、azure、doubao、cosyvoice、elevenlabs、openai
+export TTS_BACKEND="edge"                            # 默认值，或 "azure" / "doubao" / "cosyvoice" / "elevenlabs" / "openai"
 
 # Azure TTS（高质量后端）
 export AZURE_SPEECH_KEY="your-azure-speech-key"
@@ -148,6 +150,12 @@ export DASHSCOPE_API_KEY="your-dashscope-api-key"
 
 # 可选：Edge TTS 语音覆盖
 export EDGE_TTS_VOICE="zh-CN-XiaoxiaoNeural"
+
+# ElevenLabs TTS
+export ELEVENLABS_API_KEY="your-elevenlabs-api-key"
+
+# OpenAI TTS
+export OPENAI_API_KEY="your-openai-api-key"
 
 # 可选：Google Gemini 生成 AI 封面
 export GEMINI_API_KEY="your-gemini-api-key"

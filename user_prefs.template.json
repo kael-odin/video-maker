@@ -58,7 +58,9 @@
         "azure": "zh-CN-XiaoxiaoNeural",
         "edge": "zh-CN-XiaoxiaoNeural",
         "doubao": "BV001_streaming",
-        "cosyvoice": "longxiaochun"
+        "cosyvoice": "longxiaochun",
+        "elevenlabs": "21m00Tcm4TlvDq8ikWAM",
+        "openai": "alloy"
       }
     },
     "bgm": {

@@ -306,6 +306,14 @@ Run `references list` — orphaned entries are auto-cleaned on list.
 
 ---
 
+### ElevenLabs / OpenAI TTS Limitations
+
+- **No phoneme support**: Inline markers `执行器[zhí xíng qì]` and `phonemes.json` are ignored
+- **OpenAI TTS has no word boundaries**: Subtitle timing is approximate (evenly distributed across words). For precise subtitles, use Azure, Edge, or ElevenLabs
+- **Workaround**: If subtitle precision is critical, use Azure TTS (`TTS_BACKEND=azure`) or Edge TTS (`TTS_BACKEND=edge`)
+
+---
+
 ### Doubao TTS: API Error Codes
 
 **Symptoms**: `Doubao API error code=XXXX`

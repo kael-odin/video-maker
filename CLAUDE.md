@@ -31,6 +31,8 @@ python3 generate_tts.py --input videos/{name}/podcast.txt --output-dir videos/{n
 TTS_BACKEND=azure python3 generate_tts.py --input videos/{name}/podcast.txt --output-dir videos/{name}      # Azure (high quality)
 TTS_BACKEND=doubao python3 generate_tts.py --input videos/{name}/podcast.txt --output-dir videos/{name}     # Volcengine Doubao
 TTS_BACKEND=cosyvoice python3 generate_tts.py --input videos/{name}/podcast.txt --output-dir videos/{name}  # CosyVoice
+TTS_BACKEND=elevenlabs python3 generate_tts.py --input videos/{name}/podcast.txt --output-dir videos/{name}  # ElevenLabs (high quality)
+TTS_BACKEND=openai python3 generate_tts.py --input videos/{name}/podcast.txt --output-dir videos/{name}      # OpenAI TTS
 
 # TTS utilities
 python3 generate_tts.py --input videos/{name}/podcast.txt --output-dir videos/{name} --dry-run   # Estimate duration, no API call
@@ -184,7 +186,9 @@ export VOLCENGINE_ACCESS_TOKEN="..."  # Required for Doubao TTS
 export VOLCENGINE_CLUSTER="volcano_tts"       # Optional: default cluster
 export VOLCENGINE_VOICE_TYPE="BV001_streaming" # Optional: voice type
 export DASHSCOPE_API_KEY="..."     # Required for CosyVoice TTS + AI thumbnails (imagenty)
-export TTS_BACKEND="edge"          # Default (free), or "azure" / "doubao" / "cosyvoice"
+export TTS_BACKEND="edge"          # Default (free), or "azure" / "doubao" / "cosyvoice" / "elevenlabs" / "openai"
+export ELEVENLABS_API_KEY="..."    # Required for ElevenLabs TTS
+export OPENAI_API_KEY="..."        # Required for OpenAI TTS
 export GEMINI_API_KEY="..."        # Optional: AI thumbnails (imagen)
 export EDGE_TTS_VOICE="zh-CN-XiaoxiaoNeural"  # Optional: Edge TTS voice override
 ```
