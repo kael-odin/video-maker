@@ -153,13 +153,13 @@ BUILTIN_POLYPHONES = {
 
 parser = argparse.ArgumentParser(
     description='Generate TTS audio from podcast script',
-    epilog='Backends: azure (default), doubao, cosyvoice, edge (free). Env: TTS_BACKEND, AZURE_SPEECH_KEY, VOLCENGINE_APPID, VOLCENGINE_ACCESS_TOKEN, DASHSCOPE_API_KEY, EDGE_TTS_VOICE, TTS_RATE'
+    epilog='Backends: edge (default, free), azure, doubao, cosyvoice. Env: TTS_BACKEND, AZURE_SPEECH_KEY, VOLCENGINE_APPID, VOLCENGINE_ACCESS_TOKEN, DASHSCOPE_API_KEY, EDGE_TTS_VOICE, TTS_RATE'
 )
 parser.add_argument('--input', '-i', default='podcast.txt', help='Input script file (default: podcast.txt)')
 parser.add_argument('--output-dir', '-o', default='.', help='Output directory for podcast_audio.wav, podcast_audio.srt, timing.json (default: current dir)')
 parser.add_argument('--phonemes', '-p', default=None, help='Phoneme dictionary JSON file (default: phonemes.json in input dir)')
 parser.add_argument('--backend', '-b', default=None,
-    help='TTS backend: azure, doubao, cosyvoice, or edge (default: env TTS_BACKEND or azure)')
+    help='TTS backend: edge, azure, doubao, or cosyvoice (default: env TTS_BACKEND or edge)')
 parser.add_argument('--resume', action='store_true',
     help='Resume from last breakpoint, skip already synthesized parts')
 parser.add_argument('--dry-run', action='store_true',
@@ -167,7 +167,7 @@ parser.add_argument('--dry-run', action='store_true',
 
 args = parser.parse_args()
 
-BACKEND = args.backend or os.environ.get("TTS_BACKEND", "azure")
+BACKEND = args.backend or os.environ.get("TTS_BACKEND", "edge")
 print(f"TTS backend: {BACKEND}")
 
 def check_import(module, pkg, install_cmd):
