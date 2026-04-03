@@ -92,15 +92,7 @@ Assign each section a density tier:
 
 ### Topic Type Detection
 
-Auto-detect category from keywords and merge matching `topic_patterns`:
-
-| Keywords | Category | Applied Preferences |
-|----------|----------|-------------------|
-| AI, coding, software, hardware, tech | tech | topic_patterns.tech |
-| investment, stocks, crypto, finance | finance | topic_patterns.finance |
-| tutorial, learning, guide | education | topic_patterns.education |
-| food, travel, lifestyle, vlog | lifestyle | topic_patterns.lifestyle |
-| news, trending, breaking | news | topic_patterns.news |
+> **Planned feature.** Currently, topic-specific styles are applied manually via `user_prefs.json` under `topic_patterns`. Auto-detection from keywords is not yet implemented.
 
 ### Title Position
 
