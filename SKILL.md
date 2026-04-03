@@ -196,32 +196,7 @@ Prompts at each decision point. Activated by:
 
 ## Workflow State & Resume
 
-**Claude behavior:** Auto-persist workflow progress for error recovery.
-
-Each video maintains `videos/{name}/workflow_state.json`:
-
-```json
-{
-  "video_name": "ai-agents-explained",
-  "mode": "auto",
-  "started_at": "2026-03-16T10:30:00",
-  "current_step": 8,
-  "steps": {
-    "1": { "status": "completed", "completed_at": "..." },
-    "8": { "status": "failed", "error": "AZURE_SPEECH_KEY not set" }
-  }
-}
-```
-
-### Auto-Resume
-
-On invocation:
-1. Check for existing `videos/*/workflow_state.json`
-2. If found: "Detected unfinished video `{name}` at step {N}. Continue?"
-   - **Continue** → resume from failed step
-   - **Restart** → reset, start from Step 1
-   - **New video** → start different video
-3. If not found: start fresh
+> **Planned feature (not yet implemented).** Currently, workflow progress is tracked via Claude's conversation context. If a session is interrupted, re-invoke the skill and Claude will check existing files in `videos/{name}/` to determine where to resume.
 
 ---
 
