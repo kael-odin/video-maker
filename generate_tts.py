@@ -265,6 +265,10 @@ file_phonemes = load_phoneme_dict(args.input, args.phonemes)
 # Merge: inline > file > builtin (priority order)
 phoneme_dict = {**BUILTIN_POLYPHONES, **file_phonemes, **inline_phonemes}
 print(f"✓ 多音字词典: {len(phoneme_dict)} 条 (内置{len(BUILTIN_POLYPHONES)} + 文件{len(file_phonemes)} + 内联{len(inline_phonemes)})")
+if BACKEND == "doubao" and (len(file_phonemes) > 0 or len(inline_phonemes) > 0):
+    print("⚠ Warning: Doubao TTS does not support the phoneme system. "
+          "Inline markers and phonemes.json will be ignored. "
+          "Consider using Azure or CosyVoice for phoneme support.", file=sys.stderr)
 
 
 if not sections:
@@ -892,7 +896,10 @@ with open(concat_list, "w") as f:
     for pf in part_files:
         f.write(f"file '{os.path.basename(pf)}'\n")
 
-subprocess.run(["ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", concat_list, "-c", "copy", output_wav], capture_output=True, cwd=args.output_dir)
+concat_result = subprocess.run(["ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", concat_list, "-c", "copy", output_wav], capture_output=True, text=True, cwd=args.output_dir)
+if concat_result.returncode != 0:
+    print(f"Error: FFmpeg concat failed:\n{concat_result.stderr}", file=sys.stderr)
+    sys.exit(1)
 # Keep part_*.wav and concat_list.txt for debugging - cleanup via Step 14
 print(f"✓ 完成: {output_wav}")
 print(f"  临时文件保留: {len(part_files)} 个 part_*.wav (手动清理: Step 14)")
