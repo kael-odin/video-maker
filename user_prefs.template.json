@@ -1,7 +1,23 @@
 {
-  "version": "1.2",
+  "version": "1.3",
   "updated_at": null,
   "global": {
+    "platform": "bilibili",
+    "language": "zh-CN",
+    "cta": {
+      "type": "auto",
+      "text": null,
+      "animation": null
+    },
+    "subtitle": {
+      "enabled": true,
+      "fontName": "auto",
+      "fontSize": 20,
+      "primaryColor": "&H00333333",
+      "outlineColor": "&H00FFFFFF",
+      "bold": false,
+      "outline": 2
+    },
     "visual": {
       "theme": "light",
       "primaryColor": "#4f6ef7",
@@ -9,7 +25,13 @@
       "accentColor": "#FF6B6B",
       "preferredComponents": [],
       "titlePosition": "top-center",
-      "progressBar": true,
+      "progressBar": {
+        "enabled": true,
+        "height": 6,
+        "fontSize": 18,
+        "activeColor": "auto",
+        "position": "bottom"
+      },
       "typography": {
         "heroTitle": 96,
         "sectionTitle": 80,
@@ -51,7 +73,8 @@
       "tone": "professional",
       "verbosity": "balanced",
       "sectionCount": 5,
-      "outroStyle": "standard"
+      "outroStyle": "standard",
+      "chapters": true
     }
   },
   "topic_patterns": {
