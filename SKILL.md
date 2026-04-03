@@ -7,7 +7,7 @@ allowed-tools: Bash, Read, Write, Edit, Glob, Grep, WebFetch, WebSearch, Agent
 # --- Claude Code fields above, OpenClaw/SkillsMP fields below ---
 author: Agents365-ai
 category: Content Creation
-version: 1.5.0
+version: 1.6.0
 created: 2025-01-27
 updated: 2026-04-03
 bilibili: https://space.bilibili.com/441831884
