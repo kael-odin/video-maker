@@ -239,51 +239,12 @@ Claude directly updates the corresponding field in `user_prefs.json`.
 
 ## Preference Learning
 
-**Claude behavior:** Execute after Studio preview iteration completes.
+> **Planned feature (not yet implemented).** The schema supports `learning_history` records, but automatic detection of preference changes during Studio sessions is not yet coded. Currently, preferences are set manually via the commands above.
 
-### Detect Modifications
-
-Compare values at start vs end of Studio preview session:
-
-| Category | Detection |
-|----------|-----------|
-| Typography | titleSize, subtitleSize, bodySize changes |
-| Color | primaryColor, backgroundColor changes |
-| Layout | progress bar toggle, transition effect changes |
-
-### Progressive Learning
-
-- **First modification**: Current video only, don't update global preferences
-- **Repeated modification** (≥2 same direction): Ask user if it should become default
-
-```
-"Detected [N] consecutive increases to title size (80 → 96). Set 96px as default?"
-- Yes (recommended) → update user_prefs.json
-- No → current video only
-```
-
-### Explicit Preference Capture
-
-Detect expressions and learn:
-
-| User Expression Pattern | Learning Action |
-|------------------------|----------------|
-| "always use this color" | Save primaryColor to global |
-| "use this style for tech videos" | Save to topic_patterns.tech |
-| "remember these settings" | Save all current modifications to global |
-
-### Update Preference File
-
-After learning, update `user_prefs.json` and add `learning_history` record:
-
-```json
-{
-  "date": "2026-03-15",
-  "source": "implicit",
-  "change": { "path": "global.visual.typography.heroTitle", "from": 80, "to": 96 },
-  "context": "User adjusted title size 3 times in Studio"
-}
-```
+Planned capabilities:
+- Detect repeated style modifications during Studio preview
+- Ask user whether to promote changes to global defaults
+- Track learning history in `user_prefs.json`
 
 ---
 
