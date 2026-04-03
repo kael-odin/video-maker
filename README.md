@@ -108,10 +108,10 @@ npm install remotion @remotion/cli @remotion/player zod
 
 | 服务 | 用途 | 获取方式 |
 |------|------|---------|
-| **Azure Speech** | TTS 语音合成（默认后端） | [Azure 门户](https://portal.azure.com/) → 语音服务 |
+| **Azure Speech** | TTS 语音合成（高质量后端） | [Azure 门户](https://portal.azure.com/) → 语音服务 |
 | **火山引擎豆包语音** | TTS 语音合成（备选后端） | [火山引擎控制台](https://console.volcengine.com/speech/service/8) |
 | **阿里云 CosyVoice** | TTS 语音合成（备选后端） | [百炼控制台](https://bailian.console.aliyun.com/) |
-| **Edge TTS** | TTS 语音合成（免费，无需密钥） | `pip install edge-tts` |
+| **Edge TTS** | TTS 语音合成（默认后端，免费，无需密钥） | `pip install edge-tts` |
 | **Google Gemini** | AI 封面生成（可选） | [AI Studio](https://aistudio.google.com/) |
 | **阿里云百炼** | AI 封面生成 - 中文优化（可选） | [百炼控制台](https://bailian.console.aliyun.com/) |
 
@@ -120,10 +120,10 @@ npm install remotion @remotion/cli @remotion/player zod
 添加到 `~/.zshrc` 或 `~/.bashrc`：
 
 ```bash
-# TTS 后端选择：azure（默认）、doubao、cosyvoice、edge（免费，无需密钥）
-export TTS_BACKEND="azure"                           # 或 "doubao" / "cosyvoice" / "edge"
+# TTS 后端选择：edge（默认，免费）、azure、doubao、cosyvoice
+export TTS_BACKEND="edge"                            # 默认值，或 "azure" / "doubao" / "cosyvoice"
 
-# Azure TTS（默认后端）
+# Azure TTS（高质量后端）
 export AZURE_SPEECH_KEY="your-azure-speech-key"
 export AZURE_SPEECH_REGION="eastasia"
 

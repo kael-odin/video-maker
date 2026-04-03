@@ -27,10 +27,10 @@ A Claude Code skill for automated video podcast creation targeting **B站横屏�
 
 ```bash
 # TTS audio generation (4 backends)
-python3 generate_tts.py --input videos/{name}/podcast.txt --output-dir videos/{name}                    # Azure (default)
+python3 generate_tts.py --input videos/{name}/podcast.txt --output-dir videos/{name}                    # Edge TTS (default, free)
+TTS_BACKEND=azure python3 generate_tts.py --input videos/{name}/podcast.txt --output-dir videos/{name}      # Azure (high quality)
 TTS_BACKEND=doubao python3 generate_tts.py --input videos/{name}/podcast.txt --output-dir videos/{name}     # Volcengine Doubao
 TTS_BACKEND=cosyvoice python3 generate_tts.py --input videos/{name}/podcast.txt --output-dir videos/{name}  # CosyVoice
-TTS_BACKEND=edge python3 generate_tts.py --input videos/{name}/podcast.txt --output-dir videos/{name}       # Edge TTS (free)
 
 # TTS utilities
 python3 generate_tts.py --input videos/{name}/podcast.txt --output-dir videos/{name} --dry-run   # Estimate duration, no API call
@@ -177,14 +177,14 @@ Common semantic names:
 ## Environment Variables
 
 ```bash
-export AZURE_SPEECH_KEY="..."      # Required for Azure TTS (default backend)
+export AZURE_SPEECH_KEY="..."      # Required for Azure TTS (high quality backend)
 export AZURE_SPEECH_REGION="eastasia"
 export VOLCENGINE_APPID="..."      # Required for Doubao TTS
 export VOLCENGINE_ACCESS_TOKEN="..."  # Required for Doubao TTS
 export VOLCENGINE_CLUSTER="volcano_tts"       # Optional: default cluster
 export VOLCENGINE_VOICE_TYPE="BV001_streaming" # Optional: voice type
 export DASHSCOPE_API_KEY="..."     # Required for CosyVoice TTS + AI thumbnails (imagenty)
-export TTS_BACKEND="azure"         # Or "doubao" or "cosyvoice" or "edge" (free, no key needed)
+export TTS_BACKEND="edge"          # Default (free), or "azure" / "doubao" / "cosyvoice"
 export GEMINI_API_KEY="..."        # Optional: AI thumbnails (imagen)
 export EDGE_TTS_VOICE="zh-CN-XiaoxiaoNeural"  # Optional: Edge TTS voice override
 ```

@@ -109,10 +109,10 @@ npm install remotion @remotion/cli @remotion/player zod
 
 | Service | Purpose | Get Key |
 |---------|---------|---------|
-| **Azure Speech** | TTS audio generation (default backend) | [Azure Portal](https://portal.azure.com/) → Speech Services |
+| **Azure Speech** | TTS audio generation (high quality) | [Azure Portal](https://portal.azure.com/) → Speech Services |
 | **Volcengine Doubao Speech** | TTS audio generation (alternative backend) | [Volcengine Console](https://console.volcengine.com/speech/service/8) |
 | **Aliyun CosyVoice** | TTS audio generation (alternative backend) | [Aliyun Bailian](https://bailian.console.aliyun.com/) |
-| **Edge TTS** | TTS audio generation (free, no key needed) | `pip install edge-tts` |
+| **Edge TTS** | TTS audio generation (default, free, no key needed) | `pip install edge-tts` |
 | **Google Gemini** | AI thumbnail generation (optional) | [AI Studio](https://aistudio.google.com/) |
 | **Aliyun Dashscope** | AI thumbnail - Chinese optimized (optional) | [Aliyun Bailian](https://bailian.console.aliyun.com/) |
 
@@ -121,10 +121,10 @@ npm install remotion @remotion/cli @remotion/player zod
 Add to `~/.zshrc` or `~/.bashrc`:
 
 ```bash
-# TTS Backend: azure (default), doubao, cosyvoice, or edge (free, no key needed)
-export TTS_BACKEND="azure"                           # Or "doubao" / "cosyvoice" / "edge"
+# TTS Backend: edge (default, free), azure, doubao, cosyvoice
+export TTS_BACKEND="edge"                            # Default, or "azure" / "doubao" / "cosyvoice"
 
-# Azure TTS (default backend)
+# Azure TTS (high quality)
 export AZURE_SPEECH_KEY="your-azure-speech-key"
 export AZURE_SPEECH_REGION="eastasia"
 
