@@ -19,11 +19,11 @@ When the user provides a reference video/image with their video creation request
 
 ## Startup: Load User Preferences
 
-**Claude behavior:** Auto-execute before Step 1, no user interaction needed.
+**Agent behavior:** Auto-execute before Step 1, no user interaction needed.
 
 1. Check if `user_prefs.json` exists in `${CLAUDE_SKILL_DIR}`
 2. If not, copy from `${CLAUDE_SKILL_DIR}/user_prefs.template.json`
-3. Read preferences and apply in subsequent steps
+3. Read preferences, **check version and migrate if needed**, then apply in subsequent steps
 
 ```bash
 SKILL_DIR="${CLAUDE_SKILL_DIR}"
@@ -36,13 +36,30 @@ if [ ! -f "$PREFS_FILE" ]; then
 fi
 ```
 
+### Preference Migration
+
+After loading `user_prefs.json`, check the `version` field and migrate if outdated:
+
+| From | To | Migration |
+|------|----|-----------|
+| `1.0` | `1.1` | Add top-level `topic_patterns`, `style_profiles`, `design_references`, `learning_history` |
+| `1.1` | `1.2` | Convert `tts.voice` (string) → `tts.voices` (per-backend object, preserving user's voice for azure/edge); Add `bgm` preferences (volume, track, tracks library) |
+
+**Migration rules:**
+- Preserve all existing user values — never overwrite what the user has customized
+- Only add missing fields with defaults from `user_prefs.template.json`
+- When migrating `tts.voice` → `tts.voices`: use the old voice value for `azure` and `edge`, use defaults for `doubao` and `cosyvoice`
+- After migration, update `version` to `"1.2"` and save the file
+- Print: `"✓ Migrated preferences from v{old} to v1.2"`
+
 4. At Step 1 start, inform user of active preferences (if customized):
 
 ```
 "Based on your preferences:
  - Theme: [theme]
- - Scale: [scalePreference]x
+ - TTS: [tts.backend] / [tts.voices[backend]]
  - Speech rate: [tts.rate]
+ - BGM: [bgm.track] at volume [bgm.volume]
 
 Say 'show preferences' to see details."
 ```
@@ -569,7 +586,7 @@ echo "✓ Temp files cleaned"
 
 **When:** After long-form video is complete (Step 14). Optional step.
 
-**Claude behavior:** Offer to generate vertical shorts. If user agrees, run automatically.
+**Agent behavior:** Offer to generate vertical shorts. If user agrees, run automatically.
 
 ### Generate shorts from sections
 

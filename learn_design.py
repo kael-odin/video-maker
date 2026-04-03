@@ -22,7 +22,7 @@ SUPPORTED_VIDEO_EXTS = {".mp4", ".mkv", ".avi", ".mov", ".webm", ".flv"}
 MAX_FRAMES = 8
 MAX_VIDEO_SIZE_BYTES = 2 * 1024 * 1024 * 1024  # 2 GB
 
-PREFS_VERSION = "1.2"
+PREFS_VERSION = "1.1"
 
 
 # ============ Input Detection ============
@@ -281,43 +281,13 @@ def load_report(ref_dir):
 # ============ Preferences I/O ============
 
 def _migrate_prefs(prefs):
-    """Migrate prefs through versions: v1.0 → v1.1 → v1.2."""
+    """Migrate prefs from v1.0 to v1.1 in-place."""
     if prefs.get("version") == "1.0":
         prefs["version"] = "1.1"
         prefs.setdefault("topic_patterns", {})
         prefs.setdefault("style_profiles", {})
         prefs.setdefault("design_references", {})
         prefs.setdefault("learning_history", [])
-
-    if prefs.get("version") == "1.1":
-        prefs["version"] = "1.2"
-        tts = prefs.get("global", {}).get("tts", {})
-        # Migrate single "voice" → per-backend "voices"
-        if "voice" in tts:
-            old_voice = tts.pop("voice")
-            tts.setdefault("voices", {
-                "azure": old_voice,
-                "edge": old_voice,
-                "doubao": "BV001_streaming",
-                "cosyvoice": "longxiaochun",
-            })
-        else:
-            tts.setdefault("voices", {
-                "azure": "zh-CN-XiaoxiaoNeural",
-                "edge": "zh-CN-XiaoxiaoNeural",
-                "doubao": "BV001_streaming",
-                "cosyvoice": "longxiaochun",
-            })
-        # Add BGM preferences
-        prefs.get("global", {}).setdefault("bgm", {
-            "volume": 0.05,
-            "track": "perfect-beauty",
-            "tracks": {
-                "perfect-beauty": "perfect-beauty-191271.mp3",
-                "calm-piano": "snow-stevekaldes-piano-397491.mp3",
-            },
-        })
-
     return prefs
 
 

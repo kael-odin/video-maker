@@ -101,7 +101,7 @@ Before choosing visual design in Step 9, check for matching style profiles or re
 
 ## Auto Update Check
 
-**Claude behavior:** Check for updates at most once per day (throttled by timestamp file):
+**Agent behavior:** Check for updates at most once per day (throttled by timestamp file):
 
 ```bash
 STAMP="${CLAUDE_SKILL_DIR}/.last_update_check"
@@ -159,7 +159,7 @@ Automated pipeline for professional **Bilibili horizontal knowledge videos** fro
 
 ## Execution Modes
 
-**Claude behavior:** Detect user intent at workflow start:
+**Agent behavior:** Detect user intent at workflow start:
 
 - "Make a video about..." / no special instructions → **Auto Mode**
 - "I want to control each step" / mentions interactive → **Interactive Mode**

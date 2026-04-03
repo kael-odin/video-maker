@@ -200,7 +200,7 @@ If user says "use my own BGM" or provides a file path, skip the default BGM copy
 | Tutorial | Calm, steady | 0.04-0.06 |
 | Lifestyle | Warm, acoustic | 0.05-0.08 |
 
-**Claude behavior:** In auto mode, select most appropriate included track by topic type. In interactive mode, ask user.
+**Agent behavior:** In auto mode, select most appropriate included track by topic type. In interactive mode, ask user.
 
 ---
 
