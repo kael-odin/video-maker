@@ -4,7 +4,7 @@
 
 Automated pipeline to create professional video podcasts from a topic. **Optimized for Bilibili (B站)**. Combines research, script generation, Microsoft Azure TTS, Volcengine Doubao TTS, Remotion video rendering, and FFmpeg audio mixing.
 
-**Supported platforms:** [Claude Code](https://claude.ai/code) · [OpenClaw](https://openclaw.ai/) (ClawHub)
+**Supported platforms:** [Claude Code](https://claude.ai/code) · [OpenClaw](https://openclaw.ai/) (ClawHub) · [OpenCode](https://opencode.ai/) · [Codex](https://openai.com/index/introducing-codex/)
 
 ![OpenClaw x Video Podcast Maker](assets/openclaw-collaboration.png)
 
@@ -28,7 +28,7 @@ Automated pipeline to create professional video podcasts from a topic. **Optimiz
 - **Bilingual TTS** - Chinese/English mixed narration with Azure Speech or CosyVoice
 - **Pronunciation Correction** - Built-in polyphone dictionary + custom phoneme support
 - **Bilibili Templates** - Ready-to-use Remotion templates (`Video.tsx`, `Root.tsx`, `Thumbnail.tsx`, `podcast.txt`) for quick project scaffolding
-- **Component Library** - Reusable visual building blocks (ComparisonCard, Timeline, CodeBlock, QuoteBlock, FeatureGrid, DataBar, StatCounter, FlowChart, IconCard) for composing rich section layouts
+- **Component Library** - Reusable visual building blocks (ComparisonCard, Timeline, CodeBlock, QuoteBlock, FeatureGrid, DataBar, StatCounter, FlowChart, IconCard, DiagramReveal, AudioWaveform, LottieAnimation, MediaSection, SectionLayouts, AnimatedBackground) for composing rich section layouts
 - **Preference Learning** - Auto-learns user style preferences (colors, fonts, speech rate) and applies them to future videos
 
 ### Bilibili Optimizations
