@@ -139,7 +139,7 @@
           "properties": {
             "backend": {
               "type": "string",
-              "enum": ["azure", "cosyvoice", "edge"],
+              "enum": ["azure", "doubao", "cosyvoice", "edge"],
               "default": "azure"
             },
             "rate": {
