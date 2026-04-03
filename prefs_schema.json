@@ -18,6 +18,84 @@
     "global": {
       "type": "object",
       "properties": {
+        "platform": {
+          "type": "string",
+          "enum": ["bilibili", "youtube"],
+          "default": "bilibili",
+          "description": "Target video platform"
+        },
+        "language": {
+          "type": "string",
+          "enum": ["zh-CN", "en-US"],
+          "default": "zh-CN",
+          "description": "Content language (affects script template, TTS voice, subtitle font)"
+        },
+        "cta": {
+          "type": "object",
+          "description": "Call-to-action configuration for outro",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": ["auto", "animation", "text", "custom"],
+              "default": "auto",
+              "description": "CTA mode: auto (platform default), animation, text with icons, or custom"
+            },
+            "text": {
+              "type": ["string", "null"],
+              "default": null,
+              "description": "Custom CTA text. Null = use platform+language default"
+            },
+            "animation": {
+              "type": ["string", "null"],
+              "default": null,
+              "description": "Custom animation file path in assets/. Null = platform default"
+            }
+          }
+        },
+        "subtitle": {
+          "type": "object",
+          "description": "Subtitle burning preferences for FFmpeg",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true,
+              "description": "Whether to burn subtitles into final video"
+            },
+            "fontName": {
+              "type": "string",
+              "default": "auto",
+              "description": "Subtitle font. 'auto' resolves by language: zh-CN=PingFang SC, en-US=Arial"
+            },
+            "fontSize": {
+              "type": "number",
+              "minimum": 10,
+              "maximum": 40,
+              "default": 20,
+              "description": "Subtitle font size (for 4K output)"
+            },
+            "primaryColor": {
+              "type": "string",
+              "default": "&H00333333",
+              "description": "Subtitle text color (ASS format BBGGRR)"
+            },
+            "outlineColor": {
+              "type": "string",
+              "default": "&H00FFFFFF",
+              "description": "Subtitle outline color (ASS format BBGGRR)"
+            },
+            "bold": {
+              "type": "boolean",
+              "default": false
+            },
+            "outline": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 5,
+              "default": 2,
+              "description": "Outline thickness in pixels"
+            }
+          }
+        },
         "visual": {
           "type": "object",
           "properties": {
@@ -49,9 +127,21 @@
               "default": "top-center"
             },
             "progressBar": {
-              "type": "boolean",
+              "oneOf": [
+                { "type": "boolean" },
+                {
+                  "type": "object",
+                  "properties": {
+                    "enabled": { "type": "boolean", "default": true },
+                    "height": { "type": "number", "minimum": 2, "maximum": 20, "default": 6 },
+                    "fontSize": { "type": "number", "minimum": 10, "maximum": 30, "default": 18 },
+                    "activeColor": { "type": "string", "default": "auto", "description": "'auto' = follows primaryColor" },
+                    "position": { "type": "string", "enum": ["bottom"], "default": "bottom" }
+                  }
+                }
+              ],
               "default": true,
-              "description": "Show chapter progress bar"
+              "description": "Chapter progress bar config (boolean for back-compat, or object)"
             },
             "typography": {
               "type": "object",
@@ -224,6 +314,11 @@
               "type": "string",
               "enum": ["standard", "minimal"],
               "default": "standard"
+            },
+            "chapters": {
+              "type": "boolean",
+              "default": true,
+              "description": "Include chapter timestamps in publish_info.md"
             }
           }
         }
