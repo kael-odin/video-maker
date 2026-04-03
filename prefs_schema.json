@@ -229,7 +229,7 @@
           "properties": {
             "backend": {
               "type": "string",
-              "enum": ["azure", "doubao", "cosyvoice", "edge", "elevenlabs", "openai"],
+              "enum": ["azure", "doubao", "cosyvoice", "edge", "elevenlabs", "google", "openai"],
               "default": "edge"
             },
             "rate": {
@@ -262,6 +262,11 @@
                   "type": "string",
                   "default": "21m00Tcm4TlvDq8ikWAM",
                   "description": "ElevenLabs voice ID (default: Rachel)"
+                },
+                "google": {
+                  "type": "string",
+                  "default": "en-US-Neural2-F",
+                  "description": "Google Cloud TTS voice name"
                 },
                 "openai": {
                   "type": "string",

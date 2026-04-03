@@ -16,7 +16,7 @@ Automated pipeline to create professional video podcasts from a topic. **Support
 
 - **Topic Research** - Web search and content gathering
 - **Script Writing** - Structured narration with section markers
-- **Multi-TTS** - Edge TTS (free), Azure Speech, Volcengine Doubao, CosyVoice, ElevenLabs, OpenAI TTS
+- **Multi-TTS** - Edge TTS (free), Azure Speech, Volcengine Doubao, CosyVoice, ElevenLabs, Google Cloud TTS, OpenAI TTS
 - **Remotion Video** - React-based video composition with animations
 - **Visual Style Editing** - Adjust colors, fonts, and layout in Remotion Studio UI
 - **Real-time Preview** - Remotion Studio for instant debugging before render
@@ -124,6 +124,7 @@ npm install remotion @remotion/cli @remotion/player zod
 | **Aliyun CosyVoice** | TTS audio generation (alternative backend) | [Aliyun Bailian](https://bailian.console.aliyun.com/) |
 | **Edge TTS** | TTS audio generation (default, free, no key needed) | `pip install edge-tts` |
 | **ElevenLabs** | TTS audio generation (highest quality English) | [ElevenLabs](https://elevenlabs.io/) |
+| **Google Cloud TTS** | TTS audio generation (wide language support) | [Google Cloud Console](https://console.cloud.google.com/) |
 | **OpenAI** | TTS audio generation (simple API) | [OpenAI Platform](https://platform.openai.com/) |
 | **Google Gemini** | AI thumbnail generation (optional) | [AI Studio](https://aistudio.google.com/) |
 | **Aliyun Dashscope** | AI thumbnail - Chinese optimized (optional) | [Aliyun Bailian](https://bailian.console.aliyun.com/) |
@@ -133,8 +134,8 @@ npm install remotion @remotion/cli @remotion/player zod
 Add to `~/.zshrc` or `~/.bashrc`:
 
 ```bash
-# TTS Backend: edge (default, free), azure, doubao, cosyvoice, elevenlabs, openai
-export TTS_BACKEND="edge"                            # Default (free), or "azure" / "doubao" / "cosyvoice" / "elevenlabs" / "openai"
+# TTS Backend: edge (default, free), azure, doubao, cosyvoice, elevenlabs, google, openai
+export TTS_BACKEND="edge"                            # Default (free), or "azure" / "doubao" / "cosyvoice" / "elevenlabs" / "google" / "openai"
 
 # Azure TTS (high quality)
 export AZURE_SPEECH_KEY="your-azure-speech-key"
@@ -154,6 +155,9 @@ export EDGE_TTS_VOICE="zh-CN-XiaoxiaoNeural"
 
 # ElevenLabs TTS
 export ELEVENLABS_API_KEY="your-elevenlabs-api-key"
+
+# Google Cloud TTS
+export GOOGLE_TTS_API_KEY="your-google-tts-api-key"
 
 # OpenAI TTS
 export OPENAI_API_KEY="your-openai-api-key"
