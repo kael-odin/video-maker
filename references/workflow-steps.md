@@ -44,24 +44,27 @@ After loading `user_prefs.json`, check the `version` field and migrate if outdat
 |------|----|-----------|
 | `1.0` | `1.1` | Add top-level `topic_patterns`, `style_profiles`, `design_references`, `learning_history` |
 | `1.1` | `1.2` | Convert `tts.voice` (string) → `tts.voices` (per-backend object, preserving user's voice for azure/edge); Add `bgm` preferences (volume, track, tracks library) |
+| `1.2` | `1.3` | Add `platform: "bilibili"`, `language: "zh-CN"`, `cta`, `subtitle` fields; expand `progressBar` from boolean to `{ enabled: <old_value>, height: 6, fontSize: 18, activeColor: "auto", position: "bottom" }`; add `content.chapters: true` |
 
 **Migration rules:**
 - Preserve all existing user values — never overwrite what the user has customized
 - Only add missing fields with defaults from `user_prefs.template.json`
 - When migrating `tts.voice` → `tts.voices`: use the old voice value for `azure` and `edge`, use defaults for `doubao` and `cosyvoice`
-- After migration, update `version` to `"1.2"` and save the file
-- Print: `"✓ Migrated preferences from v{old} to v1.2"`
+- After migration, update `version` to `"1.3"` and save the file
+- Print: `"✓ Migrated preferences from v{old} to v1.3"`
 
 4. At Step 1 start, inform user of active preferences (if customized):
 
 ```
 "Based on your preferences:
- - Theme: [theme]
+ - Platform: [platform] | Language: [language]
  - TTS: [tts.backend] / [tts.voices[backend]]
  - Speech rate: [tts.rate]
  - BGM: [bgm.track] at volume [bgm.volume]
+ - Subtitles: [enabled/disabled] | CTA: [cta.type]
 
-Say 'show preferences' to see details."
+Say 'set platform youtube' or 'set language en-US' to change.
+Say 'show preferences' to see all details."
 ```
 
 ---
@@ -167,6 +170,19 @@ Create `videos/{name}/podcast.txt` with section markers:
 - **outro**: Thanks + triple-click CTA
 - Empty `[SECTION:xxx]` = silent section
 
+### Script Template Selection
+
+Copy the script template based on `language`:
+- `zh-CN` → `${CLAUDE_SKILL_DIR}/templates/podcast_zh.txt`
+- `en-US` → `${CLAUDE_SKILL_DIR}/templates/podcast_en.txt`
+
+### Outro Text by Platform + Language
+
+| Platform | zh-CN | en-US |
+|----------|-------|-------|
+| bilibili | "一键三连！评论区留言，下期再见！" | "Like, coin, and favorite! Leave a comment, see you next time!" |
+| youtube | "点赞订阅转发！评论区留言，下期再见！" | "Like, subscribe, and share! Leave a comment, see you next time!" |
+
 ### Duration Estimation (Dry Run)
 
 After writing `podcast.txt`, automatically run:
@@ -238,6 +254,22 @@ python3 ${CLAUDE_SKILL_DIR}/generate_tts.py --input videos/{name}/podcast.txt --
 ```
 
 Backend selection via env: `TTS_BACKEND=azure|cosyvoice|edge`, rate via `TTS_RATE="+5%"`.
+
+### Voice Selection by Language
+
+If user has not customized `tts.voices`, use language-appropriate defaults:
+
+| Language | Azure | Edge | Doubao | CosyVoice |
+|----------|-------|------|--------|-----------|
+| zh-CN | zh-CN-XiaoxiaoNeural | zh-CN-XiaoxiaoNeural | BV001_streaming | longxiaochun |
+| en-US | en-US-JennyNeural | en-US-JennyNeural | BV700_streaming | longlaoshu_v2 |
+
+Set the voice via environment variable before running TTS:
+
+```bash
+# Example for en-US with Edge TTS
+EDGE_TTS_VOICE="en-US-JennyNeural" python3 ${CLAUDE_SKILL_DIR}/generate_tts.py --input videos/{name}/podcast.txt --output-dir videos/{name}
+```
 
 ### Phoneme Correction (SSML)
 
@@ -504,6 +536,14 @@ ffmpeg -y \
 **Auto mode:** Skip subtitles — copy `video_with_bgm.mp4` as `final_video.mp4`.
 **Interactive mode:** Ask user: "Add burned-in subtitles?"
 
+### Subtitle Preferences
+
+Read `subtitle` preferences to build FFmpeg filter. If `subtitle.enabled == false`, skip subtitle burning entirely (copy video_with_bgm.mp4 as final_video.mp4).
+
+Resolve `fontName: "auto"` by `language`:
+- zh-CN → `PingFang SC`
+- en-US → `Arial`
+
 If subtitles requested:
 ```bash
 ffmpeg -y -i videos/{name}/video_with_bgm.mp4 \
@@ -531,6 +571,20 @@ Generate Bilibili chapters from `timing.json`:
 ```
 
 Format: `MM:SS Chapter Title`, each gap ≥5s.
+
+### Publish Info Format by Platform
+
+**Agent behavior:** Generate publish info matching `platform` preference.
+
+**bilibili format:**
+- 标题公式、标签、简介
+- 章节时间戳 (if `content.chapters == true`)
+
+**youtube format:**
+- SEO-optimized title (<70 chars)
+- Keyword-rich description with timestamps
+- Tags and hashtags (#tag1 #tag2)
+- Chapters (if `content.chapters == true`, first line must be `0:00`)
 
 ---
 
