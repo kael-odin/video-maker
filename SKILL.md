@@ -7,9 +7,9 @@ allowed-tools: Bash, Read, Write, Edit, Glob, Grep, WebFetch, WebSearch, Agent
 # --- Claude Code fields above, OpenClaw/SkillsMP fields below ---
 author: Agents365-ai
 category: Content Creation
-version: 1.4.0
+version: 1.5.0
 created: 2025-01-27
-updated: 2026-03-27
+updated: 2026-04-03
 bilibili: https://space.bilibili.com/441831884
 github: https://github.com/Agents365-ai/video-podcast-maker
 dependencies:
@@ -261,7 +261,7 @@ project-root/                           # Remotion project root
 │   ├── Root.tsx                        # Remotion entry
 │   └── index.ts                        # Exports
 │
-├── public/media/{video-name}/          # Assets (Remotion staticFile() accessible)
+├── public/                             # Remotion default (unused — use --public-dir videos/{name}/)
 │
 ├── videos/{video-name}/                # Video project assets
 │   ├── workflow_state.json             # Workflow progress
@@ -280,9 +280,9 @@ project-root/                           # Remotion project root
 └── remotion.config.ts
 ```
 
-> **Important**: Specify full output path for Remotion render, otherwise defaults to `out/`:
+> **Important**: Always use `--public-dir` and full output path for Remotion render:
 > ```bash
-> npx remotion render src/remotion/index.ts CompositionId videos/{name}/output.mp4
+> npx remotion render src/remotion/index.ts CompositionId videos/{name}/output.mp4 --public-dir videos/{name}/
 > ```
 
 ### Naming Rules
@@ -297,16 +297,15 @@ project-root/                           # Remotion project root
 | Remotion | `thumbnail_remotion_16x9.png` | `thumbnail_remotion_4x3.png` |
 | AI | `thumbnail_ai_16x9.png` | `thumbnail_ai_4x3.png` |
 
-### Pre/Post Render File Operations
+### Public Directory
+
+Use `--public-dir videos/{name}/` for all Remotion commands. Each video's assets (timing.json, podcast_audio.wav, bgm.mp3) stay in its own directory — no copying to `public/` needed. This enables parallel renders of different videos.
 
 ```bash
-# Pre-render
-cp videos/{name}/podcast_audio.wav videos/{name}/timing.json public/
-[ -f videos/{name}/media_manifest.json ] && cp videos/{name}/media_manifest.json public/
-
-# Post-render cleanup
-rm -f public/podcast_audio.wav public/timing.json public/media_manifest.json
-rm -rf public/media/{name}
+# All render/studio/still commands use --public-dir
+npx remotion studio src/remotion/index.ts --public-dir videos/{name}/
+npx remotion render src/remotion/index.ts CompositionId videos/{name}/output.mp4 --public-dir videos/{name}/ --video-bitrate 16M
+npx remotion still src/remotion/index.ts Thumbnail16x9 videos/{name}/thumbnail.png --public-dir videos/{name}/
 ```
 
 ---

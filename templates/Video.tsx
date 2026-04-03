@@ -4,7 +4,7 @@
  * Usage:
  * 1. Copy this file and components/ directory to your project src/
  * 2. Modify SectionComponent cases to match your sections
- * 3. Ensure timing.json and podcast_audio.wav are generated
+ * 3. Ensure timing.json and podcast_audio.wav are in the --public-dir directory
  * 4. Use Remotion Studio right panel to adjust styles in real-time
  *
  * Available components (import from "./components"):
@@ -14,7 +14,6 @@
 import React from "react";
 import { Audio, staticFile, AbsoluteFill } from "remotion";
 import { TransitionSeries, linearTiming } from "@remotion/transitions";
-import timing from "../public/timing.json";
 import type { VideoProps } from "./Root";
 
 import {
@@ -26,7 +25,9 @@ import {
   ChapterProgressBar,
   IconCard,
   Icon,
+  useTiming,
 } from "./components";
+import type { TimingSection } from "./components";
 
 // Section renderer - customize your section visuals here
 // Layouts auto-adapt based on orientation (horizontal/vertical)
@@ -34,7 +35,7 @@ const SectionComponent = ({
   section,
   props,
 }: {
-  section: typeof timing.sections[0];
+  section: TimingSection;
   props: VideoProps;
 }) => {
   const { opacity, translateY, scale } = useEntrance(props.enableAnimations);
@@ -303,6 +304,7 @@ const SectionComponent = ({
 
 // Main video component - receives editable props from Studio
 export const Video = (props: VideoProps) => {
+  const timing = useTiming();
   const sections = timing.sections;
   const transitionFrames = props.transitionDuration;
   const transitionCount = Math.max(0, sections.length - 1);

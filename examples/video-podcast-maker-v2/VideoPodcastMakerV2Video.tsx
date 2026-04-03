@@ -1,5 +1,5 @@
 import { AbsoluteFill, Audio, Sequence, useCurrentFrame, interpolate, Easing, spring, useVideoConfig, staticFile } from 'remotion'
-import timingData from '../../public/timing.json'
+import { useTiming } from '../../templates/components'
 
 const font = '-apple-system, "SF Pro Display", "Noto Sans SC", sans-serif'
 const colors = {
@@ -304,8 +304,9 @@ const TripleTapSection = () => (
 // 章节进度条 (学习自 superpowers 风格)
 const ChapterProgressBar = () => {
   const frame = useCurrentFrame()
-  const sections = (timingData as any).sections.filter((s: any) => s.duration_frames > 0)
-  const totalFrames = (timingData as any).total_frames
+  const timingData = useTiming()
+  const sections = timingData.sections.filter((s) => s.duration_frames > 0)
+  const totalFrames = timingData.total_frames
   const progress = frame / totalFrames
 
   const sectionNamesCN: Record<string, string> = {
@@ -399,7 +400,8 @@ const sectionComponents: Record<string, React.FC> = {
 }
 
 export const VideoPodcastMakerV2Video = () => {
-  const sections = (timingData as any).sections
+  const timingData = useTiming()
+  const sections = timingData.sections
   return (
     <AbsoluteFill style={{ background: '#fff' }}>
       <Audio src={staticFile('podcast_audio.wav')} />

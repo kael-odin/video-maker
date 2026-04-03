@@ -40,3 +40,7 @@ export { Icon } from "./Icon";
 export { ICON_MAP, isEmoji } from "./iconMap";
 export { ShortIntroCard } from "./ShortIntroCard";
 export { ShortCTACard } from "./ShortCTACard";
+
+// Timing data (runtime loading via staticFile, supports --public-dir)
+export { useTiming, fetchTimingData } from "./useTiming";
+export type { TimingData, TimingSection } from "./useTiming";

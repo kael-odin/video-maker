@@ -207,14 +207,14 @@ Plus existing components: `ComparisonCard`, `Timeline`, `CodeBlock`, `QuoteBlock
 
 | Prop | Default | Description |
 |------|---------|-------------|
-| `src` | — | Path to JSON in `public/` (via `staticFile`) or full CORS-enabled URL |
+| `src` | — | Path to JSON in `--public-dir` (via `staticFile`) or full CORS-enabled URL |
 | `animationData` | — | Pre-loaded JSON data (takes precedence over `src`) |
 | `loop` | `false` | Whether to loop the animation |
 | `direction` | `"forward"` | `"forward"` or `"backward"` |
 | `playbackRate` | `1` | Speed multiplier |
 | `enableEntrance` | `false` | Wrap in entrance fade-in animation |
 
-**Recommended usage**: Download Lottie JSON files to the video's `public/animations/` directory, then reference with `<LottieAnimation src="animations/brain.json" width={200} height={200} loop />`. Use for concept icons, character animations, decorative elements, or section transitions.
+**Recommended usage**: Download Lottie JSON files to `videos/{name}/animations/`, then reference with `<LottieAnimation src="animations/brain.json" width={200} height={200} loop />` (resolved via `--public-dir`). Use for concept icons, character animations, decorative elements, or section transitions.
 
 ### Layout Sequencing Rules (MUST follow)
 

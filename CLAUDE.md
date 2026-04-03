@@ -37,13 +37,13 @@ python3 generate_tts.py --input videos/{name}/podcast.txt --output-dir videos/{n
 python3 generate_tts.py --input videos/{name}/podcast.txt --output-dir videos/{name} --resume    # Skip already-synthesized parts
 TTS_RATE="+15%" python3 generate_tts.py ...                                                      # Control speech rate
 
-# Remotion
-npx remotion studio src/remotion/index.ts                                                         # Preview (always use before render)
-npx remotion render src/remotion/index.ts CompositionId videos/{name}/output.mp4 --video-bitrate 16M  # 4K render
-npx remotion render src/remotion/index.ts CompositionId videos/{name}/preview.mp4 --scale 0.33 --crf 28  # Quick 720p preview
-npx remotion still src/remotion/index.ts Thumbnail16x9 videos/{name}/thumbnail_remotion_16x9.png  # Thumbnail
-npx remotion render src/remotion/index.ts MyVideoVertical videos/{name}/output_vertical.mp4 --video-bitrate 16M  # Vertical 9:16
-npx remotion still src/remotion/index.ts Thumbnail9x16 videos/{name}/thumbnail_remotion_9x16.png  # Vertical thumbnail
+# Remotion (always pass --public-dir to isolate per-video assets)
+npx remotion studio src/remotion/index.ts --public-dir videos/{name}/                                                         # Preview
+npx remotion render src/remotion/index.ts CompositionId videos/{name}/output.mp4 --video-bitrate 16M --public-dir videos/{name}/  # 4K render
+npx remotion render src/remotion/index.ts CompositionId videos/{name}/preview.mp4 --scale 0.33 --crf 28 --public-dir videos/{name}/  # Quick 720p preview
+npx remotion still src/remotion/index.ts Thumbnail16x9 videos/{name}/thumbnail_remotion_16x9.png --public-dir videos/{name}/  # Thumbnail
+npx remotion render src/remotion/index.ts MyVideoVertical videos/{name}/output_vertical.mp4 --video-bitrate 16M --public-dir videos/{name}/  # Vertical 9:16
+npx remotion still src/remotion/index.ts Thumbnail9x16 videos/{name}/thumbnail_remotion_9x16.png --public-dir videos/{name}/  # Vertical thumbnail
 
 # Post-processing (FFmpeg)
 ffmpeg -y -i videos/{name}/output.mp4 -stream_loop -1 -i videos/{name}/bgm.mp3 \
@@ -112,13 +112,11 @@ assets/                          # BGM tracks, bilibili triple-click animations
 ### Data Flow
 
 ```
-podcast.txt → generate_tts.py → podcast_audio.wav + podcast_audio.srt + timing.json
+podcast.txt → generate_tts.py → videos/{name}/podcast_audio.wav + podcast_audio.srt + timing.json
                                         ↓
-                              copy to public/ directory
+                    Video.tsx loads timing.json via staticFile() + useTiming() hook
                                         ↓
-                    Video.tsx reads timing.json → drives <TransitionSeries> timing
-                                        ↓
-                         npx remotion render → 4K MP4 (3840×2160)
+                         npx remotion render --public-dir videos/{name}/ → 4K MP4 (3840×2160)
                                         ↓
                          FFmpeg: mix BGM → burn subtitles → final_video.mp4
 ```

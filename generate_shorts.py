@@ -330,8 +330,8 @@ def main():
 
     print(f"\nNext steps:")
     print(f"  1. Create Remotion composition files for each short")
-    print(f"  2. Copy short_audio.wav to public/ before rendering")
-    print(f"  3. npx remotion render src/remotion/index.ts <CompId> <output.mp4> --video-bitrate 16M")
+    print(f"  2. Render with --public-dir pointing to the short's directory")
+    print(f"  3. npx remotion render src/remotion/index.ts <CompId> <output.mp4> --video-bitrate 16M --public-dir <short-dir>/")
 
 
 if __name__ == '__main__':

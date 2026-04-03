@@ -177,7 +177,7 @@ Report estimated duration. If >12min or <3min, suggest adjustments.
 
 If user mentioned AI images, screenshots, or specific assets in initial request, collect those regardless of mode.
 
-Save assets to `public/media/{video-name}/`, generate `media_manifest.json`.
+Save assets to `videos/{name}/media/`, generate `media_manifest.json`.
 
 **Available sources:**
 - **Unsplash** / **Pexels** / **Pixabay** — free images
@@ -205,10 +205,10 @@ Based on `podcast.txt`, generate `publish_info.md`:
 **MUST generate both aspect ratios**: 16:9 (playback page) and 4:3 (feed/activity), both required. 9:16 only when generating vertical video.
 
 ```bash
-npx remotion still src/remotion/index.ts Thumbnail16x9 videos/{name}/thumbnail_remotion_16x9.png
-npx remotion still src/remotion/index.ts Thumbnail4x3 videos/{name}/thumbnail_remotion_4x3.png
+npx remotion still src/remotion/index.ts Thumbnail16x9 videos/{name}/thumbnail_remotion_16x9.png --public-dir videos/{name}/
+npx remotion still src/remotion/index.ts Thumbnail4x3 videos/{name}/thumbnail_remotion_4x3.png --public-dir videos/{name}/
 # Optional: vertical thumbnail (only if rendering vertical video)
-npx remotion still src/remotion/index.ts Thumbnail9x16 videos/{name}/thumbnail_remotion_9x16.png
+npx remotion still src/remotion/index.ts Thumbnail9x16 videos/{name}/thumbnail_remotion_9x16.png --public-dir videos/{name}/
 ```
 
 ---
@@ -261,10 +261,7 @@ Three tiers (highest to lowest priority):
 - `theme: dark` → swap backgroundColor/textColor
 - `primaryColor`, `accentColor` → direct override
 
-Copy files to public/:
-```bash
-cp videos/{name}/podcast_audio.wav videos/{name}/timing.json public/
-```
+All Remotion commands use `--public-dir videos/{name}/` so assets are read directly from the video directory (no copying needed).
 
 ### Style Profile Integration
 
@@ -345,7 +342,7 @@ Three modes: `"bars"` (spectrum), `"wave"` (filled area), `"dots"` (pulsing circ
 />
 ```
 
-**Lottie animations** — place JSON files in `public/animations/`:
+**Lottie animations** — place JSON files in `videos/{name}/animations/`:
 ```tsx
 <LottieAnimation src="animations/brain.json" width={200} height={200} loop />
 ```
@@ -379,12 +376,12 @@ npm install @remotion/transitions @remotion/paths @remotion/shapes @remotion/med
 **Interactive mode:** Ask: pre-made MP4 (recommended) / Remotion code-generated.
 
 ```bash
-cp ${CLAUDE_SKILL_DIR}/assets/bilibili-triple-white.mp4 public/media/{video-name}/
+cp ${CLAUDE_SKILL_DIR}/assets/bilibili-triple-white.mp4 videos/{name}/media/
 ```
 
 ```tsx
 import { OffthreadVideo, staticFile } from "remotion";
-<OffthreadVideo src={staticFile("media/{video-name}/bilibili-triple-white.mp4")} />
+<OffthreadVideo src={staticFile("media/bilibili-triple-white.mp4")} />
 ```
 
 ### Preview & Quality Gate
@@ -393,7 +390,7 @@ import { OffthreadVideo, staticFile } from "remotion";
 
 **Interactive mode:** Launch Studio:
 ```bash
-npx remotion studio src/remotion/index.ts
+npx remotion studio src/remotion/index.ts --public-dir videos/{name}/
 ```
 
 1. Launch `remotion studio` (real-time preview, hot reload)
@@ -414,7 +411,7 @@ Read `timing.json`, render still at each section's midpoint:
 
 ```bash
 # midpoint_frame = start_frame + (duration_frames / 2)
-npx remotion still src/remotion/index.ts CompositionId videos/{name}/qa_{section_name}.png --frame {midpoint_frame}
+npx remotion still src/remotion/index.ts CompositionId videos/{name}/qa_{section_name}.png --frame {midpoint_frame} --public-dir videos/{name}/
 ```
 
 ### Visual Inspection
@@ -461,7 +458,7 @@ rm -f videos/{name}/qa_*.png
 ### Preview Render — The Only Mandatory Stop (Auto mode)
 
 ```bash
-npx remotion render src/remotion/index.ts CompositionId videos/{name}/preview.mp4 --scale 0.33 --crf 28
+npx remotion render src/remotion/index.ts CompositionId videos/{name}/preview.mp4 --scale 0.33 --crf 28 --public-dir videos/{name}/
 ```
 
 ```bash
@@ -481,7 +478,7 @@ This is the **only stop** in auto mode.
 ### 4K Render
 
 ```bash
-npx remotion render src/remotion/index.ts CompositionId videos/{name}/output.mp4 --video-bitrate 16M
+npx remotion render src/remotion/index.ts CompositionId videos/{name}/output.mp4 --video-bitrate 16M --public-dir videos/{name}/
 ```
 
 **Verify 4K:**
@@ -493,8 +490,8 @@ ffprobe -v quiet -show_entries stream=width,height -of csv=p=0 videos/{name}/out
 ### Optional: Vertical Highlight Clip (9:16)
 
 ```bash
-npx remotion render src/remotion/index.ts MyVideoVertical videos/{name}/output_vertical.mp4 --video-bitrate 16M
-npx remotion still src/remotion/index.ts Thumbnail9x16 videos/{name}/thumbnail_remotion_9x16.png
+npx remotion render src/remotion/index.ts MyVideoVertical videos/{name}/output_vertical.mp4 --video-bitrate 16M --public-dir videos/{name}/
+npx remotion still src/remotion/index.ts Thumbnail9x16 videos/{name}/thumbnail_remotion_9x16.png --public-dir videos/{name}/
 ```
 
 The vertical composition reuses Video.tsx with `orientation: "vertical"`. All components auto-adapt.
@@ -603,8 +600,7 @@ echo "✓ File size: $SIZE"
 VIDEO_DIR="videos/{name}"
 rm -f "$VIDEO_DIR"/part_*.wav "$VIDEO_DIR"/concat_list.txt
 rm -f "$VIDEO_DIR"/output.mp4 "$VIDEO_DIR"/video_with_bgm.mp4
-rm -f public/podcast_audio.wav public/timing.json public/media_manifest.json
-rm -rf public/media/{name}
+# No public/ cleanup needed — assets stay in videos/{name}/
 echo "✓ Temp files cleaned"
 ```
 
@@ -648,12 +644,12 @@ For each generated short:
 2. Replace `SectionContent` placeholder with the actual section component from the long-form video
 3. Update `SHORT_CONFIG` with values from `short_info.json`
 4. Register composition in `Root.tsx` using `register_snippet.tsx`
-5. Copy `short_audio.wav` to `public/`
+5. Ensure `short_audio.wav` is in the short's directory (used via `--public-dir`)
 
 ### Render shorts
 
 ```bash
-npx remotion render src/remotion/index.ts {CompId} videos/{name}/shorts/{section}/short.mp4 --video-bitrate 16M
+npx remotion render src/remotion/index.ts {CompId} videos/{name}/shorts/{section}/short.mp4 --video-bitrate 16M --public-dir videos/{name}/
 ```
 
 Each short is a standalone 9:16 4K video (2160×3840) with:

@@ -61,9 +61,9 @@ NODE_OPTIONS="--max-old-space-size=8192" npx remotion render ...
 **Symptoms**: Output video is all black or all white, no visual elements
 
 **Solution**:
-1. Verify `timing.json` exists in `public/` and has correct `start_frame`/`duration_frames`
+1. Verify `timing.json` exists in `videos/{name}/` and has correct `start_frame`/`duration_frames`
 2. Check composition ID matches: `npx remotion render ... CompositionId` must match Root.tsx registration
-3. Ensure `podcast_audio.wav` is copied to `public/`
+3. Ensure `--public-dir videos/{name}/` is passed to all Remotion commands
 4. Check browser console in `npx remotion studio` for JS errors
 
 ---
