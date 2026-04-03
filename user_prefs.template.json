@@ -39,6 +39,14 @@
         "cosyvoice": "longxiaochun"
       }
     },
+    "bgm": {
+      "volume": 0.05,
+      "track": "perfect-beauty",
+      "tracks": {
+        "perfect-beauty": "perfect-beauty-191271.mp3",
+        "calm-piano": "snow-stevekaldes-piano-397491.mp3"
+      }
+    },
     "content": {
       "tone": "professional",
       "verbosity": "balanced",

@@ -172,6 +172,35 @@
             }
           }
         },
+        "bgm": {
+          "type": "object",
+          "description": "Background music preferences",
+          "properties": {
+            "volume": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 0.3,
+              "default": 0.05,
+              "description": "BGM volume (0-0.3, used in FFmpeg mixing and Remotion bgmVolume)"
+            },
+            "track": {
+              "type": "string",
+              "default": "perfect-beauty",
+              "description": "Default BGM track name (key in tracks object)"
+            },
+            "tracks": {
+              "type": "object",
+              "description": "Named BGM tracks (name → filename in assets/)",
+              "additionalProperties": {
+                "type": "string"
+              },
+              "default": {
+                "perfect-beauty": "perfect-beauty-191271.mp3",
+                "calm-piano": "snow-stevekaldes-piano-397491.mp3"
+              }
+            }
+          }
+        },
         "content": {
           "type": "object",
           "properties": {
