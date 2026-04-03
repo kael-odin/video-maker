@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-TTS Script for Video Podcast Maker (Azure / Doubao / CosyVoice / Edge TTS)
+TTS Script for Video Podcast Maker (Azure / Doubao / CosyVoice / Edge / ElevenLabs / OpenAI / Google TTS)
 Generates audio from podcast.txt and creates SRT subtitles + timing.json for Remotion sync
 """
 import os
@@ -153,13 +153,13 @@ BUILTIN_POLYPHONES = {
 
 parser = argparse.ArgumentParser(
     description='Generate TTS audio from podcast script',
-    epilog='Backends: edge (default, free), azure, doubao, cosyvoice, elevenlabs, openai. Env: TTS_BACKEND, AZURE_SPEECH_KEY, VOLCENGINE_APPID, VOLCENGINE_ACCESS_TOKEN, DASHSCOPE_API_KEY, EDGE_TTS_VOICE, ELEVENLABS_API_KEY, OPENAI_API_KEY, TTS_RATE'
+    epilog='Backends: edge (default, free), azure, doubao, cosyvoice, elevenlabs, openai, google. Env: TTS_BACKEND, AZURE_SPEECH_KEY, VOLCENGINE_APPID, VOLCENGINE_ACCESS_TOKEN, DASHSCOPE_API_KEY, EDGE_TTS_VOICE, ELEVENLABS_API_KEY, OPENAI_API_KEY, GOOGLE_TTS_API_KEY, TTS_RATE'
 )
 parser.add_argument('--input', '-i', default='podcast.txt', help='Input script file (default: podcast.txt)')
 parser.add_argument('--output-dir', '-o', default='.', help='Output directory for podcast_audio.wav, podcast_audio.srt, timing.json (default: current dir)')
 parser.add_argument('--phonemes', '-p', default=None, help='Phoneme dictionary JSON file (default: phonemes.json in input dir)')
 parser.add_argument('--backend', '-b', default=None,
-    help='TTS backend: edge, azure, doubao, cosyvoice, elevenlabs, or openai (default: env TTS_BACKEND or edge)')
+    help='TTS backend: edge, azure, doubao, cosyvoice, elevenlabs, openai, or google (default: env TTS_BACKEND or edge)')
 parser.add_argument('--resume', action='store_true',
     help='Resume from last breakpoint, skip already synthesized parts')
 parser.add_argument('--dry-run', action='store_true',
@@ -221,8 +221,16 @@ elif BACKEND == "openai":
     if not openai_key:
         print("Error: OPENAI_API_KEY not set", file=sys.stderr)
         sys.exit(1)
+elif BACKEND == "google":
+    check_import("requests", "requests", "pip install requests")
+    google_key = os.environ.get("GOOGLE_TTS_API_KEY")
+    google_voice = os.environ.get("GOOGLE_TTS_VOICE", "en-US-Neural2-F")
+    google_language = os.environ.get("GOOGLE_TTS_LANGUAGE", "en-US")
+    if not google_key:
+        print("Error: GOOGLE_TTS_API_KEY not set. Get one at https://console.cloud.google.com/apis/credentials", file=sys.stderr)
+        sys.exit(1)
 else:
-    print(f"Error: Unknown backend '{BACKEND}'. Use 'edge', 'azure', 'doubao', 'cosyvoice', 'elevenlabs', or 'openai'", file=sys.stderr)
+    print(f"Error: Unknown backend '{BACKEND}'. Use 'edge', 'azure', 'doubao', 'cosyvoice', 'elevenlabs', 'openai', or 'google'", file=sys.stderr)
     sys.exit(1)
 MAX_CHARS = 280 if BACKEND == "doubao" else 400  # Doubao HTTP /api/v1/tts has a 1024-byte text limit (UTF-8), use smaller chunks
 
@@ -285,7 +293,7 @@ if BACKEND == "doubao" and (len(file_phonemes) > 0 or len(inline_phonemes) > 0):
     print("⚠ Warning: Doubao TTS does not support the phoneme system. "
           "Inline markers and phonemes.json will be ignored. "
           "Consider using Azure or CosyVoice for phoneme support.", file=sys.stderr)
-if BACKEND in ("elevenlabs", "openai") and (len(file_phonemes) > 0 or len(inline_phonemes) > 0):
+if BACKEND in ("elevenlabs", "openai", "google") and (len(file_phonemes) > 0 or len(inline_phonemes) > 0):
     print("⚠ Warning: ElevenLabs/OpenAI TTS do not support the phoneme system. "
           "Inline markers and phonemes.json will be ignored. "
           "Consider using Azure or CosyVoice for phoneme support.", file=sys.stderr)
@@ -1003,6 +1011,103 @@ def synth_openai(chunks, speech_rate, output_dir, resume=False):
     return part_files, word_boundaries, accumulated_duration
 
 
+def synth_google(chunks, speech_rate, output_dir, resume=False):
+    """Synthesize using Google Cloud TTS API. Word boundaries are approximate."""
+    import requests
+
+    part_files = []
+    word_boundaries = []
+    accumulated_duration = 0
+
+    # Convert "+5%" to speaking rate float: 1.05. Google range is 0.25-4.0
+    rate_match = re.match(r'([+-]?\d+)%', speech_rate)
+    speaking_rate = 1.0 + int(rate_match.group(1)) / 100.0 if rate_match else 1.0
+    speaking_rate = max(0.25, min(4.0, speaking_rate))
+
+    url = f"https://texttospeech.googleapis.com/v1/text:synthesize?key={google_key}"
+
+    for i, chunk in enumerate(chunks):
+        part_file = os.path.join(output_dir, f"part_{i}.wav")
+        part_files.append(part_file)
+
+        if resume and os.path.exists(part_file):
+            probe = subprocess.run(
+                ["ffprobe", "-v", "quiet", "-show_entries", "format=duration", "-of", "csv=p=0", part_file],
+                capture_output=True, text=True)
+            chunk_duration = float(probe.stdout.strip()) if probe.stdout.strip() else 0
+            print(f"  ⏭ Part {i + 1}/{len(chunks)} skipped (resume, {chunk_duration:.1f}s)")
+            accumulated_duration += chunk_duration
+            continue
+
+        success = False
+        for attempt in range(1, 4):
+            try:
+                payload = {
+                    "input": {"text": chunk},
+                    "voice": {
+                        "languageCode": google_language,
+                        "name": google_voice,
+                    },
+                    "audioConfig": {
+                        "audioEncoding": "LINEAR16",
+                        "sampleRateHertz": 48000,
+                        "speakingRate": speaking_rate,
+                    },
+                }
+
+                resp = requests.post(url, json=payload, timeout=120)
+                resp.raise_for_status()
+                data = resp.json()
+
+                audio_b64 = data.get("audioContent")
+                if not audio_b64:
+                    raise RuntimeError("Google TTS returned empty audio")
+                audio_bytes = base64.b64decode(audio_b64)
+
+                # Write raw audio, normalize with ffmpeg
+                tmp_file = part_file + ".tmp.wav"
+                with open(tmp_file, 'wb') as f:
+                    f.write(audio_bytes)
+
+                result = subprocess.run(
+                    ["ffmpeg", "-y", "-i", tmp_file, "-ar", "48000", "-ac", "1", part_file],
+                    capture_output=True, text=True)
+                if result.returncode != 0:
+                    raise RuntimeError(f"FFmpeg normalize failed: {result.stderr}")
+                os.remove(tmp_file)
+
+                # Get duration
+                probe = subprocess.run(
+                    ["ffprobe", "-v", "quiet", "-show_entries", "format=duration", "-of", "csv=p=0", part_file],
+                    capture_output=True, text=True)
+                chunk_duration = float(probe.stdout.strip()) if probe.stdout.strip() else 0
+
+                # Approximate word boundaries (Google TTS has no word-level timestamps for plain text)
+                words = chunk.split()
+                if words and chunk_duration > 0:
+                    avg_word_duration = chunk_duration / len(words)
+                    for wi, word in enumerate(words):
+                        word_boundaries.append({
+                            "text": word,
+                            "offset": accumulated_duration + wi * avg_word_duration,
+                            "duration": avg_word_duration,
+                        })
+
+                print(f"  ✓ Part {i + 1}/{len(chunks)} done ({len(chunk)} chars, {chunk_duration:.1f}s)")
+                accumulated_duration += chunk_duration
+                success = True
+                break
+            except Exception as e:
+                print(f"  ✗ Part {i + 1} failed (attempt {attempt}/3): {e}")
+                if attempt < 3:
+                    time.sleep(attempt * 2)
+
+        if not success:
+            raise RuntimeError(f"Part {i + 1} synthesis failed")
+
+    return part_files, word_boundaries, accumulated_duration
+
+
 # TTS synthesis
 if BACKEND == "azure":
     part_files, word_boundaries, total_duration = synth_azure(chunks, phoneme_dict, SPEECH_RATE, args.output_dir, resume=args.resume)
@@ -1016,6 +1121,8 @@ elif BACKEND == "elevenlabs":
     part_files, word_boundaries, total_duration = synth_elevenlabs(chunks, SPEECH_RATE, args.output_dir, resume=args.resume)
 elif BACKEND == "openai":
     part_files, word_boundaries, total_duration = synth_openai(chunks, SPEECH_RATE, args.output_dir, resume=args.resume)
+elif BACKEND == "google":
+    part_files, word_boundaries, total_duration = synth_google(chunks, SPEECH_RATE, args.output_dir, resume=args.resume)
 print(f"\n✓ 收集到 {len(word_boundaries)} 个词边界")
 print(f"✓ 总时长: {total_duration:.1f} 秒")
 
