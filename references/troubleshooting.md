@@ -235,6 +235,24 @@ User says: "set speech rate to +10%" / "dark theme as default" / "title always 1
 
 Claude directly updates the corresponding field in `user_prefs.json`.
 
+### Platform & Language Commands
+
+| User Says | Action |
+|-----------|--------|
+| "set platform youtube" | Update `global.platform` to `"youtube"` |
+| "set platform bilibili" | Update `global.platform` to `"bilibili"` |
+| "set language en-US" | Update `global.language` to `"en-US"` |
+| "set language zh-CN" | Update `global.language` to `"zh-CN"` |
+| "show platform" | Show current platform and language |
+| "disable subtitles" | Set `global.subtitle.enabled` to `false` |
+| "enable subtitles" | Set `global.subtitle.enabled` to `true` |
+| "set subtitle font Arial" | Set `global.subtitle.fontName` to `"Arial"` |
+| "set subtitle size 24" | Set `global.subtitle.fontSize` to `24` |
+| "set CTA text" | Set `global.cta.type` to `"text"` |
+| "set CTA animation" | Set `global.cta.type` to `"animation"` |
+| "enable chapters" | Set `global.content.chapters` to `true` |
+| "disable chapters" | Set `global.content.chapters` to `false` |
+
 ---
 
 ## Preference Learning
