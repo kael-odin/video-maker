@@ -14,9 +14,16 @@ suggestions.md
 
 # Node
 node_modules/
+package-lock.json
 dist/
 out/
 bundle/
+
+# Tests
+tests/
+
+# Design references
+design_references/
 
 # Video outputs
 videos/
