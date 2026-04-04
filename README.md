@@ -2,7 +2,7 @@
 
 [中文文档](README_CN.md)
 
-Automated pipeline to create professional video podcasts from a topic. **Supports Bilibili and YouTube** with multi-language output (zh-CN, en-US). Combines research, script generation, multi-engine TTS (Edge/Azure/Doubao/CosyVoice), Remotion video rendering, and FFmpeg audio mixing.
+Automated pipeline to create professional video podcasts from a topic. **Supports Bilibili, YouTube, and Xiaohongshu** with multi-language output (zh-CN, en-US). Combines research, script generation, multi-engine TTS (Edge/Azure/Doubao/CosyVoice), Remotion video rendering, and FFmpeg audio mixing.
 
 **Supported platforms:** [Claude Code](https://claude.ai/code) · [OpenClaw](https://openclaw.ai/) (ClawHub) · [OpenCode](https://opencode.ai/) · [Codex](https://openai.com/index/introducing-codex/)
 

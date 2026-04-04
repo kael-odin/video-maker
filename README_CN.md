@@ -2,7 +2,7 @@
 
 [English](README.md)
 
-自动化流程，从主题生成专业视频播客。**支持 B站 (Bilibili) 和 YouTube**，多语言输出（zh-CN、en-US）。集成研究、脚本撰写、多引擎 TTS（Edge/Azure/豆包/CosyVoice）、Remotion 视频渲染和 FFmpeg 音频混音。
+自动化流程，从主题生成专业视频播客。**支持 B站 (Bilibili)、YouTube 和小红书**，多语言输出（zh-CN、en-US）。集成研究、脚本撰写、多引擎 TTS（Edge/Azure/豆包/CosyVoice）、Remotion 视频渲染和 FFmpeg 音频混音。
 
 **支持平台：** [Claude Code](https://claude.ai/code) · [OpenClaw](https://openclaw.ai/) (ClawHub) · [OpenCode](https://opencode.ai/) · [Codex](https://openai.com/index/introducing-codex/)
 
