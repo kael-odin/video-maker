@@ -285,7 +285,7 @@ Three tiers (highest to lowest priority):
 { "执行器": "zhí xíng qì", "重做": "chóng zuò" }
 ```
 
-**3. Built-in dictionary** — common polyphones (auto-applied)
+**3. Global dictionary** — `phonemes.json` in skill root (shared across all projects)
 
 **Outputs**: `podcast_audio.wav`, `podcast_audio.srt`, `timing.json`
 

@@ -300,7 +300,7 @@ Run `references list` — orphaned entries are auto-cleaned on list.
 
 **Symptoms**: Inline phoneme markers `执行器[zhí xíng qì]` and `phonemes.json` entries are ignored when using Doubao backend.
 
-**Explanation**: Doubao TTS uses a plain-text HTTP API that does not support SSML or phoneme tags. The phoneme system (inline markers, project `phonemes.json`, built-in `BUILTIN_POLYPHONES`) only works with Azure TTS. CosyVoice and Edge TTS also do not apply phonemes.
+**Explanation**: Doubao TTS uses a plain-text HTTP API that does not support SSML or phoneme tags. The phoneme system (inline markers, project `phonemes.json`, global `phonemes.json`) only works with Azure TTS. CosyVoice and Edge TTS also do not apply phonemes.
 
 **Workaround**: If pronunciation accuracy is critical, use Azure TTS (`TTS_BACKEND=azure`).
 

@@ -17,27 +17,38 @@ from xml.sax.saxutils import escape
 
 
 # ============ 多音字处理函数 ============
-def load_phoneme_dict(input_file, phoneme_file=None):
-    """Load phoneme dictionary from JSON file
+def load_phoneme_dicts(input_file, phoneme_file=None):
+    """Load and merge phoneme dictionaries (global + project-level)
 
-    Searches in order:
-    1. Explicit --phonemes argument
-    2. phonemes.json in same directory as input file
-    3. Global ~/.config/video-podcast-maker/phonemes.json
+    Priority (highest to lowest):
+    1. Explicit --phonemes argument (replaces project-level)
+    2. Project-level: videos/{name}/phonemes.json (same dir as input)
+    3. Global: phonemes.json in skill root directory
+
+    Global and project-level are merged; project entries override global.
     """
-    search_paths = []
-    if phoneme_file:
-        search_paths.append(phoneme_file)
-    search_paths.append(os.path.join(os.path.dirname(input_file), 'phonemes.json'))
-    search_paths.append(os.path.expanduser('~/.config/video-podcast-maker/phonemes.json'))
+    SKILL_DIR = os.path.dirname(os.path.abspath(__file__))
+    global_path = os.path.join(SKILL_DIR, 'phonemes.json')
+    project_path = os.path.join(os.path.dirname(os.path.abspath(input_file)), 'phonemes.json')
 
-    for path in search_paths:
-        if os.path.exists(path):
-            with open(path, 'r', encoding='utf-8') as f:
-                data = json.load(f)
-                print(f"✓ 加载多音字词典: {path} ({len(data)} 条)")
-                return data
-    return {}
+    merged = {}
+
+    # Load global phonemes from skill root
+    if os.path.exists(global_path):
+        with open(global_path, 'r', encoding='utf-8') as f:
+            data = {k: v for k, v in json.load(f).items() if not k.startswith('_')}
+            merged.update(data)
+            print(f"✓ 全局多音字词典: {global_path} ({len(data)} 条)")
+
+    # Load project-level (or explicit --phonemes)
+    override_path = phoneme_file if phoneme_file else project_path
+    if override_path and os.path.exists(override_path):
+        with open(override_path, 'r', encoding='utf-8') as f:
+            data = {k: v for k, v in json.load(f).items() if not k.startswith('_')}
+            merged.update(data)
+            print(f"✓ 项目多音字词典: {override_path} ({len(data)} 条)")
+
+    return merged
 
 
 def extract_inline_phonemes(text):
@@ -121,33 +132,6 @@ def apply_phonemes(text, phoneme_dict):
     return result
 
 
-# Built-in pronunciation fixes (技术术语 + 易错多音字)
-BUILTIN_POLYPHONES = {
-    # "行" as háng (row/line)
-    '一行命令': 'yì háng mìng lìng',
-    '一行代码': 'yì háng dài mǎ',
-    '一行': 'yì háng',
-    '命令行': 'mìng lìng háng',
-    '代码行': 'dài mǎ háng',
-    '多行': 'duō háng',
-    '行数': 'háng shù',
-    '几行': 'jǐ háng',
-    # "重" as chóng (repeat)
-    '重做': 'chóng zuò',
-    '重新': 'chóng xīn',
-    '重复': 'chóng fù',
-    '重试': 'chóng shì',
-    '重置': 'chóng zhì',
-    # "行" as xíng (execute/walk)
-    '执行器': 'zhí xíng qì',
-    '执行': 'zhí xíng',
-    '运行': 'yùn xíng',
-    '并行': 'bìng xíng',
-    '可行': 'kě xíng',
-    '行为': 'xíng wéi',
-    # 技术术语 (用户可扩展)
-    # 添加更多...
-}
 
 
 
@@ -283,12 +267,12 @@ if inline_phonemes:
     for word, pinyin in inline_phonemes.items():
         print(f"    {word} → {pinyin}")
 
-# Load phoneme dictionary (file-based)
-file_phonemes = load_phoneme_dict(args.input, args.phonemes)
+# Load phoneme dictionaries (global + project-level)
+file_phonemes = load_phoneme_dicts(args.input, args.phonemes)
 
-# Merge: inline > file > builtin (priority order)
-phoneme_dict = {**BUILTIN_POLYPHONES, **file_phonemes, **inline_phonemes}
-print(f"✓ 多音字词典: {len(phoneme_dict)} 条 (内置{len(BUILTIN_POLYPHONES)} + 文件{len(file_phonemes)} + 内联{len(inline_phonemes)})")
+# Merge: inline > file (priority order)
+phoneme_dict = {**file_phonemes, **inline_phonemes}
+print(f"✓ 多音字词典: {len(phoneme_dict)} 条 (文件{len(file_phonemes)} + 内联{len(inline_phonemes)})")
 if BACKEND == "doubao" and (len(file_phonemes) > 0 or len(inline_phonemes) > 0):
     print("⚠ Warning: Doubao TTS does not support the phoneme system. "
           "Inline markers and phonemes.json will be ignored. "
