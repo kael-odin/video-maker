@@ -182,6 +182,7 @@ Copy the script template based on `language`:
 |----------|-------|-------|
 | bilibili | "一键三连！评论区留言，下期再见！" | "Like, coin, and favorite! Leave a comment, see you next time!" |
 | youtube | "点赞订阅转发！评论区留言，下期再见！" | "Like, subscribe, and share! Leave a comment, see you next time!" |
+| xiaohongshu | "点赞收藏加关注，评论区见！" | "Like, save & follow! See you in comments!" |
 
 ### Duration Estimation (Dry Run)
 
@@ -234,6 +235,11 @@ npx remotion still src/remotion/index.ts Thumbnail16x9 videos/{name}/thumbnail_r
 npx remotion still src/remotion/index.ts Thumbnail4x3 videos/{name}/thumbnail_remotion_4x3.png --public-dir videos/{name}/
 # Optional: vertical thumbnail (only if rendering vertical video)
 npx remotion still src/remotion/index.ts Thumbnail9x16 videos/{name}/thumbnail_remotion_9x16.png --public-dir videos/{name}/
+```
+
+**xiaohongshu:** Generate 3:4 thumbnail (replaces 4:3):
+```bash
+npx remotion still src/remotion/index.ts Thumbnail3x4 videos/{name}/thumbnail_remotion_3x4.png --public-dir videos/{name}/
 ```
 
 ---
@@ -425,6 +431,8 @@ import { OffthreadVideo, staticFile } from "remotion";
 <OffthreadVideo src={staticFile("media/bilibili-triple-white.mp4")} />
 ```
 
+**Xiaohongshu:** No pre-made animation — use text-based CTA. The outro section renders the CTA text ("点赞收藏加关注，评论区见！") as an animated text overlay, similar to YouTube's text CTA mode.
+
 ### Preview & Quality Gate
 
 **Auto mode:** Skip Studio. Proceed to Step 10 for preview render (720p), Claude self-validates.
@@ -585,6 +593,12 @@ Format: `MM:SS Chapter Title`, each gap ≥5s.
 - Keyword-rich description with timestamps
 - Tags and hashtags (#tag1 #tag2)
 - Chapters (if `content.chapters == true`, first line must be `0:00`)
+
+**xiaohongshu format:**
+- 标题（≤20字）— short, punchy, emoji-friendly
+- 正文（200-500字）— 种草/knowledge-sharing style with emoji
+- 话题标签 5-10 个，格式 `#话题#`（双井号）
+- 无章节时间戳（小红书不支持）
 
 ---
 
