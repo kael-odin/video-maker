@@ -241,6 +241,7 @@ Claude directly updates the corresponding field in `user_prefs.json`.
 |-----------|--------|
 | "set platform youtube" | Update `global.platform` to `"youtube"` |
 | "set platform bilibili" | Update `global.platform` to `"bilibili"` |
+| "set platform xiaohongshu" | Update `global.platform` to `"xiaohongshu"` |
 | "set language en-US" | Update `global.language` to `"en-US"` |
 | "set language zh-CN" | Update `global.language` to `"zh-CN"` |
 | "show platform" | Show current platform and language |
