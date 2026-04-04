@@ -50,8 +50,9 @@ After loading `user_prefs.json`, check the `version` field and migrate if outdat
 - Preserve all existing user values — never overwrite what the user has customized
 - Only add missing fields with defaults from `user_prefs.template.json`
 - When migrating `tts.voice` → `tts.voices`: use the old voice value for `azure` and `edge`, use defaults for `doubao` and `cosyvoice`
-- After migration, update `version` to `"1.3"` and save the file
-- Print: `"✓ Migrated preferences from v{old} to v1.3"`
+- v1.3 → v1.4: No structural changes. Platform enum now accepts `"xiaohongshu"`. Update `version` to `"1.4"`.
+- After migration, update `version` to `"1.4"` and save the file
+- Print: `"✓ Migrated preferences from v{old} to v1.4"`
 
 4. At Step 1 start, inform user of active preferences (if customized):
 
