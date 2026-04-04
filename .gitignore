@@ -2,6 +2,9 @@
 .env
 .DS_Store
 
+# Superpowers (plans/specs)
+docs/superpowers/
+
 # Claude
 .playwright-mcp/
 suggestions.md
