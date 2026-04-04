@@ -51,8 +51,9 @@ After loading `user_prefs.json`, check the `version` field and migrate if outdat
 - Only add missing fields with defaults from `user_prefs.template.json`
 - When migrating `tts.voice` → `tts.voices`: use the old voice value for `azure` and `edge`, use defaults for `doubao` and `cosyvoice`
 - v1.3 → v1.4: No structural changes. Platform enum now accepts `"xiaohongshu"`. Update `version` to `"1.4"`.
-- After migration, update `version` to `"1.4"` and save the file
-- Print: `"✓ Migrated preferences from v{old} to v1.4"`
+- v1.4 → v1.5: No structural changes. Platform enum now accepts `"douyin"`. Update `version` to `"1.5"`.
+- After migration, update `version` to `"1.5"` and save the file
+- Print: `"✓ Migrated preferences from v{old} to v1.5"`
 
 4. At Step 1 start, inform user of active preferences (if customized):
 
@@ -184,6 +185,7 @@ Copy the script template based on `language`:
 | bilibili | "一键三连！评论区留言，下期再见！" | "Like, coin, and favorite! Leave a comment, see you next time!" |
 | youtube | "点赞订阅转发！评论区留言，下期再见！" | "Like, subscribe, and share! Leave a comment, see you next time!" |
 | xiaohongshu | "点赞收藏加关注，评论区见！" | "Like, save & follow! See you in comments!" |
+| douyin | "点赞关注，评论区见！" | "Like & follow! See you in comments!" |
 
 ### Duration Estimation (Dry Run)
 
@@ -434,6 +436,8 @@ import { OffthreadVideo, staticFile } from "remotion";
 
 **Xiaohongshu:** No pre-made animation — use text-based CTA. The outro section renders the CTA text ("点赞收藏加关注，评论区见！") as an animated text overlay, similar to YouTube's text CTA mode.
 
+**Douyin:** Text-only CTA (no animation). Douyin content is vertical shorts only — the CTA text ("点赞关注，评论区见！") is rendered as simple end text, not animated.
+
 ### Preview & Quality Gate
 
 **Auto mode:** Skip Studio. Proceed to Step 10 for preview render (720p), Claude self-validates.
@@ -499,6 +503,10 @@ npx remotion still src/remotion/index.ts Thumbnail9x16 videos/{name}/thumbnail_r
 ```
 
 The vertical composition reuses Video.tsx with `orientation: "vertical"`. All components auto-adapt.
+
+**Platform-specific video format notes:**
+- **xiaohongshu**: Primarily short-form vertical content. Long-form horizontal video is optional.
+- **douyin**: Vertical shorts only (9:16). No horizontal long-form video generated. Uses existing `generate_shorts.py` pipeline.
 
 ---
 
@@ -600,6 +608,12 @@ Format: `MM:SS Chapter Title`, each gap ≥5s.
 - 正文（200-500字）— 种草/knowledge-sharing style with emoji
 - 话题标签 5-10 个，格式 `#话题#`（双井号）
 - 无章节时间戳（小红书不支持）
+
+**douyin format:**
+- 文案（100-200字）— casual, emoji-friendly, conversational tone
+- 话题标签 3-8 个，格式 `#话题`（单井号）
+- 无章节时间戳
+- Note: Douyin is shorts-only — no horizontal long-form video
 
 ---
 
