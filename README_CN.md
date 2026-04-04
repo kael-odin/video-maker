@@ -2,7 +2,7 @@
 
 [English](README.md)
 
-自动化流程，从主题生成专业视频播客。**支持 B站 (Bilibili)、YouTube、小红书和抖音**，多语言输出（zh-CN、en-US）。集成研究、脚本撰写、多引擎 TTS（Edge/Azure/豆包/CosyVoice）、Remotion 视频渲染和 FFmpeg 音频混音。
+自动化流程，从主题生成专业视频播客。**支持 B站 (Bilibili)、YouTube、小红书、抖音和微信视频号**，多语言输出（zh-CN、en-US）。集成研究、脚本撰写、多引擎 TTS（Edge/Azure/豆包/CosyVoice）、Remotion 视频渲染和 FFmpeg 音频混音。
 
 **支持平台：** [Claude Code](https://claude.ai/code) · [OpenClaw](https://openclaw.ai/) (ClawHub) · [OpenCode](https://opencode.ai/) · [Codex](https://openai.com/index/introducing-codex/)
 
@@ -29,7 +29,7 @@
 - **发音校正** - 全局 + 项目级多音字词典，精准控制中文发音
 - **B站模板** - 开箱即用的 Remotion 模板（`Video.tsx`、`Root.tsx`、`Thumbnail.tsx`、`podcast.txt`），快速搭建项目
 - **偏好学习** - 自动学习用户风格偏好（颜色、字号、语速），智能应用到后续视频
-- **多平台支持** - B站 (Bilibili)、YouTube、小红书和抖音，独立配置平台和语言
+- **多平台支持** - B站 (Bilibili)、YouTube、小红书、抖音和微信视频号，独立配置平台和语言
 - **多语言支持** - 中文 (zh-CN) 和英文 (en-US) 脚本模板、TTS 音色、字幕字体
 - **字幕偏好** - 自定义字体、字号、颜色、描边，支持开关字幕烧录
 - **CTA 可配置** - 自动（B站三连/YouTube订阅）、动画、文字、自定义
@@ -60,6 +60,12 @@
 - **文案** - 100-200 字，口语化风格，支持 emoji
 - **话题标签** - `#话题` 格式（单井号），3-8 个
 - **CTA** - "点赞关注" 纯文字（无动画）
+
+**微信视频号:**
+- **格式** - 仅竖屏精华片段（9:16），不生成横屏长视频
+- **文案** - 100-300 字，知识分享风格，适合转发
+- **话题标签** - `#话题` 格式（单井号），3-8 个
+- **CTA** - "点赞关注，转发给朋友" 纯文字（无动画）
 
 ## 工作流程
 
@@ -270,7 +276,6 @@ videos/{视频名称}/
 - [ ] Step 9 智能推荐 — 制作视频时自动匹配并推荐已有风格档案（Phase 5）
 - [ ] 封面设计学习 — 将学到的封面风格应用到 Thumbnail.tsx 模板（Phase 5）
 - [ ] YouTube 自动化发布 — 通过 YouTube Data API 上传视频、元数据、章节、封面
-- [ ] 国内多平台扩展 — 微信视频号
 - [ ] Windows 适配 (WSL 验证 + 文档)
 
 ## 开源协议

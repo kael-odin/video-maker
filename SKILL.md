@@ -1,13 +1,13 @@
 ---
 name: video-podcast-maker
-description: Use when user provides a topic and wants an automated video podcast created, OR when user wants to learn/analyze video design patterns from reference videos — handles research, script writing, TTS audio synthesis, Remotion video creation, and final MP4 output with background music. Also supports design learning from reference videos (learn command), style profile management, and design reference library. Supports Bilibili, YouTube, Xiaohongshu, and Douyin platforms with independent language configuration (zh-CN, en-US).
+description: Use when user provides a topic and wants an automated video podcast created, OR when user wants to learn/analyze video design patterns from reference videos — handles research, script writing, TTS audio synthesis, Remotion video creation, and final MP4 output with background music. Also supports design learning from reference videos (learn command), style profile management, and design reference library. Supports Bilibili, YouTube, Xiaohongshu, Douyin, and WeChat Channels platforms with independent language configuration (zh-CN, en-US).
 argument-hint: "[topic]"
 effort: high
 allowed-tools: Bash, Read, Write, Edit, Glob, Grep, WebFetch, WebSearch, Agent
 # --- Claude Code fields above, OpenClaw/SkillsMP fields below ---
 author: Agents365-ai
 category: Content Creation
-version: 1.9.0
+version: 2.0.0
 created: 2025-01-27
 updated: 2026-04-03
 bilibili: https://space.bilibili.com/441831884

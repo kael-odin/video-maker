@@ -2,7 +2,7 @@
 
 [中文文档](README_CN.md)
 
-Automated pipeline to create professional video podcasts from a topic. **Supports Bilibili, YouTube, Xiaohongshu, and Douyin** with multi-language output (zh-CN, en-US). Combines research, script generation, multi-engine TTS (Edge/Azure/Doubao/CosyVoice), Remotion video rendering, and FFmpeg audio mixing.
+Automated pipeline to create professional video podcasts from a topic. **Supports Bilibili, YouTube, Xiaohongshu, Douyin, and WeChat Channels** with multi-language output (zh-CN, en-US). Combines research, script generation, multi-engine TTS (Edge/Azure/Doubao/CosyVoice), Remotion video rendering, and FFmpeg audio mixing.
 
 **Supported platforms:** [Claude Code](https://claude.ai/code) · [OpenClaw](https://openclaw.ai/) (ClawHub) · [OpenCode](https://opencode.ai/) · [Codex](https://openai.com/index/introducing-codex/)
 
@@ -30,7 +30,7 @@ Automated pipeline to create professional video podcasts from a topic. **Support
 - **Bilibili Templates** - Ready-to-use Remotion templates (`Video.tsx`, `Root.tsx`, `Thumbnail.tsx`, `podcast.txt`) for quick project scaffolding
 - **Component Library** - Reusable visual building blocks (ComparisonCard, Timeline, CodeBlock, QuoteBlock, FeatureGrid, DataBar, StatCounter, FlowChart, IconCard, DiagramReveal, AudioWaveform, LottieAnimation, MediaSection, SectionLayouts, AnimatedBackground) for composing rich section layouts
 - **Preference Learning** - Auto-learns user style preferences (colors, fonts, speech rate) and applies them to future videos
-- **Multi-Platform** - Bilibili, YouTube, Xiaohongshu, and Douyin with independent platform and language settings
+- **Multi-Platform** - Bilibili, YouTube, Xiaohongshu, Douyin, and WeChat Channels with independent platform and language settings
 - **Multi-Language** - Chinese (zh-CN) and English (en-US) script templates, TTS voices, subtitle fonts
 - **Subtitle Preferences** - Custom font, size, color, outline; toggle subtitle burning on/off
 - **Configurable CTA** - Auto (Bilibili triple/YouTube subscribe), animation, text, or custom
@@ -61,6 +61,12 @@ Automated pipeline to create professional video podcasts from a topic. **Support
 - **Description** - 100-200 chars, casual and conversational with emoji
 - **Hashtags** - `#话题` format (single hash), 3-8 tags
 - **CTA** - "点赞关注" text only (no animation)
+
+**WeChat Channels (微信视频号):**
+- **Format** - Vertical shorts only (9:16), no horizontal long-form
+- **Description** - 100-300 chars, knowledge-sharing style for forwarding
+- **Hashtags** - `#话题` format (single hash), 3-8 tags
+- **CTA** - "点赞关注，转发给朋友" text only (no animation)
 
 ## Workflow
 
@@ -270,7 +276,6 @@ Included tracks in `assets/`:
 - [ ] Step 9 smart suggestions — Auto-match and recommend existing style profiles when creating videos (Phase 5)
 - [ ] Cover design learning — Apply learned cover styles to Thumbnail.tsx template (Phase 5)
 - [ ] YouTube automated publishing — Upload via YouTube Data API with metadata, chapters, thumbnails
-- [ ] Chinese platform expansion — 微信视频号 (WeChat Channels)
 - [ ] Windows compatibility (WSL verification + docs)
 
 ## License
