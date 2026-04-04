@@ -243,6 +243,7 @@ Claude directly updates the corresponding field in `user_prefs.json`.
 | "set platform bilibili" | Update `global.platform` to `"bilibili"` |
 | "set platform xiaohongshu" | Update `global.platform` to `"xiaohongshu"` |
 | "set platform douyin" | Update `global.platform` to `"douyin"` |
+| "set platform weixin-channels" | Update `global.platform` to `"weixin-channels"` |
 | "set language en-US" | Update `global.language` to `"en-US"` |
 | "set language zh-CN" | Update `global.language` to `"zh-CN"` |
 | "show platform" | Show current platform and language |

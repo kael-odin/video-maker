@@ -52,8 +52,9 @@ After loading `user_prefs.json`, check the `version` field and migrate if outdat
 - When migrating `tts.voice` → `tts.voices`: use the old voice value for `azure` and `edge`, use defaults for `doubao` and `cosyvoice`
 - v1.3 → v1.4: No structural changes. Platform enum now accepts `"xiaohongshu"`. Update `version` to `"1.4"`.
 - v1.4 → v1.5: No structural changes. Platform enum now accepts `"douyin"`. Update `version` to `"1.5"`.
-- After migration, update `version` to `"1.5"` and save the file
-- Print: `"✓ Migrated preferences from v{old} to v1.5"`
+- v1.5 → v1.6: No structural changes. Platform enum now accepts `"weixin-channels"`. Update `version` to `"1.6"`.
+- After migration, update `version` to `"1.6"` and save the file
+- Print: `"✓ Migrated preferences from v{old} to v1.6"`
 
 4. At Step 1 start, inform user of active preferences (if customized):
 
@@ -186,6 +187,7 @@ Copy the script template based on `language`:
 | youtube | "点赞订阅转发！评论区留言，下期再见！" | "Like, subscribe, and share! Leave a comment, see you next time!" |
 | xiaohongshu | "点赞收藏加关注，评论区见！" | "Like, save & follow! See you in comments!" |
 | douyin | "点赞关注，评论区见！" | "Like & follow! See you in comments!" |
+| weixin-channels | "点赞关注，转发给朋友！" | "Like, follow & share with friends!" |
 
 ### Duration Estimation (Dry Run)
 
@@ -438,6 +440,8 @@ import { OffthreadVideo, staticFile } from "remotion";
 
 **Douyin:** Text-only CTA (no animation). Douyin content is vertical shorts only — the CTA text ("点赞关注，评论区见！") is rendered as simple end text, not animated.
 
+**WeChat Channels:** Text-only CTA (no animation). WeChat Channels content is vertical shorts only — the CTA text ("点赞关注，转发给朋友！") is rendered as simple end text, not animated.
+
 ### Preview & Quality Gate
 
 **Auto mode:** Skip Studio. Proceed to Step 10 for preview render (720p), Claude self-validates.
@@ -507,6 +511,7 @@ The vertical composition reuses Video.tsx with `orientation: "vertical"`. All co
 **Platform-specific video format notes:**
 - **xiaohongshu**: Primarily short-form vertical content. Long-form horizontal video is optional.
 - **douyin**: Vertical shorts only (9:16). No horizontal long-form video generated. Uses existing `generate_shorts.py` pipeline.
+- **weixin-channels**: Vertical shorts only (9:16). No horizontal long-form video generated. Uses existing `generate_shorts.py` pipeline.
 
 ---
 
@@ -614,6 +619,12 @@ Format: `MM:SS Chapter Title`, each gap ≥5s.
 - 话题标签 3-8 个，格式 `#话题`（单井号）
 - 无章节时间戳
 - Note: Douyin is shorts-only — no horizontal long-form video
+
+**weixin-channels format:**
+- 文案（100-300字）— knowledge-sharing style, suitable for forwarding
+- 话题标签 3-8 个，格式 `#话题`（单井号）
+- 无章节时间戳
+- Note: WeChat Channels is shorts-only — no horizontal long-form video
 
 ---
 
