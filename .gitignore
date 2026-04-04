@@ -5,6 +5,9 @@
 # Superpowers (plans/specs)
 docs/superpowers/
 
+# Examples
+examples/
+
 # Claude
 .playwright-mcp/
 suggestions.md
