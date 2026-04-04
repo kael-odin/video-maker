@@ -26,7 +26,7 @@ Automated pipeline to create professional video podcasts from a topic. **Support
 - **4K Output** - 3840x2160 resolution for crisp uploads
 - **Chapter Progress Bar** - Visual timeline showing current section during playback
 - **Bilingual TTS** - Chinese/English mixed narration with Azure Speech or CosyVoice
-- **Pronunciation Correction** - Built-in polyphone dictionary + custom phoneme support
+- **Pronunciation Correction** - Global + per-project phoneme dictionaries for Chinese polyphone fixes
 - **Bilibili Templates** - Ready-to-use Remotion templates (`Video.tsx`, `Root.tsx`, `Thumbnail.tsx`, `podcast.txt`) for quick project scaffolding
 - **Component Library** - Reusable visual building blocks (ComparisonCard, Timeline, CodeBlock, QuoteBlock, FeatureGrid, DataBar, StatCounter, FlowChart, IconCard, DiagramReveal, AudioWaveform, LottieAnimation, MediaSection, SectionLayouts, AnimatedBackground) for composing rich section layouts
 - **Preference Learning** - Auto-learns user style preferences (colors, fonts, speech rate) and applies them to future videos
@@ -205,6 +205,15 @@ This opens a browser-based editor where you can:
 | **Animation** | Enable/disable entrance animations |
 
 
+## Configuration Files
+
+| File | Scope | Purpose |
+|------|-------|---------|
+| `phonemes.json` | Global | Chinese polyphone dictionary shared across all projects. Edit to add/fix pronunciations (e.g., 行 háng vs xíng). Per-project overrides go in `videos/{name}/phonemes.json` |
+| `user_prefs.template.json` | Global | Default preferences template. Copied to `user_prefs.json` on first run, which auto-evolves as the skill learns your style |
+| `prefs_schema.json` | Global | JSON Schema for preference validation. Do not edit manually |
+| `tsconfig.json` | Global | TypeScript config for Remotion templates |
+
 ## Output Structure
 
 ```
@@ -212,6 +221,7 @@ videos/{video-name}/
 ├── topic_definition.md      # Topic direction
 ├── topic_research.md        # Research notes
 ├── podcast.txt              # Narration script
+├── phonemes.json            # (Optional) Project-specific pronunciation overrides
 ├── podcast_audio.wav        # TTS audio
 ├── podcast_audio.srt        # Subtitles
 ├── timing.json              # Section timing for sync

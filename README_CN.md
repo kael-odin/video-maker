@@ -26,7 +26,7 @@
 - **4K 输出** - 3840x2160 分辨率，画质清晰
 - **章节进度条** - 可视化时间轴，实时显示当前章节
 - **中英混读** - Azure Speech 支持中英文混合旁白
-- **发音校正** - 内置多音字词典 + 自定义拼音支持
+- **发音校正** - 全局 + 项目级多音字词典，精准控制中文发音
 - **B站模板** - 开箱即用的 Remotion 模板（`Video.tsx`、`Root.tsx`、`Thumbnail.tsx`、`podcast.txt`），快速搭建项目
 - **偏好学习** - 自动学习用户风格偏好（颜色、字号、语速），智能应用到后续视频
 - **多平台支持** - B站 (Bilibili) 和 YouTube，独立配置平台和语言
@@ -204,6 +204,15 @@ npx remotion studio src/remotion/index.ts
 | **动画** | 启用/禁用入场动画 |
 
 
+## 配置文件
+
+| 文件 | 作用域 | 说明 |
+|------|--------|------|
+| `phonemes.json` | 全局 | 多音字词典，所有视频项目共享。可直接编辑添加/修正发音（如 行 háng vs xíng）。项目级覆盖放在 `videos/{名称}/phonemes.json` |
+| `user_prefs.template.json` | 全局 | 偏好默认模板。首次运行时自动复制为 `user_prefs.json`，后续随使用自动学习你的风格 |
+| `prefs_schema.json` | 全局 | 偏好验证的 JSON Schema，无需手动编辑 |
+| `tsconfig.json` | 全局 | Remotion 模板的 TypeScript 配置 |
+
 ## 输出结构
 
 ```
@@ -211,6 +220,7 @@ videos/{视频名称}/
 ├── topic_definition.md      # 主题定义
 ├── topic_research.md        # 研究笔记
 ├── podcast.txt              # 旁白脚本
+├── phonemes.json            # （可选）项目专属发音覆盖
 ├── podcast_audio.wav        # TTS 音频
 ├── podcast_audio.srt        # 字幕文件
 ├── timing.json              # 章节时间轴
