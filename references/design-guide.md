@@ -108,6 +108,46 @@ Production-verified sizes as recommended reference. Claude may adjust freely but
 | **Tags / Pills** | 28-36px | 600 | Labels, badges, categories |
 | **Icons** | 56-80px | — | Card icons, decorative elements |
 
+### Icon Selection Guide
+
+The full [Lucide icon library](https://lucide.dev/icons/) (1500+ icons) is available. Use kebab-case names (e.g., `"shield-check"`, `"brain-circuit"`). Browse https://lucide.dev/icons/ to find the best match.
+
+**Semantic mapping — pick icons by concept, not by guessing:**
+
+| Concept | Recommended Icon | Alternatives |
+|---------|-----------------|--------------|
+| AI / Intelligence | `brain` | `brain-circuit`, `sparkles`, `bot` |
+| Speed / Performance | `zap` | `gauge`, `rocket`, `timer` |
+| Security / Privacy | `shield` | `shield-check`, `lock`, `key-round` |
+| Data / Analytics | `bar-chart-3` | `pie-chart`, `trending-up`, `chart-line` |
+| Money / Cost | `dollar-sign` | `wallet`, `coins`, `banknote` |
+| Team / Collaboration | `users` | `users-round`, `handshake`, `message-circle` |
+| Cloud / Infra | `cloud` | `server`, `database`, `hard-drive` |
+| Code / Dev | `code` | `terminal`, `file-code`, `braces` |
+| Success / Complete | `check-circle` | `circle-check`, `badge-check`, `trophy` |
+| Warning / Risk | `alert-triangle` | `shield-alert`, `alert-circle`, `ban` |
+| Innovation / New | `lightbulb` | `sparkles`, `wand`, `lamp` |
+| Growth / Increase | `trending-up` | `arrow-up-right`, `chart-no-axes-combined`, `sprout` |
+| Time / Schedule | `clock` | `calendar`, `timer`, `hourglass` |
+| Global / World | `globe` | `earth`, `map`, `languages` |
+| Settings / Config | `settings` | `sliders-horizontal`, `wrench`, `cog` |
+| Communication | `message-circle` | `mail`, `phone`, `megaphone` |
+| Education / Learn | `graduation-cap` | `book-open`, `school`, `notebook-pen` |
+| Health / Medical | `heart-pulse` | `activity`, `stethoscope`, `pill` |
+| Mobile / App | `smartphone` | `tablet`, `app-window`, `monitor` |
+| Integration / Connect | `plug` | `cable`, `link`, `puzzle` |
+| Search / Discover | `search` | `scan`, `radar`, `compass` |
+| Storage / Save | `database` | `hard-drive`, `archive`, `save` |
+| Automation / Workflow | `workflow` | `repeat`, `git-branch`, `route` |
+| Creative / Design | `palette` | `brush`, `pen-tool`, `figma` |
+| Video / Media | `video` | `play-circle`, `clapperboard`, `film` |
+
+**Rules:**
+- Always use semantic names from this table when the concept matches
+- For concepts not listed, browse https://lucide.dev/icons/ and pick the closest match
+- Prefer specific icons over generic ones (e.g., `shield-check` over `check` for "security verified")
+- Each card/section in a group should use a **different** icon — never repeat icons in parallel items
+
 ### Layout Patterns (recommended)
 
 | Pattern | Recommended |
