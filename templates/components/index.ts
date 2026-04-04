@@ -36,6 +36,8 @@ export { DiagramReveal } from "./DiagramReveal";
 export type { DiagramNode, DiagramEdge } from "./DiagramReveal";
 export { AudioWaveform } from "./AudioWaveform";
 export { LottieAnimation } from "./LottieAnimation";
+export { DataTable } from "./DataTable";
+export { ErrorBoundary } from "./ErrorBoundary";
 export { Icon } from "./Icon";
 export { getLucideIcon, isEmoji } from "./iconMap";
 export { ShortIntroCard } from "./ShortIntroCard";

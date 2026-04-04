@@ -169,11 +169,17 @@ parser.add_argument('--resume', action='store_true',
     help='Resume from last breakpoint, skip already synthesized parts')
 parser.add_argument('--dry-run', action='store_true',
     help='Parse sections and estimate duration without calling TTS API')
+parser.add_argument('--validate', action='store_true',
+    help='Validate podcast.txt format (section markers, structure) without calling TTS API')
 
 args = parser.parse_args()
 
-BACKEND = args.backend or os.environ.get("TTS_BACKEND", "edge")
-print(f"TTS backend: {BACKEND}")
+# Skip backend setup for validate-only mode
+if not args.validate:
+    BACKEND = args.backend or os.environ.get("TTS_BACKEND", "edge")
+    print(f"TTS backend: {BACKEND}")
+else:
+    BACKEND = "edge"  # dummy, won't be used
 
 def check_import(module, pkg, install_cmd):
     try:
@@ -182,60 +188,61 @@ def check_import(module, pkg, install_cmd):
         print(f"Error: '{pkg}' not installed. Run: {install_cmd}", file=sys.stderr)
         sys.exit(1)
 
-if BACKEND == "azure":
-    check_import("azure.cognitiveservices.speech", "azure-cognitiveservices-speech",
-                  "pip install azure-cognitiveservices-speech")
-    key = os.environ.get("AZURE_SPEECH_KEY")
-    region = os.environ.get("AZURE_SPEECH_REGION", "eastasia")
-    if not key:
-        print("Error: AZURE_SPEECH_KEY not set", file=sys.stderr)
-        sys.exit(1)
-elif BACKEND == "cosyvoice":
-    check_import("dashscope", "dashscope", "pip install dashscope")
-    if not os.environ.get("DASHSCOPE_API_KEY"):
-        print("Error: DASHSCOPE_API_KEY not set", file=sys.stderr)
-        sys.exit(1)
-elif BACKEND == "edge":
-    check_import("edge_tts", "edge-tts", "pip install edge-tts")
-elif BACKEND == "doubao":
-    check_import("requests", "requests", "pip install requests")
-    doubao_appid = os.environ.get("VOLCENGINE_APPID")
-    doubao_token = os.environ.get("VOLCENGINE_ACCESS_TOKEN")
-    doubao_cluster = os.environ.get("VOLCENGINE_CLUSTER", "volcano_tts")
-    doubao_voice = os.environ.get("VOLCENGINE_VOICE_TYPE", "BV001_streaming")
-    doubao_endpoint = os.environ.get("VOLCENGINE_TTS_ENDPOINT", "https://openspeech.bytedance.com/api/v1/tts")
-    if not doubao_appid:
-        print("Error: VOLCENGINE_APPID not set", file=sys.stderr)
-        sys.exit(1)
-    if not doubao_token:
-        print("Error: VOLCENGINE_ACCESS_TOKEN not set", file=sys.stderr)
-        sys.exit(1)
-elif BACKEND == "elevenlabs":
-    check_import("requests", "requests", "pip install requests")
-    elevenlabs_key = os.environ.get("ELEVENLABS_API_KEY")
-    elevenlabs_voice = os.environ.get("ELEVENLABS_VOICE_ID", "21m00Tcm4TlvDq8ikWAM")  # Rachel
-    elevenlabs_model = os.environ.get("ELEVENLABS_MODEL", "eleven_multilingual_v2")
-    if not elevenlabs_key:
-        print("Error: ELEVENLABS_API_KEY not set", file=sys.stderr)
-        sys.exit(1)
-elif BACKEND == "openai":
-    check_import("requests", "requests", "pip install requests")
-    openai_key = os.environ.get("OPENAI_API_KEY")
-    openai_voice = os.environ.get("OPENAI_TTS_VOICE", "alloy")
-    openai_model = os.environ.get("OPENAI_TTS_MODEL", "tts-1-hd")
-    if not openai_key:
-        print("Error: OPENAI_API_KEY not set", file=sys.stderr)
-        sys.exit(1)
-elif BACKEND == "google":
-    check_import("requests", "requests", "pip install requests")
-    google_key = os.environ.get("GOOGLE_TTS_API_KEY")
-    google_voice = os.environ.get("GOOGLE_TTS_VOICE", "en-US-Neural2-F")
-    google_language = os.environ.get("GOOGLE_TTS_LANGUAGE", "en-US")
-    if not google_key:
-        print("Error: GOOGLE_TTS_API_KEY not set. Get one at https://console.cloud.google.com/apis/credentials", file=sys.stderr)
-        sys.exit(1)
-else:
-    print(f"Error: Unknown backend '{BACKEND}'. Use 'edge', 'azure', 'doubao', 'cosyvoice', 'elevenlabs', 'openai', or 'google'", file=sys.stderr)
+if not args.validate:
+    if BACKEND == "azure":
+        check_import("azure.cognitiveservices.speech", "azure-cognitiveservices-speech",
+                      "pip install azure-cognitiveservices-speech")
+        key = os.environ.get("AZURE_SPEECH_KEY")
+        region = os.environ.get("AZURE_SPEECH_REGION", "eastasia")
+        if not key:
+            print("Error: AZURE_SPEECH_KEY not set", file=sys.stderr)
+            sys.exit(1)
+    elif BACKEND == "cosyvoice":
+        check_import("dashscope", "dashscope", "pip install dashscope")
+        if not os.environ.get("DASHSCOPE_API_KEY"):
+            print("Error: DASHSCOPE_API_KEY not set", file=sys.stderr)
+            sys.exit(1)
+    elif BACKEND == "edge":
+        check_import("edge_tts", "edge-tts", "pip install edge-tts")
+    elif BACKEND == "doubao":
+        check_import("requests", "requests", "pip install requests")
+        doubao_appid = os.environ.get("VOLCENGINE_APPID")
+        doubao_token = os.environ.get("VOLCENGINE_ACCESS_TOKEN")
+        doubao_cluster = os.environ.get("VOLCENGINE_CLUSTER", "volcano_tts")
+        doubao_voice = os.environ.get("VOLCENGINE_VOICE_TYPE", "BV001_streaming")
+        doubao_endpoint = os.environ.get("VOLCENGINE_TTS_ENDPOINT", "https://openspeech.bytedance.com/api/v1/tts")
+        if not doubao_appid:
+            print("Error: VOLCENGINE_APPID not set", file=sys.stderr)
+            sys.exit(1)
+        if not doubao_token:
+            print("Error: VOLCENGINE_ACCESS_TOKEN not set", file=sys.stderr)
+            sys.exit(1)
+    elif BACKEND == "elevenlabs":
+        check_import("requests", "requests", "pip install requests")
+        elevenlabs_key = os.environ.get("ELEVENLABS_API_KEY")
+        elevenlabs_voice = os.environ.get("ELEVENLABS_VOICE_ID", "21m00Tcm4TlvDq8ikWAM")  # Rachel
+        elevenlabs_model = os.environ.get("ELEVENLABS_MODEL", "eleven_multilingual_v2")
+        if not elevenlabs_key:
+            print("Error: ELEVENLABS_API_KEY not set", file=sys.stderr)
+            sys.exit(1)
+    elif BACKEND == "openai":
+        check_import("requests", "requests", "pip install requests")
+        openai_key = os.environ.get("OPENAI_API_KEY")
+        openai_voice = os.environ.get("OPENAI_TTS_VOICE", "alloy")
+        openai_model = os.environ.get("OPENAI_TTS_MODEL", "tts-1-hd")
+        if not openai_key:
+            print("Error: OPENAI_API_KEY not set", file=sys.stderr)
+            sys.exit(1)
+    elif BACKEND == "google":
+        check_import("requests", "requests", "pip install requests")
+        google_key = os.environ.get("GOOGLE_TTS_API_KEY")
+        google_voice = os.environ.get("GOOGLE_TTS_VOICE", "en-US-Neural2-F")
+        google_language = os.environ.get("GOOGLE_TTS_LANGUAGE", "en-US")
+        if not google_key:
+            print("Error: GOOGLE_TTS_API_KEY not set. Get one at https://console.cloud.google.com/apis/credentials", file=sys.stderr)
+            sys.exit(1)
+    else:
+        print(f"Error: Unknown backend '{BACKEND}'. Use 'edge', 'azure', 'doubao', 'cosyvoice', 'elevenlabs', 'openai', or 'google'", file=sys.stderr)
     sys.exit(1)
 MAX_CHARS = 280 if BACKEND == "doubao" else 400  # Doubao HTTP /api/v1/tts has a 1024-byte text limit (UTF-8), use smaller chunks
 
@@ -280,6 +287,48 @@ for i, match in enumerate(matches):
     })
 
 clean_text = re.sub(section_pattern, '', text).strip()
+
+# ============ Validate mode ============
+if args.validate:
+    errors = []
+    warnings = []
+    # Check for malformed markers (extra spaces around colon or name)
+    bad_markers = re.findall(r'\[SECTION\s+:\w+\]|\[SECTION:\s+\w+\]|\[SECTION:\w+\s+\]', text)
+    for m in bad_markers:
+        errors.append(f"Malformed section marker (extra spaces): {m}")
+    # Check for duplicate section names
+    names = [s['name'] for s in sections]
+    dupes = [n for n in names if names.count(n) > 1]
+    if dupes:
+        errors.append(f"Duplicate section names: {', '.join(set(dupes))}")
+    # Check for empty non-silent sections (has marker but no content — likely unintended)
+    for s in sections:
+        if s['is_silent'] and s['name'] not in ('outro', 'end', 'closing'):
+            warnings.append(f"Section '{s['name']}' has no content (will be silent)")
+    # Check section count
+    if not sections:
+        errors.append("No [SECTION:xxx] markers found in script")
+    # Check for content outside sections (before first marker)
+    pre_content = text[:matches[0].start()].strip() if matches else text.strip()
+    if pre_content:
+        warnings.append(f"Content before first section marker will be included but not section-mapped: '{pre_content[:50]}...'")
+    # Report
+    print(f"\n{'='*50}")
+    print(f"Validation: {args.input}")
+    print(f"  Sections: {len(sections)} ({', '.join(names)})")
+    print(f"  Text length: {len(clean_text)} chars (~{len(clean_text)//200} chunks)")
+    if errors:
+        print(f"\n✘ {len(errors)} error(s):")
+        for e in errors:
+            print(f"    ✘ {e}")
+    if warnings:
+        print(f"\n⚠ {len(warnings)} warning(s):")
+        for w in warnings:
+            print(f"    ⚠ {w}")
+    if not errors and not warnings:
+        print("\n✓ All checks passed")
+    print(f"{'='*50}")
+    sys.exit(1 if errors else 0)
 
 # Extract inline phoneme markers: 执行器[zhí xíng qì]
 clean_text, inline_phonemes = extract_inline_phonemes(clean_text)
