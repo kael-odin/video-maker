@@ -30,7 +30,7 @@ Automated pipeline to create professional video podcasts from a topic. **Support
 - **Bilibili Templates** - Ready-to-use Remotion templates (`Video.tsx`, `Root.tsx`, `Thumbnail.tsx`, `podcast.txt`) for quick project scaffolding
 - **Component Library** - Reusable visual building blocks (ComparisonCard, Timeline, CodeBlock, QuoteBlock, FeatureGrid, DataBar, StatCounter, FlowChart, IconCard, DiagramReveal, AudioWaveform, LottieAnimation, MediaSection, SectionLayouts, AnimatedBackground) for composing rich section layouts
 - **Preference Learning** - Auto-learns user style preferences (colors, fonts, speech rate) and applies them to future videos
-- **Multi-Platform** - Bilibili and YouTube with independent platform and language settings
+- **Multi-Platform** - Bilibili, YouTube, and Xiaohongshu with independent platform and language settings
 - **Multi-Language** - Chinese (zh-CN) and English (en-US) script templates, TTS voices, subtitle fonts
 - **Subtitle Preferences** - Custom font, size, color, outline; toggle subtitle burning on/off
 - **Configurable CTA** - Auto (Bilibili triple/YouTube subscribe), animation, text, or custom
@@ -48,6 +48,13 @@ Automated pipeline to create professional video podcasts from a topic. **Support
 - **SEO Optimization** - Title <70 chars, keyword-rich description, tags and hashtags
 - **Chapters** - Auto-generated YouTube chapter timestamps (first line at 0:00)
 - **CTA** - "Like, Subscribe & Share" text animation or custom
+
+**Xiaohongshu (小红书):**
+- **Title** - Max 20 chars, punchy and emoji-friendly
+- **Description** - 200-500 chars, 种草/knowledge-sharing style with emoji
+- **Hashtags** - `#话题#` format (double hash), 5-10 tags
+- **Thumbnail** - 3:4 (1080x1440) for feed optimization
+- **CTA** - "点赞收藏加关注" text animation
 
 ## Workflow
 
