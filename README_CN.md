@@ -4,9 +4,9 @@
 
 自动化流程，从主题生成专业视频播客。**支持 B站 (Bilibili)、YouTube、小红书、抖音和微信视频号**，多语言输出（zh-CN、en-US）。集成研究、脚本撰写、多引擎 TTS（Edge/Azure/豆包/CosyVoice）、Remotion 视频渲染和 FFmpeg 音频混音。
 
-**支持平台：** [Claude Code](https://claude.ai/code) · [OpenClaw](https://openclaw.ai/) (ClawHub) · [OpenCode](https://opencode.ai/) · [Codex](https://openai.com/index/introducing-codex/)
+**支持工具：** [Claude Code](https://claude.ai/code) · [OpenClaw](https://openclaw.ai/) (ClawHub) · [OpenCode](https://opencode.ai/) · [Codex](https://openai.com/index/introducing-codex/) — 任何支持 SKILL.md 的 coding agent
 
-![OpenClaw x Video Podcast Maker](assets/openclaw-collaboration.png)
+**发布平台：** B站 · YouTube · 小红书 · 抖音 · 微信视频号
 
 > **无需编程！** 用自然语言描述你的主题，coding agent 会一步步引导你完成。你做创意决策，agent 处理所有技术细节。制作你的第一个视频播客，比你想象的更简单。
 

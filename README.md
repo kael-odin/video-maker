@@ -4,9 +4,9 @@
 
 Automated pipeline to create professional video podcasts from a topic. **Supports Bilibili, YouTube, Xiaohongshu, Douyin, and WeChat Channels** with multi-language output (zh-CN, en-US). Combines research, script generation, multi-engine TTS (Edge/Azure/Doubao/CosyVoice), Remotion video rendering, and FFmpeg audio mixing.
 
-**Supported platforms:** [Claude Code](https://claude.ai/code) · [OpenClaw](https://openclaw.ai/) (ClawHub) · [OpenCode](https://opencode.ai/) · [Codex](https://openai.com/index/introducing-codex/)
+**Works with:** [Claude Code](https://claude.ai/code) · [OpenClaw](https://openclaw.ai/) (ClawHub) · [OpenCode](https://opencode.ai/) · [Codex](https://openai.com/index/introducing-codex/) — any coding agent that supports SKILL.md
 
-![OpenClaw x Video Podcast Maker](assets/openclaw-collaboration.png)
+**Publish to:** Bilibili · YouTube · Xiaohongshu · Douyin · WeChat Channels
 
 > **No coding required!** Just describe your topic in plain language — the coding agent guides you through each step interactively. You make creative decisions, the agent handles all the technical details. Creating your first video podcast is easier than you think.
 
