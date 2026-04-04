@@ -20,7 +20,7 @@
       "properties": {
         "platform": {
           "type": "string",
-          "enum": ["bilibili", "youtube", "xiaohongshu"],
+          "enum": ["bilibili", "youtube", "xiaohongshu", "douyin"],
           "default": "bilibili",
           "description": "Target video platform"
         },
