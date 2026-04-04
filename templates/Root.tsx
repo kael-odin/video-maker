@@ -159,6 +159,15 @@ export const RemotionRoot = () => {
         defaultProps={{ aspectRatio: "4:3" }}
       />
 
+      {/* 3:4 缩略图 - 小红书封面 */}
+      <Still
+        id="Thumbnail3x4"
+        component={Thumbnail}
+        width={1080}
+        height={1440}
+        defaultProps={{ aspectRatio: "3:4" }}
+      />
+
       {/* 9:16 缩略图 - 竖屏封面 */}
       <Still
         id="Thumbnail9x16"
