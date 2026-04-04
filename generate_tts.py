@@ -165,6 +165,14 @@ def main():
     # --- Match section times ---
     sections = match_section_times(sections, word_boundaries, total_duration)
 
+    # --- Generate SRT + timing.json (before concat, so they're saved even if concat fails) ---
+    print("\nGenerating subtitles...")
+    output_srt = os.path.join(args.output_dir, "podcast_audio.srt")
+    write_srt(word_boundaries, output_srt)
+
+    output_timing = os.path.join(args.output_dir, "timing.json")
+    write_timing(sections, total_duration, SPEECH_RATE, output_timing)
+
     # --- Concat audio ---
     print("\nConcatenating audio...")
     concat_list = os.path.join(args.output_dir, "concat_list.txt")
@@ -178,18 +186,10 @@ def main():
         capture_output=True, text=True, cwd=args.output_dir)
     if concat_result.returncode != 0:
         print(f"Error: FFmpeg concat failed:\n{concat_result.stderr}", file=sys.stderr)
+        print("Note: timing.json and podcast_audio.srt were saved successfully.", file=sys.stderr)
         sys.exit(1)
     print(f"Done: {output_wav}")
     print(f"  Temp files kept: {len(part_files)} part_*.wav (manual cleanup: Step 14)")
-
-    # --- Generate SRT ---
-    print("\nGenerating subtitles...")
-    output_srt = os.path.join(args.output_dir, "podcast_audio.srt")
-    write_srt(word_boundaries, output_srt)
-
-    # --- Generate timing.json ---
-    output_timing = os.path.join(args.output_dir, "timing.json")
-    write_timing(sections, total_duration, SPEECH_RATE, output_timing)
 
 
 if __name__ == "__main__":

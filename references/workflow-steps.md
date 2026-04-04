@@ -258,12 +258,16 @@ npx remotion still src/remotion/index.ts Thumbnail3x4 videos/{name}/thumbnail_re
 
 **Preference application:** Read backend/rate/voice from `user_prefs.tts`.
 
+**Agent MUST** extract `tts.backend` from `user_prefs.json` and pass it via `TTS_BACKEND` env var. The script does NOT read user_prefs.json directly — it defaults to `edge` if no env var is set.
+
 ```bash
-# Primary command (backend from user_prefs or env)
-python3 ${CLAUDE_SKILL_DIR}/generate_tts.py --input videos/{name}/podcast.txt --output-dir videos/{name}
+# Primary command — ALWAYS pass TTS_BACKEND from user_prefs
+TTS_BACKEND=$(python3 -c "import json; print(json.load(open('${CLAUDE_SKILL_DIR}/user_prefs.json'))['global']['tts']['backend'])") \
+  python3 ${CLAUDE_SKILL_DIR}/generate_tts.py --input videos/{name}/podcast.txt --output-dir videos/{name}
 
 # Resume from breakpoint
-python3 ${CLAUDE_SKILL_DIR}/generate_tts.py --input videos/{name}/podcast.txt --output-dir videos/{name} --resume
+TTS_BACKEND=$(python3 -c "import json; print(json.load(open('${CLAUDE_SKILL_DIR}/user_prefs.json'))['global']['tts']['backend'])") \
+  python3 ${CLAUDE_SKILL_DIR}/generate_tts.py --input videos/{name}/podcast.txt --output-dir videos/{name} --resume
 
 # Dry run (estimate duration)
 python3 ${CLAUDE_SKILL_DIR}/generate_tts.py --input videos/{name}/podcast.txt --output-dir videos/{name} --dry-run
@@ -451,7 +455,10 @@ import { OffthreadVideo, staticFile } from "remotion";
 
 Remotion Studio is **always launched** — both auto and interactive modes. This is the primary review step.
 
+**Kill any existing Studio instance first** to avoid serving stale assets from a previous project:
+
 ```bash
+lsof -ti:3000 | xargs kill -9 2>/dev/null
 npx remotion studio src/remotion/index.ts --public-dir videos/{name}/
 ```
 
