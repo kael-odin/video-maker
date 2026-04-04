@@ -1,11 +1,12 @@
 {
-    "_comment": "Global phoneme dictionary for all video projects. Project-level overrides go in videos/{name}/phonemes.json",
+    "_comment": "Template for global phoneme dictionary. Copied to phonemes.json on first run. Edit phonemes.json to add your entries — it won't be overwritten by skill updates.",
 
     "一行命令": "yì háng mìng lìng",
     "一行代码": "yì háng dài mǎ",
     "一行": "yì háng",
     "命令行": "mìng lìng háng",
     "代码行": "dài mǎ háng",
+    "单行": "dān háng",
     "多行": "duō háng",
     "行数": "háng shù",
     "几行": "jǐ háng",

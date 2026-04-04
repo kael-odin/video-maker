@@ -38,6 +38,9 @@ videos/
 # User preferences (learned, auto-created from template)
 user_prefs.json
 
+# Global phoneme dictionary (user-customized, auto-created from template)
+phonemes.json
+
 # Design reference binary assets (frames, covers)
 design_references/*/frames/
 design_references/*/cover.*

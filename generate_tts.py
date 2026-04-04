@@ -29,7 +29,28 @@ def load_phoneme_dicts(input_file, phoneme_file=None):
     """
     SKILL_DIR = os.path.dirname(os.path.abspath(__file__))
     global_path = os.path.join(SKILL_DIR, 'phonemes.json')
+    template_path = os.path.join(SKILL_DIR, 'phonemes.template.json')
     project_path = os.path.join(os.path.dirname(os.path.abspath(input_file)), 'phonemes.json')
+
+    # Auto-create or merge phonemes.json from template
+    if os.path.exists(template_path):
+        if not os.path.exists(global_path):
+            import shutil
+            shutil.copy2(template_path, global_path)
+            print(f"✓ Created phonemes.json from template")
+        else:
+            # Merge new template entries into existing phonemes.json (user entries take priority)
+            with open(template_path, 'r', encoding='utf-8') as f:
+                template_data = {k: v for k, v in json.load(f).items() if not k.startswith('_')}
+            with open(global_path, 'r', encoding='utf-8') as f:
+                user_data = json.load(f)
+            user_entries = {k: v for k, v in user_data.items() if not k.startswith('_')}
+            new_entries = {k: v for k, v in template_data.items() if k not in user_entries}
+            if new_entries:
+                user_data.update(new_entries)
+                with open(global_path, 'w', encoding='utf-8') as f:
+                    json.dump(user_data, f, ensure_ascii=False, indent=4)
+                print(f"✓ Merged {len(new_entries)} new entries from template into phonemes.json")
 
     merged = {}
 
