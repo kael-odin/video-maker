@@ -264,7 +264,7 @@ Included tracks in `assets/`:
 - [ ] Step 9 smart suggestions — Auto-match and recommend existing style profiles when creating videos (Phase 5)
 - [ ] Cover design learning — Apply learned cover styles to Thumbnail.tsx template (Phase 5)
 - [ ] YouTube automated publishing — Upload via YouTube Data API with metadata, chapters, thumbnails
-- [ ] Chinese platform expansion — 抖音 (Douyin), 小红书 (Xiaohongshu), 微信视频号 (WeChat Channels), 西瓜视频 (Xigua Video)
+- [ ] Chinese platform expansion — 抖音 (Douyin), 微信视频号 (WeChat Channels)
 - [ ] Windows compatibility (WSL verification + docs)
 
 ## License
