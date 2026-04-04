@@ -23,7 +23,8 @@ def synthesize(chunks, config, output_dir, resume=False):
     speaking_rate = 1.0 + int(rate_match.group(1)) / 100.0 if rate_match else 1.0
     speaking_rate = max(0.25, min(4.0, speaking_rate))
 
-    url = f"https://texttospeech.googleapis.com/v1/text:synthesize?key={key}"
+    url = "https://texttospeech.googleapis.com/v1/text:synthesize"
+    headers = {"X-Goog-Api-Key": key, "Content-Type": "application/json"}
 
     part_files = []
     word_boundaries = []
@@ -56,7 +57,7 @@ def synthesize(chunks, config, output_dir, resume=False):
                     },
                 }
 
-                resp = requests.post(url, json=payload, timeout=120)
+                resp = requests.post(url, json=payload, headers=headers, timeout=120)
                 resp.raise_for_status()
                 data = resp.json()
 

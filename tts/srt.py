@@ -40,7 +40,7 @@ def write_srt(word_boundaries, output_path):
 
     with open(output_path, "w", encoding="utf-8") as f:
         f.writelines(srt_lines)
-    print(f"✓ 字幕: {output_path} ({len(srt_lines)} 条)")
+    print(f"Subtitles: {output_path} ({len(srt_lines)} entries)")
 
 
 def write_timing(sections, total_duration, speech_rate, output_path):
@@ -68,8 +68,8 @@ def write_timing(sections, total_duration, speech_rate, output_path):
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump(timing_data, f, indent=2, ensure_ascii=False)
 
-    print(f"\n✓ 时间轴: {output_path}")
-    print("\n章节时间:")
+    print(f"\nTiming: {output_path}")
+    print("\nSection times:")
     for s in timing_data['sections']:
         print(f"  {s['name']}: {s['start_time']:.1f}s - {s['end_time']:.1f}s ({s['duration']:.1f}s)")
-    print(f"\n总时长: {total_duration:.1f}s ({timing_data['total_frames']} frames @ 30fps)")
+    print(f"\nTotal duration: {total_duration:.1f}s ({timing_data['total_frames']} frames @ 30fps)")

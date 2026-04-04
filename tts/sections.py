@@ -86,7 +86,7 @@ def print_validation_report(input_file, sections, clean_text, errors, warnings):
 def match_section_times(sections, word_boundaries, total_duration):
     """Match section start/end times using sliding-window on word boundaries."""
     if len(sections) > 1 and word_boundaries:
-        print("\n匹配章节时间...")
+        print("\nMatching section times...")
         wb_texts = [wb['text'] for wb in word_boundaries]
         sections[0]['start_time'] = 0
         search_start = 0
@@ -105,7 +105,7 @@ def match_section_times(sections, word_boundaries, total_duration):
                         section['start_time'] = word_boundaries[i]['offset']
                         sections[sec_idx - 1]['end_time'] = section['start_time']
                         search_start = i + 1
-                        print(f"  ✓ {section['name']}: {section['start_time']:.2f}s (匹配: \"{window[:20]}...\")")
+                        print(f"  ✓ {section['name']}: {section['start_time']:.2f}s (matched: \"{window[:20]}...\")")
                         found = True
                         break
                 if found:
@@ -117,7 +117,7 @@ def match_section_times(sections, word_boundaries, total_duration):
                 remaining_sections = len(sections) - sec_idx
                 section['start_time'] = prev_time + remaining / (remaining_sections + 1)
                 sections[sec_idx - 1]['end_time'] = section['start_time']
-                print(f"  ⚠ {section['name']}: {section['start_time']:.2f}s (估算, 未找到: \"{target_clean[:15]}\")")
+                print(f"  ⚠ {section['name']}: {section['start_time']:.2f}s (estimated, not found: \"{target_clean[:15]}\")")
 
         # Handle trailing silent sections
         for i in range(len(sections) - 1, -1, -1):
@@ -127,7 +127,7 @@ def match_section_times(sections, word_boundaries, total_duration):
                 sections[i]['duration'] = 0
                 if i > 0:
                     sections[i-1]['end_time'] = total_duration
-                print(f"  ℹ {sections[i]['name']}: 静音章节，由Remotion额外添加时长")
+                print(f"  ℹ {sections[i]['name']}: silent section, Remotion adds extra frames")
             else:
                 break
 
@@ -140,7 +140,7 @@ def match_section_times(sections, word_boundaries, total_duration):
                 section['duration'] = section['end_time'] - section['start_time']
 
     elif len(sections) > 1 and not word_boundaries:
-        print("\n⚠ 无词边界数据（断点续传），使用比例估算章节时间...")
+        print("\nNo word boundary data (resumed), estimating section times proportionally...")
         non_silent = [s for s in sections if not s.get('is_silent')]
         if non_silent:
             avg_duration = total_duration / len(non_silent)

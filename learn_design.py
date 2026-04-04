@@ -493,6 +493,14 @@ def _build_parser():
         metavar="REF_ID",
         help="Delete a design reference",
     )
+    parser.add_argument(
+        "--profile",
+        help="Design profile name for categorization (e.g., 'tech-minimal')",
+    )
+    parser.add_argument(
+        "--tags",
+        help="Comma-separated tags for filtering (e.g., 'tech,minimal,dark')",
+    )
     return parser
 
 

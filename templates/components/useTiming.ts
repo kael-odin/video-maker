@@ -20,20 +20,24 @@ export interface TimingData {
   sections: TimingSection[];
 }
 
-// Module-level cache so multiple components share one fetch
-let cachedTiming: TimingData | null = null;
-let fetchPromise: Promise<TimingData> | null = null;
+// Per-URL cache so each --public-dir gets its own timing data
+const cache = new Map<string, TimingData>();
+const pending = new Map<string, Promise<TimingData>>();
 
 function fetchTiming(): Promise<TimingData> {
-  if (!fetchPromise) {
-    fetchPromise = fetch(staticFile("timing.json"))
-      .then((r) => r.json())
-      .then((data: TimingData) => {
-        cachedTiming = data;
-        return data;
-      });
+  const url = staticFile("timing.json");
+  if (!pending.has(url)) {
+    pending.set(
+      url,
+      fetch(url)
+        .then((r) => r.json())
+        .then((data: TimingData) => {
+          cache.set(url, data);
+          return data;
+        }),
+    );
   }
-  return fetchPromise;
+  return pending.get(url)!;
 }
 
 /**
@@ -42,21 +46,23 @@ function fetchTiming(): Promise<TimingData> {
  * Uses delayRender/continueRender to block rendering until loaded.
  */
 export const useTiming = (): TimingData => {
-  const [timing, setTiming] = useState<TimingData | null>(cachedTiming);
+  const url = staticFile("timing.json");
+  const cached = cache.get(url) ?? null;
+  const [timing, setTiming] = useState<TimingData | null>(cached);
   const [handle] = useState(() =>
-    cachedTiming ? null : delayRender("Loading timing.json"),
+    cached ? null : delayRender("Loading timing.json"),
   );
 
   useEffect(() => {
-    if (cachedTiming) {
-      setTiming(cachedTiming);
+    if (cached) {
+      setTiming(cached);
       return;
     }
     fetchTiming().then((data) => {
       setTiming(data);
       if (handle !== null) continueRender(handle);
     });
-  }, [handle]);
+  }, [handle, cached]);
 
   // Return placeholder while loading (render is delayed anyway)
   if (!timing) {

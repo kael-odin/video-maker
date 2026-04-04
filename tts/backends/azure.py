@@ -36,10 +36,11 @@ def synthesize(chunks, config, output_dir, resume=False):
         audio = speechsdk.audio.AudioOutputConfig(filename=part_file)
         synth = speechsdk.SpeechSynthesizer(speech_config=speech_config, audio_config=audio)
 
-        def word_boundary_cb(evt):
+        chunk_start = accumulated_duration  # snapshot for closure
+        def word_boundary_cb(evt, _start=chunk_start):
             word_boundaries.append({
                 "text": evt.text,
-                "offset": accumulated_duration + evt.audio_offset / 10000000.0,
+                "offset": _start + evt.audio_offset / 10000000.0,
                 "duration": evt.duration.total_seconds(),
             })
         synth.synthesis_word_boundary.connect(word_boundary_cb)

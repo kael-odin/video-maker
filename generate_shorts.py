@@ -225,6 +225,7 @@ def render_short(output_dir, comp_id, index_path):
         index_path, comp_id,
         output_file,
         '--video-bitrate', '16M',
+        '--public-dir', output_dir,
     ]
     print(f"    Rendering: {' '.join(cmd)}")
     result = subprocess.run(cmd, capture_output=True, text=True)

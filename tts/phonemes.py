@@ -44,14 +44,14 @@ def load_phoneme_dicts(input_file, phoneme_file=None):
         with open(global_path, 'r', encoding='utf-8') as f:
             data = {k: v for k, v in json.load(f).items() if not k.startswith('_')}
             merged.update(data)
-            print(f"✓ 全局多音字词典: {global_path} ({len(data)} 条)")
+            print(f"Global phoneme dictionary: {global_path} ({len(data)} entries)")
 
     override_path = phoneme_file if phoneme_file else project_path
     if override_path and os.path.exists(override_path):
         with open(override_path, 'r', encoding='utf-8') as f:
             data = {k: v for k, v in json.load(f).items() if not k.startswith('_')}
             merged.update(data)
-            print(f"✓ 项目多音字词典: {override_path} ({len(data)} 条)")
+            print(f"Project phoneme dictionary: {override_path} ({len(data)} entries)")
 
     return merged
 

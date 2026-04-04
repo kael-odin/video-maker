@@ -1,6 +1,7 @@
 """Alibaba CosyVoice TTS backend."""
 import os
 import re
+import sys
 import time
 from .base import check_resume
 
@@ -22,6 +23,12 @@ def synthesize(chunks, config, output_dir, resume=False):
     model = os.environ.get("COSYVOICE_MODEL", "cosyvoice-v3-flash")
     voice = os.environ.get("COSYVOICE_VOICE", "longxiaochun_v3")
     sample_rate = 48000
+
+    phoneme_dict = config.get('phoneme_dict', {})
+    if phoneme_dict:
+        print("Warning: CosyVoice does not currently apply phoneme SSML. "
+              "Inline markers and phonemes.json will be ignored. "
+              "Consider using Azure for full phoneme support.", file=sys.stderr)
 
     part_files = []
     word_boundaries = []
