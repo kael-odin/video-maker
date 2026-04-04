@@ -235,6 +235,11 @@ Based on `podcast.txt`, generate `publish_info.md`:
 
 **MUST generate both aspect ratios**: 16:9 (playback page) and 4:3 (feed/activity), both required. 9:16 only when generating vertical video.
 
+**Thumbnail design rules** (see `references/design-guide.md` for full spec):
+- Centered layout, title ≥120px bold, icons ≥120px — as large as text length allows
+- Text + icons should fill most of the canvas, minimize empty space
+- Must be legible at 300px feed size — use text-stroke or contrast overlay
+
 ```bash
 npx remotion still src/remotion/index.ts Thumbnail16x9 videos/{name}/thumbnail_remotion_16x9.png --public-dir videos/{name}/
 npx remotion still src/remotion/index.ts Thumbnail4x3 videos/{name}/thumbnail_remotion_4x3.png --public-dir videos/{name}/

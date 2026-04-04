@@ -78,8 +78,29 @@ Templates (`templates/`) are **starting points, not blueprints**. Claude SHOULD 
 | 1 | **Layout variety** | ≥3 different layout types (centered, grid, split, timeline, etc.) |
 | 2 | **Background alternation** | No 2 consecutive sections share the same background |
 | 3 | **Unified color scheme** | Primary/secondary/accent used consistently |
-| 4 | **Thumbnail readability** | Title readable at ~300px thumbnail width |
+| 4 | **Thumbnail readability** | Title ≥120px, centered, legible at ~300px thumbnail width |
 | 5 | **Hero impact** | Large text + decorative elements or gradient |
+
+### Remotion Thumbnail Design
+
+Thumbnails render at ~300px in feeds. Only bold, oversized elements survive at that scale.
+
+**Hard rules (MUST follow):**
+
+| Rule | Requirement |
+|------|-------------|
+| **Layout** | Content centered both horizontally and vertically |
+| **Title** | ≥120px bold. The dominant visual element — as large as the text length allows |
+| **Icons** | ≥120px. Serve as visual anchors alongside text |
+| **Coverage** | Text + icons should fill most of the canvas. Minimize empty space. |
+| **Readability** | Must be legible at 300px width — use text-stroke, text-shadow, or contrasting overlay as needed |
+
+**Design guidance (adapt per topic):**
+- Prefer 2-3 lines of text (title + subtitle or hook) over a single line — more text = more information density
+- Use high-saturation colors that pop in feeds; avoid muted tones
+- Consider a short hook phrase ("Why It Matters", "Top 5") to boost curiosity — as badge, subtitle, or integrated into the title
+- Background should support the text, not compete with it (gradient, blurred image, solid color all work)
+- When in doubt, scale text and icons up rather than down
 
 ### TTS Quality Guidance
 

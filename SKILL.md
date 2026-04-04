@@ -212,7 +212,7 @@ Hard constraints for video production — visual design is Claude's creative fre
 | **Content Width** | ≥85% of screen width |
 | **Bottom Safe Zone** | Bottom 100px reserved for subtitles |
 | **Audio Sync** | All animations driven by `timing.json` timestamps |
-| **Thumbnail** | MUST generate 16:9 (1920×1080) AND 4:3 (1200×900). Title ≥80px bold, high contrast. |
+| **Thumbnail** | MUST generate 16:9 (1920×1080) AND 4:3 (1200×900). Centered layout, title ≥120px, icons ≥120px, fill most of canvas. See design-guide.md. |
 | **Font** | PingFang SC / Noto Sans SC for Chinese text |
 | **Studio Before Render** | MUST launch `remotion studio` for user review. NEVER render 4K until user explicitly confirms ("render 4K", "render final"). |
 
