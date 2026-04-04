@@ -442,20 +442,22 @@ import { OffthreadVideo, staticFile } from "remotion";
 
 **WeChat Channels:** Text-only CTA (no animation). WeChat Channels content is vertical shorts only — the CTA text ("点赞关注，转发给朋友！") is rendered as simple end text, not animated.
 
-### Preview & Quality Gate
+### Preview & Quality Gate (Mandatory Stop)
 
-**Auto mode:** Skip Studio. Proceed to Step 10 for preview render (720p), Claude self-validates.
+Remotion Studio is **always launched** — both auto and interactive modes. This is the primary review step.
 
-**Interactive mode:** Launch Studio:
 ```bash
 npx remotion studio src/remotion/index.ts --public-dir videos/{name}/
 ```
 
 1. Launch `remotion studio` (real-time preview, hot reload)
-2. Ask user: "Preview OK? Describe changes if needed"
-   - **Satisfied** → Step 10
-   - **Changes needed** → apply, Studio hot reloads, repeat
-3. Pronunciation fixes require re-running TTS (Step 8).
+2. Ask user: "Studio is running at http://localhost:3000. Please review the video preview."
+3. **Review loop** — user reviews, requests changes, Claude applies them, Studio hot reloads:
+   - Layout/animation tweaks → edit components, Studio auto-refreshes
+   - Script/content changes → edit `podcast.txt`, may need re-TTS (Step 8)
+   - Pronunciation fixes → re-run TTS (Step 8)
+4. **Exit condition**: User explicitly says "render 4K" / "render final version" / "looks good, render" → proceed to Step 10
+5. Do NOT proceed to Step 10 until the user confirms.
 
 ---
 
@@ -465,27 +467,9 @@ npx remotion studio src/remotion/index.ts --public-dir videos/{name}/
 
 ---
 
-## Step 10: Render Video
+## Step 10: Render 4K Video
 
-### Preview Render — The Only Mandatory Stop (Auto mode)
-
-```bash
-npx remotion render src/remotion/index.ts CompositionId videos/{name}/preview.mp4 --scale 0.33 --crf 28 --public-dir videos/{name}/
-```
-
-```bash
-DUR=$(ffprobe -v quiet -show_entries format=duration -of csv=p=0 videos/{name}/preview.mp4 | cut -d. -f1)
-SIZE=$(ls -lh videos/{name}/preview.mp4 | awk '{print $5}')
-echo "Preview: ${DUR}s, ${SIZE}"
-```
-
-**Ask user:** "720p preview ready: `videos/{name}/preview.mp4` (duration Xs). Please review:"
-- **Confirm, render 4K** → proceed
-- **Changes needed** → apply, re-render preview, repeat
-
-This is the **only stop** in auto mode.
-
-**Interactive mode:** Studio preview already done in Step 9. Skip preview render, go directly to 4K.
+> **Prerequisite:** User has reviewed in Remotion Studio (Step 9) and explicitly requested final render.
 
 ### 4K Render
 
