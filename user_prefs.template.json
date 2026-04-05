@@ -16,7 +16,9 @@
       "primaryColor": "&H00333333",
       "outlineColor": "&H00FFFFFF",
       "bold": false,
-      "outline": 2
+      "outline": 2,
+      "alignment": 2,
+      "marginV": 6
     },
     "visual": {
       "theme": "light",

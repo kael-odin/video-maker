@@ -23,6 +23,7 @@ import {
   useEntrance,
   getPresentation,
   ChapterProgressBar,
+  Subtitles,
   IconCard,
   Icon,
   useTiming,
@@ -333,6 +334,9 @@ export const Video = (props: VideoProps) => {
 
       {/* Progress bar - outside scale(2) wrapper, renders at native 4K */}
       <ChapterProgressBar props={props} chapters={timing.sections} />
+
+      {/* Subtitles - outside scale(2), renders at native 4K, no FFmpeg needed */}
+      <Subtitles src={staticFile("podcast_audio.srt")} />
 
       {/* BGM with configurable volume */}
       {props.bgmVolume > 0 && (
