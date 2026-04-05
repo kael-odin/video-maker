@@ -42,7 +42,8 @@ const SectionComponent = ({
   const animStyle = { opacity, transform: `translateY(${translateY}px) scale(${scale})` };
   const v = props.orientation === "vertical";
   // Vertical uses more padding top/bottom, less left/right
-  const sectionPadding = v ? "120px 60px" : "80px 100px";
+  // Bottom padding reserves space for burned-in subtitles (100px safe zone)
+  const sectionPadding = v ? "120px 60px 160px" : "60px 100px 120px";
 
   switch (section.name) {
     // Reference font sizes (1080p design space, horizontal):
@@ -113,6 +114,7 @@ const SectionComponent = ({
               padding: sectionPadding,
               display: "flex",
               flexDirection: "column",
+              justifyContent: "center",
               ...animStyle,
             }}
           >
@@ -122,23 +124,22 @@ const SectionComponent = ({
                 fontWeight: 700,
                 marginBottom: 12,
                 color: props.primaryColor,
+                textAlign: "center",
               }}
             >
               今天的内容
             </h2>
-            <p style={{ fontSize: v ? 34 : 30, color: props.textColor, opacity: 0.5, marginBottom: v ? 48 : 40 }}>
+            <p style={{ fontSize: v ? 34 : 30, color: props.textColor, opacity: 0.5, marginBottom: v ? 24 : 20, textAlign: "center" }}>
               Section description here
             </p>
-            <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <div style={{ display: "flex", flexDirection: "column", gap: v ? 24 : 20, width: "100%", maxWidth: v ? undefined : 900 }}>
-                {[
-                  { icon: "lightbulb", title: "要点一", description: "说明文字" },
-                  { icon: "target", title: "要点二", description: "说明文字" },
-                  { icon: "check-circle", title: "要点三", description: "说明文字" },
-                ].map((item, i) => (
-                  <IconCard key={i} props={props} icon={item.icon} title={item.title} description={item.description} delay={i * 6} />
-                ))}
-              </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: v ? 24 : 20, width: "100%", maxWidth: v ? undefined : 900 }}>
+              {[
+                { icon: "lightbulb", title: "要点一", description: "说明文字" },
+                { icon: "target", title: "要点二", description: "说明文字" },
+                { icon: "check-circle", title: "要点三", description: "说明文字" },
+              ].map((item, i) => (
+                <IconCard key={i} props={props} icon={item.icon} title={item.title} description={item.description} delay={i * 6} />
+              ))}
             </div>
           </div>
         </PaddedLayout>
@@ -253,6 +254,7 @@ const SectionComponent = ({
               padding: sectionPadding,
               display: "flex",
               flexDirection: "column",
+              justifyContent: "center",
               ...animStyle,
             }}
           >
@@ -261,40 +263,31 @@ const SectionComponent = ({
                 fontSize: v ? 72 : 80,
                 fontWeight: 700,
                 color: props.primaryColor,
+                textAlign: "center",
               }}
             >
               {section.name}
             </h2>
-            <p style={{ fontSize: v ? 34 : 30, color: props.textColor, opacity: 0.5, marginTop: 12 }}>
+            <p style={{ fontSize: v ? 34 : 30, color: props.textColor, opacity: 0.5, marginTop: 12, marginBottom: 20, textAlign: "center" }}>
               Section description here
             </p>
-            <div
-              style={{
-                flex: 1,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                marginTop: 24,
-              }}
-            >
-              <div style={{
-                background: `linear-gradient(135deg, ${props.primaryColor}06, ${props.accentColor}06)`,
-                borderRadius: 24, padding: v ? "40px 44px" : "40px 56px",
-                boxShadow: "0 2px 8px rgba(0,0,0,0.03), 0 8px 32px rgba(0,0,0,0.05)",
-                border: `1px solid ${props.primaryColor}10`,
-                width: "100%",
-              }}>
-                <p
-                  style={{
-                    fontSize: props.bodySize,
-                    color: props.textColor,
-                    fontWeight: 500,
-                    lineHeight: v ? 1.8 : 1.5,
-                  }}
-                >
-                  Section content goes here...
-                </p>
-              </div>
+            <div style={{
+              background: `linear-gradient(135deg, ${props.primaryColor}06, ${props.accentColor}06)`,
+              borderRadius: 24, padding: v ? "40px 44px" : "40px 56px",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.03), 0 8px 32px rgba(0,0,0,0.05)",
+              border: `1px solid ${props.primaryColor}10`,
+              width: "100%",
+            }}>
+              <p
+                style={{
+                  fontSize: props.bodySize,
+                  color: props.textColor,
+                  fontWeight: 500,
+                  lineHeight: v ? 1.8 : 1.5,
+                }}
+              >
+                Section content goes here...
+              </p>
             </div>
           </div>
         </PaddedLayout>
