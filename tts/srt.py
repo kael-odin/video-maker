@@ -11,32 +11,92 @@ def format_time(seconds):
     return f"{h:02d}:{m:02d}:{s:02d},{ms:03d}"
 
 
+# Punctuation sets for Chinese subtitle breaking
+STRONG_PUNCTS = set("。！？")     # Sentence-ending punctuation
+WEAK_PUNCTS = set("，；、：")      # Clause-separating punctuation
+ALL_PUNCTS = STRONG_PUNCTS | WEAK_PUNCTS
+
+
 def write_srt(word_boundaries, output_path):
-    """Generate SRT subtitle file from word boundaries."""
+    """Generate SRT subtitle file from word boundaries.
+
+    Strategy: accumulate words into a buffer, break at natural punctuation
+    boundaries to produce complete sentences or phrases. When forced to break
+    (text too long), backtrack to the last punctuation position instead of
+    cutting mid-phrase.
+    """
     srt_lines = []
     subtitle_idx = 1
-    current_text = ""
-    start_time = end_time = 0
+
+    # Buffer: list of (text, offset, duration) tuples
+    buf = []
+    buf_text = ""
+
+    def flush(entries):
+        """Write accumulated entries as one subtitle line."""
+        nonlocal subtitle_idx
+        if not entries:
+            return
+        text = "".join(e[0] for e in entries)
+        clean = re.sub(r"""^[，。！？、：；""''…—\s]+|[，。！？、：；""''…—\s]+$""", '', text.strip())
+        if not clean:
+            return
+        start = entries[0][1]
+        last = entries[-1]
+        end = last[1] + last[2]
+        srt_lines.append(f"{subtitle_idx}\n{format_time(start)} --> {format_time(end)}\n{clean}\n\n")
+        subtitle_idx += 1
+
+    def find_last_punct_index(entries, punct_set):
+        """Find the index of the last entry whose text is in punct_set."""
+        for j in range(len(entries) - 1, -1, -1):
+            if entries[j][0] in punct_set:
+                return j
+        return -1
 
     for i, wb in enumerate(word_boundaries):
-        if not current_text:
-            start_time = wb["offset"]
-        current_text += wb["text"]
-        end_time = wb["offset"] + wb["duration"]
-
-        is_strong = wb["text"] in ["。", "！", "？"]
-        is_weak = wb["text"] in ["；", ",", "，"]
+        buf.append((wb["text"], wb["offset"], wb["duration"]))
+        buf_text += wb["text"]
+        text_len = len(buf_text)
         is_last = i == len(word_boundaries) - 1
-        text_len = len(current_text)
 
-        should_break = is_last or (is_strong and text_len > 15) or (is_weak and text_len > 25) or text_len > 35
+        is_strong = wb["text"] in STRONG_PUNCTS
+        is_weak = wb["text"] in WEAK_PUNCTS
+
+        should_break = False
+        if is_last:
+            should_break = True
+        elif is_strong and text_len >= 10:
+            # Break at sentence end if we have enough text
+            should_break = True
+        elif is_weak and text_len >= 20:
+            # Break at comma/semicolon if reasonably long
+            should_break = True
+        elif text_len >= 40:
+            # Forced break — but backtrack to last punctuation
+            # Try strong punctuation first, then weak
+            strong_idx = find_last_punct_index(buf, STRONG_PUNCTS)
+            weak_idx = find_last_punct_index(buf, WEAK_PUNCTS)
+            break_idx = strong_idx if strong_idx >= 0 else weak_idx
+
+            if break_idx >= 0 and break_idx > 0:
+                # Split: flush up to break_idx (inclusive), keep the rest
+                flush(buf[:break_idx + 1])
+                remaining = buf[break_idx + 1:]
+                buf = remaining
+                buf_text = "".join(e[0] for e in buf)
+                continue
+            else:
+                # No punctuation found at all — hard break
+                should_break = True
 
         if should_break:
-            clean_subtitle = re.sub(r"""^[，。！？、：；""''…—\s]+|[，。！？、：；""''…—\s]+$""", '', current_text.strip())
-            if clean_subtitle:
-                srt_lines.append(f"{subtitle_idx}\n{format_time(start_time)} --> {format_time(end_time)}\n{clean_subtitle}\n\n")
-                subtitle_idx += 1
-            current_text = ""
+            flush(buf)
+            buf = []
+            buf_text = ""
+
+    # Flush any remaining
+    flush(buf)
 
     with open(output_path, "w", encoding="utf-8") as f:
         f.writelines(srt_lines)
