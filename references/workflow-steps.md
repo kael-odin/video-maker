@@ -133,12 +133,14 @@ Assign each section a density tier:
 - `tone: casual` → conversational, interjections ok
 - `verbosity: concise` → 50-80 chars per paragraph
 - `verbosity: detailed` → 100-150 chars per paragraph
+- `heroOpening` (if set) → use as fixed hero opening line
+- `outroClosing` (if set) → use as fixed outro closing line
 
 Create `videos/{name}/podcast.txt` with section markers:
 
 ```text
 [SECTION:hero]
-大家好，欢迎来到本期视频。今天我们聊一个...
+{heroOpening}（话题引入）...
 
 [SECTION:features]
 它有以下功能...
@@ -153,7 +155,7 @@ Create `videos/{name}/podcast.txt` with section markers:
 本期视频参考了官方文档和技术博客。
 
 [SECTION:outro]
-感谢观看！点赞投币收藏，关注我，下期再见！
+{outroClosing}
 ```
 
 **Numbers MUST use Chinese pronunciation** for correct TTS:
@@ -168,9 +170,10 @@ Create `videos/{name}/podcast.txt` with section markers:
 | English units | 128GB | 一百二十八G |
 
 **Section notes**:
+- **hero**: MUST start with `content.heroOpening` if set in user_prefs, followed by the topic hook
 - **summary**: Pure content summary, no interaction prompts
 - **references** (optional): One sentence about sources
-- **outro**: Thanks + triple-click CTA
+- **outro**: MUST use `content.outroClosing` if set in user_prefs. Fallback: platform-specific CTA
 - Empty `[SECTION:xxx]` = silent section
 
 ### Script Template Selection

@@ -79,7 +79,9 @@
       "verbosity": "balanced",
       "sectionCount": 5,
       "outroStyle": "standard",
-      "chapters": true
+      "chapters": true,
+      "heroOpening": null,
+      "outroClosing": null
     }
   },
   "topic_patterns": {

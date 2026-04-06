@@ -56,6 +56,18 @@ Templates (`templates/`) are **starting points, not blueprints**. Claude SHOULD 
 
 **Vary freely**: colors, gradients, backgrounds, layout composition, card styles, icon choices, spacing, animation timing, section visual identity.
 
+### Theme-based background rules
+
+When `user_prefs.visual.theme` is `"light"`:
+- **All section backgrounds MUST be white (`#ffffff`)**. Do NOT use dark backgrounds, colored backgrounds, or alternate grays.
+- Use subtle radial/linear gradients over white (`${color}06`-`${color}10`) for visual variety between sections.
+- All text must use dark colors (`#1a1a1a` or theme colors). Never use white/light text.
+- Tech cards, stat cards, etc. should use tinted backgrounds (`${color}08`) instead of dark card backgrounds.
+
+When `user_prefs.visual.theme` is `"dark"`:
+- Section backgrounds use dark colors (`#0f172a`, `#1a1a2e`, etc.)
+- Text uses white/light colors.
+
 ---
 
 ## Quality Checklists (MUST follow)

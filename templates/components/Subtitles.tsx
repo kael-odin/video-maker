@@ -1,11 +1,13 @@
 /**
  * Subtitles — renders SRT subtitles directly inside Remotion.
  *
- * Parses the SRT file (loaded via staticFile) and displays the current
- * subtitle line based on the current frame. No FFmpeg re-encode needed.
+ * Two display modes:
+ *   - "outline": text with CSS text-shadow outline
+ *   - "background" (default): dark text on a semi-transparent light background bar
  *
  * Usage in Video.tsx (outside Scale4K, alongside ChapterProgressBar):
- *   <Subtitles src={staticFile("podcast_audio.srt")} fps={30} />
+ *   <Subtitles src={staticFile("podcast_audio.srt")} />
+ *   <Subtitles src={staticFile("podcast_audio.srt")} mode="outline" />
  *
  * The component positions itself at the bottom of the 4K frame,
  * above the progress bar, using absolute positioning.
@@ -72,18 +74,26 @@ export const Subtitles = ({
   src,
   // Visual style — all sizes are in the 4K (3840x2160) pixel space
   // because this component sits OUTSIDE the Scale4K wrapper.
-  fontSize = 52,           // ~26px in 1080p design space × 2
+  mode = "background",      // "outline" = text-shadow outline, "background" = bg bar
+  fontSize = 80,            // ~40px in 1080p design space × 2
   color = "#1a1a1a",
   outlineColor = "#ffffff",
-  outlineWidth = 4,
-  bottomOffset = 48,       // px from bottom of 4K frame
-  maxWidth = 3400,         // max line width in 4K pixels
+  outlineWidth = 6,
+  bgColor = "rgba(240, 240, 240, 0.85)", // light gray background for "background" mode
+  bgPadding = "16px 40px",
+  bgBorderRadius = 16,
+  bottomOffset = 56,        // px from bottom of 4K frame
+  maxWidth = 3400,          // max line width in 4K pixels
 }: {
   src: string;
+  mode?: "outline" | "background";
   fontSize?: number;
   color?: string;
   outlineColor?: string;
   outlineWidth?: number;
+  bgColor?: string;
+  bgPadding?: string;
+  bgBorderRadius?: number;
   bottomOffset?: number;
   maxWidth?: number;
 }) => {
@@ -97,6 +107,36 @@ export const Subtitles = ({
   );
 
   if (!current) return null;
+
+  const isOutline = mode === "outline";
+
+  const textStyle: React.CSSProperties = {
+    maxWidth,
+    textAlign: "center",
+    fontFamily: '"PingFang SC", "Noto Sans SC", sans-serif',
+    fontSize,
+    fontWeight: 600,
+    color,
+    lineHeight: 1.4,
+    ...(isOutline
+      ? {
+          textShadow: [
+            `${outlineWidth}px 0 0 ${outlineColor}`,
+            `-${outlineWidth}px 0 0 ${outlineColor}`,
+            `0 ${outlineWidth}px 0 ${outlineColor}`,
+            `0 -${outlineWidth}px 0 ${outlineColor}`,
+            `${outlineWidth}px ${outlineWidth}px 0 ${outlineColor}`,
+            `-${outlineWidth}px ${outlineWidth}px 0 ${outlineColor}`,
+            `${outlineWidth}px -${outlineWidth}px 0 ${outlineColor}`,
+            `-${outlineWidth}px -${outlineWidth}px 0 ${outlineColor}`,
+          ].join(", "),
+        }
+      : {
+          backgroundColor: bgColor,
+          padding: bgPadding,
+          borderRadius: bgBorderRadius,
+        }),
+  };
 
   return (
     <div
@@ -112,28 +152,7 @@ export const Subtitles = ({
         zIndex: 100,
       }}
     >
-      <div
-        style={{
-          maxWidth,
-          textAlign: "center",
-          fontFamily: '"PingFang SC", "Noto Sans SC", sans-serif',
-          fontSize,
-          fontWeight: 600,
-          color,
-          lineHeight: 1.4,
-          // CSS text outline via text-shadow (works everywhere)
-          textShadow: [
-            `${outlineWidth}px 0 0 ${outlineColor}`,
-            `-${outlineWidth}px 0 0 ${outlineColor}`,
-            `0 ${outlineWidth}px 0 ${outlineColor}`,
-            `0 -${outlineWidth}px 0 ${outlineColor}`,
-            `${outlineWidth}px ${outlineWidth}px 0 ${outlineColor}`,
-            `-${outlineWidth}px ${outlineWidth}px 0 ${outlineColor}`,
-            `${outlineWidth}px -${outlineWidth}px 0 ${outlineColor}`,
-            `-${outlineWidth}px -${outlineWidth}px 0 ${outlineColor}`,
-          ].join(", "),
-        }}
-      >
+      <div style={textStyle}>
         {current.text}
       </div>
     </div>
