@@ -551,26 +551,42 @@ ffmpeg -y \
 
 ## Step 12: Add Subtitles
 
+> **Preferred approach: Remotion-native subtitles (no FFmpeg re-encode needed)**
+>
+> The `Video.tsx` template already includes `<Subtitles src={staticFile("podcast_audio.srt")} />`.
+> This renders SRT subtitles inside Remotion using React/CSS — positioned at the bottom of the 4K frame,
+> with text outline, font, and style matching the project theme. No FFmpeg subtitle pass is needed.
+>
+> **When to skip this step:** If the video was rendered with the standard `Video.tsx` template
+> (which includes `<Subtitles>`), Step 12 is a no-op — just copy `video_with_bgm.mp4` as `final_video.mp4`.
+>
+> **When FFmpeg subtitles may still be needed:** Legacy videos rendered without the `Subtitles` component,
+> or special subtitle styling not achievable in CSS (e.g., karaoke effects).
+
 **Auto mode:** Skip subtitles — copy `video_with_bgm.mp4` as `final_video.mp4`.
-**Interactive mode:** Ask user: "Add burned-in subtitles?"
+**Interactive mode:** Ask user: "Add burned-in subtitles? (Usually not needed — Remotion renders subtitles natively)"
 
 ### Subtitle Preferences
 
-Read `subtitle` preferences to build FFmpeg filter. If `subtitle.enabled == false`, skip subtitle burning entirely (copy video_with_bgm.mp4 as final_video.mp4).
+Read `subtitle` preferences. If `subtitle.enabled == false`, skip subtitle burning (copy video_with_bgm.mp4 as final_video.mp4).
+
+If FFmpeg subtitle burn is explicitly requested (legacy/special cases only):
 
 Resolve `fontName: "auto"` by `language`:
 - zh-CN → `PingFang SC`
 - en-US → `Arial`
 
-If subtitles requested:
 ```bash
+# Alignment=2: bottom-center. MarginV uses ASS PlayResY (default 288), NOT video pixels.
+# MarginV=6 ≈ 6/288 = ~2% from bottom edge, good for all resolutions.
+# WARNING: Only burn from video_with_bgm.mp4, NEVER from final_video.mp4 (avoids double-burn).
 ffmpeg -y -i videos/{name}/video_with_bgm.mp4 \
-  -vf "subtitles=videos/{name}/podcast_audio.srt:force_style='FontName=PingFang SC,FontSize=20,PrimaryColour=&H00333333,OutlineColour=&H00FFFFFF,Bold=0,Outline=2,Shadow=0,MarginV=20'" \
+  -vf "subtitles=videos/{name}/podcast_audio.srt:force_style='FontName=PingFang SC,FontSize=20,PrimaryColour=&H00333333,OutlineColour=&H00FFFFFF,Bold=0,Outline=2,Shadow=0,Alignment=2,MarginV=6'" \
   -c:v libx264 -crf 18 -preset slow -s 3840x2160 \
   -c:a copy videos/{name}/final_video.mp4
 ```
 
-If skipping:
+If skipping (default for Remotion-native subtitle videos):
 ```bash
 cp videos/{name}/video_with_bgm.mp4 videos/{name}/final_video.mp4
 ```
@@ -646,15 +662,17 @@ echo "✓ File size: $SIZE"
 
 ### 14.2 Cleanup
 
-**Auto mode:** Auto-clean temp files, report what was removed.
-**Interactive mode:** List files and ask for confirmation.
+**Both modes:** Only clean TTS temp files (part_*.wav, concat_list.txt) automatically. **NEVER delete output.mp4 or video_with_bgm.mp4** until the user has reviewed final_video.mp4 and explicitly confirmed it's acceptable. These files are needed to re-do BGM/subtitle steps without a full re-render (~8 min).
 
 ```bash
 VIDEO_DIR="videos/{name}"
+# Safe to auto-clean: TTS intermediate files only
 rm -f "$VIDEO_DIR"/part_*.wav "$VIDEO_DIR"/concat_list.txt
-rm -f "$VIDEO_DIR"/output.mp4 "$VIDEO_DIR"/video_with_bgm.mp4
-# No public/ cleanup needed — assets stay in videos/{name}/
-echo "✓ Temp files cleaned"
+echo "✓ TTS temp files cleaned"
+echo ""
+echo "Kept (delete manually after confirming final_video.mp4):"
+echo "  output.mp4 — clean render without BGM/subtitles"
+echo "  video_with_bgm.mp4 — render with BGM, no subtitles"
 ```
 
 ### 14.3 Final Report

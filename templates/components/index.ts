@@ -43,6 +43,9 @@ export { getLucideIcon, isEmoji } from "./iconMap";
 export { ShortIntroCard } from "./ShortIntroCard";
 export { ShortCTACard } from "./ShortCTACard";
 
+// Subtitles (renders SRT directly in Remotion — no FFmpeg re-encode needed)
+export { Subtitles } from "./Subtitles";
+
 // Timing data (runtime loading via staticFile, supports --public-dir)
 export { useTiming, fetchTimingData } from "./useTiming";
 export type { TimingData, TimingSection } from "./useTiming";
