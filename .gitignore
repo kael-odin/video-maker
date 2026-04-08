@@ -38,12 +38,17 @@ Thumbs.db
 # Generated audio files (keep structure, ignore large files)
 *.wav
 *.mp3
-*.mp4
 *.webm
 
 # Keep timing.json and subtitles
 !timing.json
 !*.srt
+
+# Output videos (optional: uncomment to exclude)
+# *.mp4
+
+# Keep example video
+!out/how-to-learn-programming.mp4
 
 # Logs
 *.log
