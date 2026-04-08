@@ -606,25 +606,103 @@ node --version  # 需要 >= 18
 
 ## 🚀 进阶工具推荐
 
-### 1. Vibe-Motion
+### 📚 精选 Skills 推荐
 
-**AI驱动的动画设计工具**
+我们为你精选了最优质的 Skills，帮助你提升视频创作体验。详见 [SKILLS.md](SKILLS.md)。
 
-- 🎨 自动生成专业动画
-- 🚀 无需After Effects
-- ⚡ 实时参数控制
+#### 必装 Skills
 
-**安装**：
+**1. Remotion Official Skills** ⭐⭐⭐⭐⭐
+
+官方推荐，必装！
+
+```bash
+npx skills add remotion-dev/skills
+```
+
+**包含功能**:
+- 🎨 动画技巧（插值、缓动、弹簧）
+- 🎬 序列编排（延迟、修剪、限制）
+- 🖼️ 媒体处理（图像、视频、音频）
+- 📊 图表可视化
+- 🗺️ 地图动画（Mapbox）
+- 📝 字幕显示与导入
+- 🎭 Lottie动画
+
+**2. Vibe-Motion Skills** ⭐⭐⭐⭐⭐
+
+AI驱动，强烈推荐！
+
 ```bash
 npx skills add vibe-motion/skills
 ```
 
-**资源**：
+**特点**:
+- 🎨 AI自动生成专业动画
+- 🚀 无需After Effects
+- ⚡ 实时参数控制
+- 🎯 文本到动画转换
+
+**资源**:
 - [官方文档](https://www.vibemotion.net/)
 - [GitHub](https://github.com/vibe-motion/skills)
 - [我的Fork](https://github.com/kael-odin/vibe-motion-skills)
 
-### 2. Remotion
+#### Skills 市场
+
+**3. SkillsMP** ⭐⭐⭐⭐⭐
+
+最大的 Skills 市场！
+
+**网站**: https://skillsmp.com/zh
+
+**统计**:
+- 📦 175,906+ 个工具技能
+- 📊 75,013+ 个数据与AI技能
+- 🎬 46,342+ 个内容与媒体技能
+
+**4. Claudate**
+
+Claude Skills 专业市场
+
+**网站**: https://claudate.com/zh/
+
+**统计**:
+- 📦 150,000+ Claude Skills
+- 🎯 AI、开发、创作一站式平台
+
+#### 其他优质 Skills
+
+**5. Claude Skills Collection**
+
+综合技能包
+
+```bash
+npx skills add alirezarezvani/claude-skills
+```
+
+**包含**:
+- 🔧 233+ 个技能
+- 🎯 工程、产品、营销等领域
+- 📦 生产就绪的代码模板
+
+**6. Remotion 最佳实践库**
+
+社区维护的实用技能库
+
+**GitHub**: https://github.com/buainoai/remotion-skills
+
+**包含**:
+- 🎨 核心概念（动画、组合、时序）
+- 📹 媒体处理（图像、视频、音频）
+- 🔧 高级功能（3D、字幕、图表）
+- ⚙️ 配置优化（参数化、转场）
+
+---
+
+### 🛠️ 其他推荐工具
+
+#### Remotion
 
 **React视频框架**
 
@@ -636,7 +714,7 @@ npx skills add vibe-motion/skills
 - [官方文档](https://www.remotion.dev/)
 - [GitHub](https://github.com/remotion-dev/remotion)
 
-### 3. FFmpeg
+#### FFmpeg
 
 **音视频处理工具**
 
@@ -647,8 +725,6 @@ npx skills add vibe-motion/skills
 **资源**：
 - [官方网站](https://ffmpeg.org/)
 - [Windows下载](https://www.gyan.dev/ffmpeg/builds/)
-
-### 4. 其他推荐工具
 
 #### Higgsfield
 
