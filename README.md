@@ -91,6 +91,23 @@ Open http://localhost:3000 and:
 
 #### Step 4: Render Video
 
+**Option A: Use the rendering script (Recommended)**
+
+```bash
+# Windows PowerShell
+.\render.ps1 preview   # Fast preview (1-2 minutes)
+.\render.ps1 standard # Balanced quality (5-10 minutes)
+.\render.ps1 high     # Best quality (15-30 minutes)
+
+# Linux/Mac
+chmod +x render.sh
+./render.sh preview
+./render.sh standard
+./render.sh high
+```
+
+**Option B: Manual rendering**
+
 ```bash
 # Render 4K horizontal video
 npx remotion render src/remotion/index.ts MyVideo out/video-4k.mp4 \
@@ -105,6 +122,11 @@ npx remotion render src/remotion/index.ts MyVideoVertical out/video-vertical.mp4
   --codec h264 \
   --quality 100
 ```
+
+**Rendering time estimates** (for 4min 23s video):
+- Preview quality: 1-2 minutes
+- Standard quality: 5-10 minutes
+- High quality (4K): 15-30 minutes
 
 #### Step 5: Generate Thumbnails
 

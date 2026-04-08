@@ -91,6 +91,23 @@ npx remotion studio src/remotion/index.ts --public-dir projects/my-video/
 
 #### 步骤4: 渲染视频
 
+**选项A: 使用渲染脚本（推荐）**
+
+```bash
+# Windows PowerShell
+.\render.ps1 preview   # 快速预览（1-2分钟）
+.\render.ps1 standard # 平衡质量（5-10分钟）
+.\render.ps1 high     # 最佳质量（15-30分钟）
+
+# Linux/Mac
+chmod +x render.sh
+./render.sh preview
+./render.sh standard
+./render.sh high
+```
+
+**选项B: 手动渲染**
+
 ```bash
 # 渲染4K横屏视频
 npx remotion render src/remotion/index.ts MyVideo out/video-4k.mp4 `
@@ -105,6 +122,11 @@ npx remotion render src/remotion/index.ts MyVideoVertical out/video-vertical.mp4
   --codec h264 `
   --quality 100
 ```
+
+**渲染时间估算**（4分23秒视频）：
+- 预览质量：1-2分钟
+- 标准质量：5-10分钟
+- 高质量（4K）：15-30分钟
 
 #### 步骤5: 生成缩略图
 
