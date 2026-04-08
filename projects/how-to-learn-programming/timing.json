@@ -1,0 +1,58 @@
+{
+  "total_duration": 263.832,
+  "fps": 30,
+  "total_frames": 7914,
+  "speech_rate": "+5%",
+  "sections": [
+    {
+      "name": "hero",
+      "label": "你想学会编程",
+      "start_time": 0,
+      "end_time": 151.15,
+      "duration": 151.15,
+      "start_frame": 0,
+      "duration_frames": 4534,
+      "is_silent": false
+    },
+    {
+      "name": "mistakes",
+      "label": "接下来",
+      "start_time": 151.15,
+      "end_time": 189.222,
+      "duration": 38.071,
+      "start_frame": 4534,
+      "duration_frames": 1142,
+      "is_silent": false
+    },
+    {
+      "name": "resources",
+      "label": "最后",
+      "start_time": 189.222,
+      "end_time": 226.104,
+      "duration": 36.882,
+      "start_frame": 5676,
+      "duration_frames": 1106,
+      "is_silent": false
+    },
+    {
+      "name": "summary",
+      "label": "总结一下",
+      "start_time": 226.104,
+      "end_time": 259.628,
+      "duration": 33.524,
+      "start_frame": 6783,
+      "duration_frames": 1005,
+      "is_silent": false
+    },
+    {
+      "name": "outro",
+      "label": "一键三连",
+      "start_time": 259.628,
+      "end_time": 263.832,
+      "duration": 4.204,
+      "start_frame": 7788,
+      "duration_frames": 126,
+      "is_silent": false
+    }
+  ]
+}

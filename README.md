@@ -1,314 +1,288 @@
 # Video Podcast Maker
 
-[中文文档](README_CN.md)
-
-Automated pipeline to create professional video podcasts from a topic. **Supports Bilibili, YouTube, Xiaohongshu, Douyin, and WeChat Channels** with multi-language output (zh-CN, en-US). Combines research, script generation, multi-engine TTS (Edge/Azure/Doubao/CosyVoice), Remotion video rendering, and FFmpeg audio mixing.
-
-**Works with:** [Claude Code](https://claude.ai/code) · [OpenClaw](https://openclaw.ai/) (ClawHub) · [OpenCode](https://opencode.ai/) · [Codex](https://openai.com/index/introducing-codex/) — any coding agent that supports SKILL.md
-
-**Publish to:** Bilibili · YouTube · Xiaohongshu · Douyin · WeChat Channels
-
-> **No coding required!** Just describe your topic in plain language — the coding agent guides you through each step interactively. You make creative decisions, the agent handles all the technical details. Creating your first video podcast is easier than you think.
-
-> **Note:** This project is still under active development and may not be fully mature yet. We are continuously iterating and improving. Your feedback and suggestions are greatly appreciated — feel free to [open an issue](https://github.com/Agents365-ai/video-podcast-maker/issues) or reach out!
+An automated pipeline to create professional video podcasts from a topic using AI-powered TTS and Remotion.
 
 ## Features
 
-- **Topic Research** - Web search and content gathering
-- **Script Writing** - Structured narration with section markers
-- **Multi-TTS** - Edge TTS (free), Azure Speech, Volcengine Doubao, CosyVoice, ElevenLabs, Google Cloud TTS, OpenAI TTS
-- **Remotion Video** - React-based video composition with animations
-- **Visual Style Editing** - Adjust colors, fonts, and layout in Remotion Studio UI
-- **Real-time Preview** - Remotion Studio for instant debugging before render
-- **Auto Timing** - Audio-video sync via `timing.json`
-- **BGM Mixing** - Background music overlay with FFmpeg
-- **Subtitle Burning** - Optional SRT subtitle embedding
-- **4K Output** - 3840x2160 resolution for crisp uploads
-- **Chapter Progress Bar** - Visual timeline showing current section during playback
-- **Bilingual TTS** - Chinese/English mixed narration with Azure Speech or CosyVoice
-- **Pronunciation Correction** - Global + per-project phoneme dictionaries for Chinese polyphone fixes
-- **Bilibili Templates** - Ready-to-use Remotion templates (`Video.tsx`, `Root.tsx`, `Thumbnail.tsx`, `podcast.txt`) for quick project scaffolding
-- **Component Library** - Reusable visual building blocks (ComparisonCard, Timeline, CodeBlock, QuoteBlock, FeatureGrid, DataBar, StatCounter, FlowChart, IconCard, DiagramReveal, AudioWaveform, LottieAnimation, MediaSection, SectionLayouts, AnimatedBackground) for composing rich section layouts
-- **Preference Learning** - Auto-learns user style preferences (colors, fonts, speech rate) and applies them to future videos
-- **Multi-Platform** - Bilibili, YouTube, Xiaohongshu, Douyin, and WeChat Channels with independent platform and language settings
-- **Multi-Language** - Chinese (zh-CN) and English (en-US) script templates, TTS voices, subtitle fonts
-- **Subtitle Preferences** - Custom font, size, color, outline; toggle subtitle burning on/off
-- **Configurable CTA** - Auto (Bilibili triple/YouTube subscribe), animation, text, or custom
+- **AI-Powered TTS**: Support for Edge TTS (Microsoft Azure Neural TTS) with high-quality Chinese voice
+- **Remotion Integration**: Create 4K videos with React components
+- **Visual Editing**: Real-time style editing in Remotion Studio
+- **Multiple Formats**: Support for horizontal (16:9) and vertical (9:16) videos
+- **Auto Subtitles**: Generate SRT subtitles automatically
+- **Thumbnail Generation**: Create thumbnails for multiple platforms
 
-### Platform Optimizations
+## Quick Start
 
-**Bilibili:**
-- **Script Structure** - Welcome intro + call-to-action outro (一键三连)
-- **Chapter Timestamps** - Auto-generated `MM:SS` format for B站 chapters
-- **Thumbnail Generation** - AI (imagen/imagenty) or Remotion, auto-generates 16:9 + 4:3 versions
-- **Visual Style** - Bold text, minimal whitespace, high information density
-- **Publish Info** - Title formulas, tag strategies, description templates
+### Prerequisites
 
-**YouTube:**
-- **SEO Optimization** - Title <70 chars, keyword-rich description, tags and hashtags
-- **Chapters** - Auto-generated YouTube chapter timestamps (first line at 0:00)
-- **CTA** - "Like, Subscribe & Share" text animation or custom
-
-**Xiaohongshu (小红书):**
-- **Title** - Max 20 chars, punchy and emoji-friendly
-- **Description** - 200-500 chars, 种草/knowledge-sharing style with emoji
-- **Hashtags** - `#话题#` format (double hash), 5-10 tags
-- **Thumbnail** - 3:4 (1080x1440) for feed optimization
-- **CTA** - "点赞收藏加关注" text animation
-
-**Douyin (抖音):**
-- **Format** - Vertical shorts only (9:16), no horizontal long-form
-- **Description** - 100-200 chars, casual and conversational with emoji
-- **Hashtags** - `#话题` format (single hash), 3-8 tags
-- **CTA** - "点赞关注" text only (no animation)
-
-**WeChat Channels (微信视频号):**
-- **Format** - Vertical shorts only (9:16), no horizontal long-form
-- **Description** - 100-300 chars, knowledge-sharing style for forwarding
-- **Hashtags** - `#话题` format (single hash), 3-8 tags
-- **CTA** - "点赞关注，转发给朋友" text only (no animation)
-
-## Workflow
-
-![Workflow](assets/workflow.png)
-
-## Related Skills
-
-This skill depends on **remotion-best-practices** and works alongside other optional skills:
-
-- **remotion-best-practices** - Official Remotion best practices (required, provides core Remotion patterns and guidelines)
-- **find-skills** - Official skill discovery tool (optional, helps find and install additional skills)
-- **ffmpeg** - Advanced audio/video processing (optional)
-- **imagen / imagenty** - AI thumbnail generation (optional)
-
-
-## Requirements
-
-### System Requirements
-
-| Software | Version | Purpose |
-|----------|---------|---------|
-| **macOS / Linux** | - | Tested on macOS, Linux compatible |
-| **Python** | 3.8+ | TTS script, automation |
-| **Node.js** | 18+ | Remotion video rendering |
-| **FFmpeg** | 4.0+ | Audio/video processing |
+- Node.js >= 18
+- Python >= 3.8
+- FFmpeg (for audio processing)
 
 ### Installation
 
 ```bash
-# macOS
-brew install ffmpeg node python3
+# Install Node.js dependencies
+npm install
 
-# Ubuntu/Debian
-sudo apt install ffmpeg nodejs python3 python3-pip
+# Install Python dependencies
+pip install -r requirements.txt
 
-# Python dependencies
-pip install azure-cognitiveservices-speech dashscope edge-tts requests
+# Upgrade edge-tts to latest version
+pip install --upgrade edge-tts
 ```
 
-### Project Setup (Required)
+### Create Your First Video
 
-> **Important:** This skill requires a Remotion project as the foundation.
+#### Step 1: Prepare Your Content
 
-**Understanding the components:**
-
-| Component | Source | Purpose |
-|-----------|--------|---------|
-| **Remotion Project** | `npx create-video` | Base framework with `src/`, `public/`, `package.json` |
-| **video-podcast-maker** | Claude Code skill | Workflow orchestration (this skill) |
+Create a new project folder in `projects/`:
 
 ```bash
-# Step 1: Create a new Remotion project (base framework)
-npx create-video@latest my-video-project
-cd my-video-project
-npm i  # Install Remotion dependencies
-
-# Step 2: Verify installation
-npx remotion studio  # Should open browser preview
+mkdir projects/my-video
 ```
 
-If you already have a Remotion project:
+Create `podcast.txt` with your content:
+
+```
+[SECTION:hero]
+Your opening hook here...
+
+[SECTION:main]
+Your main content...
+
+[SECTION:summary]
+Your summary...
+
+[SECTION:outro]
+Your call to action...
+```
+
+#### Step 2: Generate Audio
 
 ```bash
-cd your-existing-project
-npm install remotion @remotion/cli @remotion/player zod
+# Set proxy if needed (for Edge TTS)
+$env:HTTP_PROXY='http://127.0.0.1:7899'
+$env:HTTPS_PROXY='http://127.0.0.1:7899'
+
+# Generate audio with Edge TTS
+python generate_tts.py \
+  --input projects/my-video/podcast.txt \
+  --output-dir projects/my-video \
+  --backend edge
 ```
 
-### API Keys Required
+This will generate:
+- `podcast_audio.wav` - Audio file
+- `podcast_audio.srt` - Subtitles
+- `timing.json` - Timeline data
 
-| Service | Purpose | Get Key |
-|---------|---------|---------|
-| **Azure Speech** | TTS audio generation (high quality) | [Azure Portal](https://portal.azure.com/) → Speech Services |
-| **Volcengine Doubao Speech** | TTS audio generation (alternative backend) | [Volcengine Console](https://console.volcengine.com/speech/service/8) |
-| **Aliyun CosyVoice** | TTS audio generation (alternative backend) | [Aliyun Bailian](https://bailian.console.aliyun.com/) |
-| **Edge TTS** | TTS audio generation (default, free, no key needed) | `pip install edge-tts` |
-| **ElevenLabs** | TTS audio generation (highest quality English) | [ElevenLabs](https://elevenlabs.io/) |
-| **Google Cloud TTS** | TTS audio generation (wide language support) | [Google Cloud Console](https://console.cloud.google.com/) |
-| **OpenAI** | TTS audio generation (simple API) | [OpenAI Platform](https://platform.openai.com/) |
-| **Google Gemini** | AI thumbnail generation (optional) | [AI Studio](https://aistudio.google.com/) |
-| **Aliyun Dashscope** | AI thumbnail - Chinese optimized (optional) | [Aliyun Bailian](https://bailian.console.aliyun.com/) |
-
-### Environment Variables
-
-Add to `~/.zshrc` or `~/.bashrc`:
+#### Step 3: Preview Video
 
 ```bash
-# TTS Backend: edge (default, free), azure, doubao, cosyvoice, elevenlabs, google, openai
-export TTS_BACKEND="edge"                            # Default (free), or "azure" / "doubao" / "cosyvoice" / "elevenlabs" / "google" / "openai"
-
-# Azure TTS (high quality)
-export AZURE_SPEECH_KEY="your-azure-speech-key"
-export AZURE_SPEECH_REGION="eastasia"
-
-# Volcengine Doubao TTS (alternative backend)
-export VOLCENGINE_APPID="your-volcengine-appid"
-export VOLCENGINE_ACCESS_TOKEN="your-volcengine-access-token"
-export VOLCENGINE_CLUSTER="volcano_tts"              # Default cluster, adjust per console config
-export VOLCENGINE_VOICE_TYPE="BV001_streaming"       # Adjust per console voice options
-
-# Aliyun CosyVoice TTS (alternative backend) + AI thumbnails
-export DASHSCOPE_API_KEY="your-dashscope-api-key"
-
-# Optional: Edge TTS voice override
-export EDGE_TTS_VOICE="zh-CN-XiaoxiaoNeural"
-
-# ElevenLabs TTS
-export ELEVENLABS_API_KEY="your-elevenlabs-api-key"
-
-# Google Cloud TTS
-export GOOGLE_TTS_API_KEY="your-google-tts-api-key"
-
-# OpenAI TTS
-export OPENAI_API_KEY="your-openai-api-key"
-
-# Optional: Google Gemini for AI thumbnails
-export GEMINI_API_KEY="your-gemini-api-key"
+# Start Remotion Studio
+npx remotion studio src/remotion/index.ts --public-dir projects/my-video/
 ```
 
-Then reload: `source ~/.zshrc`
+Open http://localhost:3000 and:
+- Preview your video in real-time
+- Adjust styles in the right panel (colors, fonts, animations)
+- Test different resolutions (4K/vertical)
 
-## Quick Start
-
-### Usage
-
-This skill is designed for use with [Claude Code](https://claude.ai/claude-code) or [Opencode](https://github.com/opencode-ai/opencode). Simply tell Claude:
-
-> "Create a video podcast about [your topic]"
-
-Claude will guide you through the entire workflow automatically.
-
-> **Tips:** The quality of first-generation output heavily depends on the model's intelligence and capabilities — the smarter and more advanced the model, the better the results. In our testing, both Codex and Claude Code produce excellent videos on the first try, and OpenCode paired with GLM-5 also delivers solid results. If the initial output isn't perfect, you can preview it in Remotion Studio and ask the coding agent to keep refining until you're satisfied.
-
-### Preview & Visual Editing with Remotion Studio
-
-Before rendering the final video, use Remotion Studio to preview and visually edit styles:
+#### Step 4: Render Video
 
 ```bash
-npx remotion studio src/remotion/index.ts
+# Render 4K horizontal video
+npx remotion render src/remotion/index.ts MyVideo out/video-4k.mp4 \
+  --public-dir projects/my-video/ \
+  --codec h264 \
+  --quality 100 \
+  --crf 18
+
+# Render vertical video (for shorts)
+npx remotion render src/remotion/index.ts MyVideoVertical out/video-vertical.mp4 \
+  --public-dir projects/my-video/ \
+  --codec h264 \
+  --quality 100
 ```
 
-This opens a browser-based editor where you can:
-- **Visual Style Editing** - Adjust colors, fonts, and sizes in the right panel
-- Scrub through the timeline frame-by-frame
-- See live updates as you edit components
-- Debug timing and animations instantly
+#### Step 5: Generate Thumbnails
 
-#### Editable Properties
+```bash
+# YouTube/Bilibili thumbnail (16:9)
+npx remotion render src/remotion/index.ts Thumbnail16x9 out/thumbnail-16x9.png \
+  --public-dir projects/my-video/
 
-| Category | Properties |
-|----------|-----------|
-| **Colors** | Primary color, background, text color, accent |
-| **Typography** | Title size (72-120), subtitle size, body size |
-| **Progress Bar** | Show/hide, height, font size, active color |
-| **Audio** | BGM volume (0-0.3) |
-| **Animation** | Enable/disable entrance animations |
-
-
-## Configuration Files
-
-| File | Scope | Purpose |
-|------|-------|---------|
-| `phonemes.json` | Global | Chinese polyphone dictionary shared across all projects. Edit to add/fix pronunciations (e.g., 行 háng vs xíng). Per-project overrides go in `videos/{name}/phonemes.json` |
-| `user_prefs.template.json` | Global | Default preferences template. Copied to `user_prefs.json` on first run, which auto-evolves as the skill learns your style |
-| `prefs_schema.json` | Global | JSON Schema for preference validation. Do not edit manually |
-| `tsconfig.json` | Global | TypeScript config for Remotion templates |
-
-## Output Structure
-
-```
-videos/{video-name}/
-├── topic_definition.md      # Topic direction
-├── topic_research.md        # Research notes
-├── podcast.txt              # Narration script
-├── phonemes.json            # (Optional) Project-specific pronunciation overrides
-├── podcast_audio.wav        # TTS audio
-├── podcast_audio.srt        # Subtitles
-├── timing.json              # Section timing for sync
-├── thumbnail_*.png          # Video thumbnails
-├── publish_info.md          # Title, tags, description
-├── part_*.wav               # TTS segments (temp, cleanup via Step 14)
-├── output.mp4               # Raw render (temp)
-├── video_with_bgm.mp4       # With BGM (temp)
-└── final_video.mp4          # Final output
+# Xiaohongshu thumbnail (3:4)
+npx remotion render src/remotion/index.ts Thumbnail3x4 out/thumbnail-3x4.png \
+  --public-dir projects/my-video/
 ```
 
-## Background Music
+## Project Structure
 
-Included tracks in `assets/`:
-- `perfect-beauty-191271.mp3` - Upbeat, positive
-- `snow-stevekaldes-piano-397491.mp3` - Calm piano
+```
+video-podcast-maker/
+├── src/remotion/              # Remotion video project
+│   ├── index.ts              # Entry point
+│   ├── Root.tsx              # Root component (editable props)
+│   ├── Video.tsx             # Video component
+│   ├── Thumbnail.tsx         # Thumbnail component
+│   └── components/           # Reusable component library
+├── projects/                  # Your video projects
+│   └── how-to-learn-programming/
+│       ├── podcast.txt       # Script
+│       ├── podcast_audio.wav # Generated audio
+│       ├── podcast_audio.srt # Generated subtitles
+│       └── timing.json       # Generated timeline
+├── tts/                       # TTS backends
+│   └── backends/
+│       └── edge.py           # Edge TTS implementation
+├── templates/                 # Project templates
+├── remotion.config.ts        # Remotion configuration
+├── package.json              # Node.js dependencies
+└── requirements.txt          # Python dependencies
+```
 
-## Roadmap
+## Customizing Your Video
 
-- [x] Vertical video support (9:16) for Bilibili mobile-first content
-- [x] Remotion transitions (@remotion/transitions) for professional chapter transitions
-- [x] Component template library (ComparisonCard, Timeline, CodeBlock, QuoteBlock, FeatureGrid, DataBar, StatCounter, FlowChart, IconCard)
-- [x] Broadcast quality upgrade (gradient backgrounds, layered shadows, animated counters, quality checklists)
-- [x] Multi TTS engine support (7 engines: Edge, Azure, Doubao, CosyVoice, ElevenLabs, OpenAI, Google Cloud)
-- [x] Edge TTS free backend (no API key required)
-- [x] Multi-platform support (Bilibili + YouTube) with independent language configuration (zh-CN, en-US)
-- [x] Resume from breakpoint (`--resume` flag)
-- [x] Dry-run mode (`--dry-run` for duration estimation)
-- [x] User preference self-evolution (auto-learns visual/TTS/content style preferences)
-- [x] Refactor to latest Claude Code SKILL spec (`references/` layered docs, `${CLAUDE_SKILL_DIR}` variable, `argument-hint`/`effort`/`allowed-tools` frontmatter fields)
-- [x] Design learning system — Learn design styles from reference videos/images, build a design reference library and reusable style profiles
-- [ ] Playwright auto-capture — Analyze Bilibili/YouTube video design styles directly via URL (Phase 4)
-- [ ] Step 9 smart suggestions — Auto-match and recommend existing style profiles when creating videos (Phase 5)
-- [ ] Cover design learning — Apply learned cover styles to Thumbnail.tsx template (Phase 5)
-- [ ] YouTube automated publishing — Upload via YouTube Data API with metadata, chapters, thumbnails
-- [ ] Windows compatibility (WSL verification + docs)
+### Editable Properties (in Remotion Studio)
+
+Open Remotion Studio and use the right panel to adjust:
+
+#### Colors
+- `primaryColor` - Main color (titles, highlights)
+- `backgroundColor` - Background color
+- `textColor` - Text color
+- `accentColor` - Accent color (CTAs, highlights)
+
+#### Typography
+- `titleSize` - Title font size
+- `subtitleSize` - Subtitle font size
+- `bodySize` - Body text font size
+
+#### Progress Bar
+- `showProgressBar` - Show/hide progress bar
+- `progressBarHeight` - Progress bar height
+- `progressFontSize` - Progress bar text size
+
+#### Audio
+- `bgmVolume` - Background music volume (0-0.3)
+
+#### Animations
+- `enableAnimations` - Enable entrance animations
+- `transitionType` - Section transitions (fade/slide/wipe/none)
+- `transitionDuration` - Transition duration in frames
+
+### Customizing Section Content
+
+Edit `src/remotion/Video.tsx` to customize each section:
+
+```typescript
+case "hero":
+  return (
+    <FullBleedLayout bg={props.backgroundColor}>
+      <h1>Your Custom Title</h1>
+      <p>Your Custom Subtitle</p>
+    </FullBleedLayout>
+  );
+```
+
+## TTS Configuration
+
+### Edge TTS (Recommended)
+
+**Advantages**:
+- High-quality Chinese voice
+- Free to use
+- Fast generation speed
+
+**Proxy Configuration** (if needed):
+```bash
+# PowerShell
+$env:HTTP_PROXY='http://127.0.0.1:7899'
+$env:HTTPS_PROXY='http://127.0.0.1:7899'
+
+# Bash/Linux
+export HTTP_PROXY='http://127.0.0.1:7899'
+export HTTPS_PROXY='http://127.0.0.1:7899'
+```
+
+**Troubleshooting**:
+- If you get 403 errors, upgrade edge-tts: `pip install --upgrade edge-tts`
+- For WebSocket issues, use system proxy mode instead of TUN mode
+- Recommended nodes: Taiwan, Hong Kong, Japan, Singapore
+
+## Example Project
+
+Check `projects/how-to-learn-programming/` for a complete example:
+
+- **Topic**: How to learn programming efficiently
+- **Duration**: 4 minutes 23 seconds
+- **Sections**: 5 chapters
+- **Audio**: Generated with Edge TTS
+- **Status**: Ready for preview and rendering
+
+## Output Formats
+
+### Videos
+- **4K Horizontal**: 3840x2160 (YouTube, Bilibili)
+- **Vertical**: 2160x3840 (Shorts, TikTok)
+
+### Thumbnails
+- **16:9**: 1920x1080 (YouTube, Bilibili covers)
+- **4:3**: 1200x900 (Bilibili feed)
+- **3:4**: 1080x1440 (Xiaohongshu)
+- **9:16**: 1080x1920 (Shorts covers)
+
+## Tech Stack
+
+- **TTS Engine**: Edge TTS 7.2.8 (Microsoft Azure Neural TTS)
+- **Video Framework**: Remotion 4.0 (React-based)
+- **Audio Processing**: FFmpeg 8.1
+- **Languages**: TypeScript, Python
+
+## Troubleshooting
+
+### FFmpeg Not Found
+```bash
+# Windows: Refresh PATH
+$env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+
+# Or install via winget
+winget install --id Gyan.FFmpeg -e
+```
+
+### Remotion Studio Won't Start
+```bash
+# Reinstall dependencies
+npm install
+
+# Check Node.js version (needs >= 18)
+node --version
+```
+
+### Audio Generation Fails
+1. Check proxy settings
+2. Upgrade edge-tts: `pip install --upgrade edge-tts`
+3. Try different proxy nodes
+4. Check PowerShell encoding: `$env:PYTHONIOENCODING='utf-8'`
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 
-MIT
-
-## Support
-
-If this project helps you, consider supporting the author:
-
-<table>
-  <tr>
-    <td align="center">
-      <img src="https://raw.githubusercontent.com/Agents365-ai/images_payment/main/qrcode/wechat-pay.png" width="180" alt="WeChat Pay">
-      <br>
-      <b>WeChat Pay</b>
-    </td>
-    <td align="center">
-      <img src="https://raw.githubusercontent.com/Agents365-ai/images_payment/main/qrcode/alipay.png" width="180" alt="Alipay">
-      <br>
-      <b>Alipay</b>
-    </td>
-    <td align="center">
-      <img src="https://raw.githubusercontent.com/Agents365-ai/images_payment/main/qrcode/buymeacoffee.png" width="180" alt="Buy Me a Coffee">
-      <br>
-      <b>Buy Me a Coffee</b>
-    </td>
-  </tr>
-</table>
+MIT License - see [LICENSE](LICENSE) for details.
 
 ## Author
 
-**Agents365-ai**
+- **kael-odin**
+- Email: kael@thordata.com
+- GitHub: https://github.com/kael-odin/video-maker
 
-- Bilibili: https://space.bilibili.com/441831884
-- GitHub: https://github.com/Agents365-ai
+## Acknowledgments
+
+- [Remotion](https://www.remotion.dev/) - React-based video creation
+- [Edge TTS](https://github.com/rany2/edge-tts) - Microsoft Edge's TTS API
+- [FFmpeg](https://ffmpeg.org/) - Audio/video processing

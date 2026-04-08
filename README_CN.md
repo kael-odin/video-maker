@@ -1,314 +1,288 @@
-# 视频播客生成器
+# Video Podcast Maker
 
-[English](README.md)
+基于AI语音合成和Remotion的自动化视频播客生成工具。
 
-自动化流程，从主题生成专业视频播客。**支持 B站 (Bilibili)、YouTube、小红书、抖音和微信视频号**，多语言输出（zh-CN、en-US）。集成研究、脚本撰写、多引擎 TTS（Edge/Azure/豆包/CosyVoice）、Remotion 视频渲染和 FFmpeg 音频混音。
+## 功能特性
 
-**支持工具：** [Claude Code](https://claude.ai/code) · [OpenClaw](https://openclaw.ai/) (ClawHub) · [OpenCode](https://opencode.ai/) · [Codex](https://openai.com/index/introducing-codex/) — 任何支持 SKILL.md 的 coding agent
-
-**发布平台：** B站 · YouTube · 小红书 · 抖音 · 微信视频号
-
-> **无需编程！** 用自然语言描述你的主题，coding agent 会一步步引导你完成。你做创意决策，agent 处理所有技术细节。制作你的第一个视频播客，比你想象的更简单。
-
-> **提示：** 本项目仍在持续迭代完善中，部分功能可能还不太成熟。欢迎提出宝贵意见和建议 — 可以 [提交 Issue](https://github.com/Agents365-ai/video-podcast-maker/issues) 或直接联系作者！
-
-## 功能特点
-
-- **主题研究** - 网络搜索与内容收集
-- **脚本撰写** - 带章节标记的结构化旁白
-- **多 TTS 引擎** - Edge TTS（免费）、Azure Speech、火山引擎豆包、CosyVoice、ElevenLabs、Google Cloud TTS、OpenAI TTS
-- **Remotion 视频** - 基于 React 的视频合成与动画
-- **可视化样式编辑** - 在 Remotion Studio 界面调整颜色、字体、布局
-- **实时预览** - Remotion Studio 即时调试，渲染前预览效果
-- **自动同步** - 通过 `timing.json` 实现音视频同步
-- **背景音乐** - FFmpeg 叠加背景音乐
-- **字幕烧录** - 可选 SRT 字幕嵌入
-- **4K 输出** - 3840x2160 分辨率，画质清晰
-- **章节进度条** - 可视化时间轴，实时显示当前章节
-- **中英混读** - Azure Speech 支持中英文混合旁白
-- **发音校正** - 全局 + 项目级多音字词典，精准控制中文发音
-- **B站模板** - 开箱即用的 Remotion 模板（`Video.tsx`、`Root.tsx`、`Thumbnail.tsx`、`podcast.txt`），快速搭建项目
-- **偏好学习** - 自动学习用户风格偏好（颜色、字号、语速），智能应用到后续视频
-- **多平台支持** - B站 (Bilibili)、YouTube、小红书、抖音和微信视频号，独立配置平台和语言
-- **多语言支持** - 中文 (zh-CN) 和英文 (en-US) 脚本模板、TTS 音色、字幕字体
-- **字幕偏好** - 自定义字体、字号、颜色、描边，支持开关字幕烧录
-- **CTA 可配置** - 自动（B站三连/YouTube订阅）、动画、文字、自定义
-
-### 平台优化
-
-**B站:**
-- **脚本结构** - 欢迎开场 + 一键三连片尾引导
-- **章节时间戳** - 自动生成 `MM:SS` 格式，直接复制到B站
-- **封面生成** - AI (imagen/imagenty) 或 Remotion，自动生成 16:9 + 4:3 双版本
-- **视觉风格** - 大字饱满、极少留白、信息密度高
-- **发布信息** - 标题公式、标签策略、简介模板
-
-**YouTube:**
-- **SEO 优化** - 标题 <70 字符、关键词描述、标签和 hashtags
-- **Chapters** - 自动生成 YouTube 章节时间戳（首行 0:00）
-- **CTA** - "Like, Subscribe & Share" 文字动画或自定义
-
-**小红书:**
-- **标题** - 不超过 20 字，简洁有力，可用 emoji
-- **正文** - 200-500 字，种草/知识分享风格，支持 emoji
-- **话题标签** - `#话题#` 格式（双井号），5-10 个
-- **封面** - 3:4（1080x1440）适配信息流
-- **CTA** - "点赞收藏加关注" 文字动画
-
-**抖音:**
-- **格式** - 仅竖屏精华片段（9:16），不生成横屏长视频
-- **文案** - 100-200 字，口语化风格，支持 emoji
-- **话题标签** - `#话题` 格式（单井号），3-8 个
-- **CTA** - "点赞关注" 纯文字（无动画）
-
-**微信视频号:**
-- **格式** - 仅竖屏精华片段（9:16），不生成横屏长视频
-- **文案** - 100-300 字，知识分享风格，适合转发
-- **话题标签** - `#话题` 格式（单井号），3-8 个
-- **CTA** - "点赞关注，转发给朋友" 纯文字（无动画）
-
-## 工作流程
-
-![工作流程](assets/workflow.png)
-
-## 相关技能
-
-本技能依赖 **remotion-best-practices**，并可与其他可选技能配合使用：
-
-- **remotion-best-practices** - Remotion 官方最佳实践（必需，提供核心 Remotion 模式与规范）
-- **find-skills** - 官方技能发现工具（可选，用于查找和安装更多技能）
-- **ffmpeg** - 高级音视频处理（可选）
-- **imagen / imagenty** - AI 封面生成（可选）
-
-
-## 环境要求
-
-### 系统要求
-
-| 软件 | 版本 | 用途 |
-|------|------|------|
-| **macOS / Linux** | - | 已在 macOS 测试，兼容 Linux |
-| **Python** | 3.8+ | TTS 脚本、自动化 |
-| **Node.js** | 18+ | Remotion 视频渲染 |
-| **FFmpeg** | 4.0+ | 音视频处理 |
-
-### 安装依赖
-
-```bash
-# macOS
-brew install ffmpeg node python3
-
-# Ubuntu/Debian
-sudo apt install ffmpeg nodejs python3 python3-pip
-
-# Python 依赖
-pip install azure-cognitiveservices-speech dashscope edge-tts requests
-```
-
-### 项目初始化（必需）
-
-> **重要：** 本技能需要一个 Remotion 项目作为基础。
-
-**组件关系说明：**
-
-| 组件 | 来源 | 作用 |
-|------|------|------|
-| **Remotion 项目** | `npx create-video` | 基础框架，包含 `src/`、`public/`、`package.json` |
-| **video-podcast-maker** | Claude Code skill | 工作流编排（本技能） |
-
-```bash
-# 第一步：创建 Remotion 项目（基础框架）
-npx create-video@latest my-video-project
-cd my-video-project
-npm i  # 安装 Remotion 依赖
-
-# 第二步：验证安装
-npx remotion studio  # 应打开浏览器预览
-```
-
-如果你已有 Remotion 项目：
-
-```bash
-cd your-existing-project
-npm install remotion @remotion/cli @remotion/player zod
-```
-
-### 所需 API 密钥
-
-| 服务 | 用途 | 获取方式 |
-|------|------|---------|
-| **Azure Speech** | TTS 语音合成（高质量后端） | [Azure 门户](https://portal.azure.com/) → 语音服务 |
-| **火山引擎豆包语音** | TTS 语音合成（备选后端） | [火山引擎控制台](https://console.volcengine.com/speech/service/8) |
-| **阿里云 CosyVoice** | TTS 语音合成（备选后端） | [百炼控制台](https://bailian.console.aliyun.com/) |
-| **Edge TTS** | TTS 语音合成（默认后端，免费，无需密钥） | `pip install edge-tts` |
-| **ElevenLabs** | TTS 语音合成（英文最高质量） | [ElevenLabs](https://elevenlabs.io/) |
-| **Google Cloud TTS** | TTS 语音合成（语言支持最广） | [Google Cloud 控制台](https://console.cloud.google.com/) |
-| **OpenAI** | TTS 语音合成（简洁 API） | [OpenAI Platform](https://platform.openai.com/) |
-| **Google Gemini** | AI 封面生成（可选） | [AI Studio](https://aistudio.google.com/) |
-| **阿里云百炼** | AI 封面生成 - 中文优化（可选） | [百炼控制台](https://bailian.console.aliyun.com/) |
-
-### 环境变量
-
-添加到 `~/.zshrc` 或 `~/.bashrc`：
-
-```bash
-# TTS 后端选择：edge（默认，免费）、azure、doubao、cosyvoice、elevenlabs、google、openai
-export TTS_BACKEND="edge"                            # 默认值，或 "azure" / "doubao" / "cosyvoice" / "elevenlabs" / "google" / "openai"
-
-# Azure TTS（高质量后端）
-export AZURE_SPEECH_KEY="your-azure-speech-key"
-export AZURE_SPEECH_REGION="eastasia"
-
-# 火山引擎豆包 TTS（备选后端）
-export VOLCENGINE_APPID="your-volcengine-appid"
-export VOLCENGINE_ACCESS_TOKEN="your-volcengine-access-token"
-export VOLCENGINE_CLUSTER="volcano_tts"              # 默认值，可按控制台配置修改
-export VOLCENGINE_VOICE_TYPE="BV001_streaming"       # 可按控制台音色修改
-
-# 阿里云 CosyVoice TTS（备选后端）+ AI 封面
-export DASHSCOPE_API_KEY="your-dashscope-api-key"
-
-# 可选：Edge TTS 语音覆盖
-export EDGE_TTS_VOICE="zh-CN-XiaoxiaoNeural"
-
-# ElevenLabs TTS
-export ELEVENLABS_API_KEY="your-elevenlabs-api-key"
-
-# Google Cloud TTS
-export GOOGLE_TTS_API_KEY="your-google-tts-api-key"
-
-# OpenAI TTS
-export OPENAI_API_KEY="your-openai-api-key"
-
-# 可选：Google Gemini 生成 AI 封面
-export GEMINI_API_KEY="your-gemini-api-key"
-```
-
-然后重新加载：`source ~/.zshrc`
+- **AI语音合成**: 支持Edge TTS（微软Azure神经语音），高质量中文语音
+- **Remotion集成**: 使用React组件创建4K视频
+- **可视化编辑**: 在Remotion Studio中实时调整样式
+- **多格式支持**: 支持横屏（16:9）和竖屏（9:16）视频
+- **自动字幕**: 自动生成SRT字幕文件
+- **缩略图生成**: 为多个平台生成封面图
 
 ## 快速开始
 
-### 使用方法
+### 环境要求
 
-本技能专为 [Claude Code](https://claude.ai/claude-code) 或 [Opencode](https://github.com/opencode-ai/opencode) 设计。只需告诉 Claude：
+- Node.js >= 18
+- Python >= 3.8
+- FFmpeg（用于音频处理）
 
-> "帮我制作一个关于 [你的主题] 的视频播客"
-
-Claude 会自动引导你完成整个流程。
-
-> **提示：** 经过多次测试，初次生成的效果和模型效果有很大的关系，模型越智能越先进，生成的效果会越好。目前初次生成 Codex 和 Claude Code 生成的视频效果都不错，OpenCode 搭配 GLM-5 也还不错。如果第一次生成的不够好，可以在 Remotion Studio 预览，并让 coding agent 继续修改。
-
-### 预览与可视化编辑
-
-在渲染最终视频前，使用 Remotion Studio 实时预览和可视化编辑样式：
+### 安装
 
 ```bash
-npx remotion studio src/remotion/index.ts
+# 安装Node.js依赖
+npm install
+
+# 安装Python依赖
+pip install -r requirements.txt
+
+# 升级edge-tts到最新版本
+pip install --upgrade edge-tts
 ```
 
-这会打开一个浏览器编辑器，你可以：
-- **可视化样式编辑** - 在右侧面板调整颜色、字体、尺寸
-- 逐帧拖动时间轴查看效果
-- 编辑组件时实时看到更新
-- 即时调试时间和动画
+### 创建第一个视频
 
-#### 可编辑属性
+#### 步骤1: 准备内容
 
-| 分类 | 属性 |
-|------|------|
-| **颜色** | 主色调、背景色、文字颜色、强调色 |
-| **字体** | 标题大小 (72-120)、副标题、正文 |
-| **进度条** | 显示/隐藏、高度、字号、激活颜色 |
-| **音频** | BGM 音量 (0-0.3) |
-| **动画** | 启用/禁用入场动画 |
+在`projects/`目录下创建新项目：
 
-
-## 配置文件
-
-| 文件 | 作用域 | 说明 |
-|------|--------|------|
-| `phonemes.json` | 全局 | 多音字词典，所有视频项目共享。可直接编辑添加/修正发音（如 行 háng vs xíng）。项目级覆盖放在 `videos/{名称}/phonemes.json` |
-| `user_prefs.template.json` | 全局 | 偏好默认模板。首次运行时自动复制为 `user_prefs.json`，后续随使用自动学习你的风格 |
-| `prefs_schema.json` | 全局 | 偏好验证的 JSON Schema，无需手动编辑 |
-| `tsconfig.json` | 全局 | Remotion 模板的 TypeScript 配置 |
-
-## 输出结构
-
-```
-videos/{视频名称}/
-├── topic_definition.md      # 主题定义
-├── topic_research.md        # 研究笔记
-├── podcast.txt              # 旁白脚本
-├── phonemes.json            # （可选）项目专属发音覆盖
-├── podcast_audio.wav        # TTS 音频
-├── podcast_audio.srt        # 字幕文件
-├── timing.json              # 章节时间轴
-├── thumbnail_*.png          # 视频封面
-├── publish_info.md          # 标题、标签、简介
-├── part_*.wav               # TTS 分段（临时，Step 14 清理）
-├── output.mp4               # 原始渲染（临时）
-├── video_with_bgm.mp4       # 含背景音乐（临时）
-└── final_video.mp4          # 最终输出
+```bash
+mkdir projects/my-video
 ```
 
-## 背景音乐
+创建`podcast.txt`文件，写入内容：
 
-`assets/` 目录下包含：
-- `perfect-beauty-191271.mp3` - 轻快积极
-- `snow-stevekaldes-piano-397491.mp3` - 舒缓钢琴
+```
+[SECTION:hero]
+你的开场白...
 
-## 开发路线
+[SECTION:main]
+主要内容...
 
-- [x] 支持竖屏视频 (9:16)，适配 B站手机端沉浸式播放
-- [x] Remotion 转场效果 (@remotion/transitions)，章节间过渡更专业
-- [x] 组件模板库 (ComparisonCard, Timeline, CodeBlock, QuoteBlock, FeatureGrid, DataBar, StatCounter, FlowChart, IconCard)
-- [x] 广播级画质升级（渐变背景、多层阴影、动画计数器、质量检查清单）
-- [x] 多 TTS 引擎支持（7 引擎：Edge、Azure、豆包、CosyVoice、ElevenLabs、OpenAI、Google Cloud）
-- [x] Edge TTS 免费后端（无需 API 密钥）
-- [x] 多平台支持（B站 + YouTube），独立语言配置（zh-CN、en-US）
-- [x] 断点续传（`--resume` 参数）
-- [x] 预估模式（`--dry-run` 预估时长，不调用 API）
-- [x] 用户偏好自我进化（自动学习视觉/TTS/内容风格偏好）
-- [x] 视觉检查 - 对生成后的页面进行视觉检查，检查其美观性、布局合理性等
-- [x] 重构为 Claude Code 最新 SKILL 规范（`references/` 分层、`${CLAUDE_SKILL_DIR}` 变量、`argument-hint`/`effort`/`allowed-tools` 等新 frontmatter 字段）
-- [x] 设计学习系统 — 从参考视频/图片中学习设计风格，构建设计参考库和可复用的风格档案
-- [ ] Playwright 自动抓取 — 通过 URL 直接分析 B站/YouTube 视频设计风格（Phase 4）
-- [ ] Step 9 智能推荐 — 制作视频时自动匹配并推荐已有风格档案（Phase 5）
-- [ ] 封面设计学习 — 将学到的封面风格应用到 Thumbnail.tsx 模板（Phase 5）
-- [ ] YouTube 自动化发布 — 通过 YouTube Data API 上传视频、元数据、章节、封面
-- [ ] Windows 适配 (WSL 验证 + 文档)
+[SECTION:summary]
+总结...
 
-## 开源协议
+[SECTION:outro]
+结尾号召...
+```
 
-MIT
+#### 步骤2: 生成音频
 
-## 支持作者
+```bash
+# 设置代理（如果需要）
+$env:HTTP_PROXY='http://127.0.0.1:7899'
+$env:HTTPS_PROXY='http://127.0.0.1:7899'
 
-如果这个项目对你有帮助，欢迎支持作者：
+# 使用Edge TTS生成音频
+python generate_tts.py `
+  --input projects/my-video/podcast.txt `
+  --output-dir projects/my-video `
+  --backend edge
+```
 
-<table>
-  <tr>
-    <td align="center">
-      <img src="https://raw.githubusercontent.com/Agents365-ai/images_payment/main/qrcode/wechat-pay.png" width="180" alt="微信支付">
-      <br>
-      <b>微信支付</b>
-    </td>
-    <td align="center">
-      <img src="https://raw.githubusercontent.com/Agents365-ai/images_payment/main/qrcode/alipay.png" width="180" alt="支付宝">
-      <br>
-      <b>支付宝</b>
-    </td>
-    <td align="center">
-      <img src="https://raw.githubusercontent.com/Agents365-ai/images_payment/main/qrcode/buymeacoffee.png" width="180" alt="Buy Me a Coffee">
-      <br>
-      <b>Buy Me a Coffee</b>
-    </td>
-  </tr>
-</table>
+这将生成：
+- `podcast_audio.wav` - 音频文件
+- `podcast_audio.srt` - 字幕文件
+- `timing.json` - 时间轴数据
+
+#### 步骤3: 预览视频
+
+```bash
+# 启动Remotion Studio
+npx remotion studio src/remotion/index.ts --public-dir projects/my-video/
+```
+
+打开 http://localhost:3000，你可以：
+- 实时预览视频
+- 在右侧面板调整样式（颜色、字体、动画）
+- 测试不同分辨率（4K/竖屏）
+
+#### 步骤4: 渲染视频
+
+```bash
+# 渲染4K横屏视频
+npx remotion render src/remotion/index.ts MyVideo out/video-4k.mp4 `
+  --public-dir projects/my-video/ `
+  --codec h264 `
+  --quality 100 `
+  --crf 18
+
+# 渲染竖屏视频（用于短视频）
+npx remotion render src/remotion/index.ts MyVideoVertical out/video-vertical.mp4 `
+  --public-dir projects/my-video/ `
+  --codec h264 `
+  --quality 100
+```
+
+#### 步骤5: 生成缩略图
+
+```bash
+# YouTube/B站封面（16:9）
+npx remotion render src/remotion/index.ts Thumbnail16x9 out/thumbnail-16x9.png `
+  --public-dir projects/my-video/
+
+# 小红书封面（3:4）
+npx remotion render src/remotion/index.ts Thumbnail3x4 out/thumbnail-3x4.png `
+  --public-dir projects/my-video/
+```
+
+## 项目结构
+
+```
+video-podcast-maker/
+├── src/remotion/              # Remotion视频项目
+│   ├── index.ts              # 入口文件
+│   ├── Root.tsx              # 根组件（可编辑属性）
+│   ├── Video.tsx             # 视频组件
+│   ├── Thumbnail.tsx         # 缩略图组件
+│   └── components/           # 可复用组件库
+├── projects/                  # 你的视频项目
+│   └── how-to-learn-programming/
+│       ├── podcast.txt       # 文案
+│       ├── podcast_audio.wav # 生成的音频
+│       ├── podcast_audio.srt # 生成的字幕
+│       └── timing.json       # 生成的时间轴
+├── tts/                       # TTS后端
+│   └── backends/
+│       └── edge.py           # Edge TTS实现
+├── templates/                 # 项目模板
+├── remotion.config.ts        # Remotion配置
+├── package.json              # Node.js依赖
+└── requirements.txt          # Python依赖
+```
+
+## 自定义视频
+
+### 可编辑属性（在Remotion Studio中）
+
+打开Remotion Studio，使用右侧面板调整：
+
+#### 颜色设置
+- `primaryColor` - 主色调（标题、强调元素）
+- `backgroundColor` - 背景色
+- `textColor` - 文字颜色
+- `accentColor` - 强调色（CTA、高亮）
+
+#### 字体设置
+- `titleSize` - 标题字号
+- `subtitleSize` - 副标题字号
+- `bodySize` - 正文字号
+
+#### 进度条设置
+- `showProgressBar` - 显示/隐藏进度条
+- `progressBarHeight` - 进度条高度
+- `progressFontSize` - 进度条文字大小
+
+#### 音频设置
+- `bgmVolume` - 背景音乐音量（0-0.3）
+
+#### 动画设置
+- `enableAnimations` - 启用入场动画
+- `transitionType` - 章节转场效果（fade/slide/wipe/none）
+- `transitionDuration` - 转场时长（帧数）
+
+### 自定义章节内容
+
+编辑`src/remotion/Video.tsx`来自定义每个章节：
+
+```typescript
+case "hero":
+  return (
+    <FullBleedLayout bg={props.backgroundColor}>
+      <h1>你的自定义标题</h1>
+      <p>你的自定义副标题</p>
+    </FullBleedLayout>
+  );
+```
+
+## TTS配置
+
+### Edge TTS（推荐）
+
+**优势**：
+- 高质量中文语音
+- 免费使用
+- 生成速度快
+
+**代理配置**（如需要）：
+```bash
+# PowerShell
+$env:HTTP_PROXY='http://127.0.0.1:7899'
+$env:HTTPS_PROXY='http://127.0.0.1:7899'
+
+# Bash/Linux
+export HTTP_PROXY='http://127.0.0.1:7899'
+export HTTPS_PROXY='http://127.0.0.1:7899'
+```
+
+**故障排除**：
+- 如果遇到403错误，升级edge-tts：`pip install --upgrade edge-tts`
+- WebSocket连接问题，使用系统代理模式而非TUN模式
+- 推荐节点：台湾、香港、日本、新加坡
+
+## 示例项目
+
+查看`projects/how-to-learn-programming/`完整示例：
+
+- **主题**：如何高效学习编程
+- **时长**：4分23秒
+- **章节**：5个章节
+- **音频**：使用Edge TTS生成
+- **状态**：已就绪，可预览和渲染
+
+## 输出格式
+
+### 视频
+- **4K横屏**：3840x2160（YouTube、B站）
+- **竖屏**：2160x3840（短视频、抖音）
+
+### 缩略图
+- **16:9**：1920x1080（YouTube、B站封面）
+- **4:3**：1200x900（B站推荐流）
+- **3:4**：1080x1440（小红书）
+- **9:16**：1080x1920（短视频封面）
+
+## 技术栈
+
+- **TTS引擎**：Edge TTS 7.2.8（微软Azure神经语音）
+- **视频框架**：Remotion 4.0（基于React）
+- **音频处理**：FFmpeg 8.1
+- **编程语言**：TypeScript, Python
+
+## 常见问题
+
+### FFmpeg未找到
+```bash
+# Windows: 刷新PATH
+$env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+
+# 或通过winget安装
+winget install --id Gyan.FFmpeg -e
+```
+
+### Remotion Studio无法启动
+```bash
+# 重新安装依赖
+npm install
+
+# 检查Node.js版本（需要 >= 18）
+node --version
+```
+
+### 音频生成失败
+1. 检查代理设置
+2. 升级edge-tts：`pip install --upgrade edge-tts`
+3. 尝试不同的代理节点
+4. 检查PowerShell编码：`$env:PYTHONIOENCODING='utf-8'`
+
+## 贡献
+
+欢迎贡献代码！请随时提交Pull Request。
+
+## 许可证
+
+MIT许可证 - 详见[LICENSE](LICENSE)文件。
 
 ## 作者
 
-**Agents365-ai**
+- **kael-odin**
+- 邮箱：kael@thordata.com
+- GitHub：https://github.com/kael-odin/video-maker
 
-- B站: https://space.bilibili.com/441831884
-- GitHub: https://github.com/Agents365-ai
+## 致谢
+
+- [Remotion](https://www.remotion.dev/) - 基于React的视频创建框架
+- [Edge TTS](https://github.com/rany2/edge-tts) - 微软Edge的TTS API
+- [FFmpeg](https://ffmpeg.org/) - 音视频处理工具

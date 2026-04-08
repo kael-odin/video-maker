@@ -19,6 +19,11 @@ def synthesize(chunks, config, output_dir, resume=False):
     word_boundaries = []
     accumulated_duration = 0
 
+    # Get proxy from environment
+    proxy = os.environ.get('HTTPS_PROXY') or os.environ.get('HTTP_PROXY')
+    if proxy:
+        print(f"  Using proxy: {proxy}")
+
     async def synthesize_chunk(i, chunk):
         nonlocal accumulated_duration
         part_file = os.path.join(output_dir, f"part_{i}.wav")
@@ -39,8 +44,9 @@ def synthesize(chunks, config, output_dir, resume=False):
                 audio_data = bytearray()
                 chunk_words = []
 
+                # New version edge-tts 7.x doesn't need boundary parameter
                 communicate = edge_tts.Communicate(
-                    chunk, voice=voice, rate=speech_rate, boundary='WordBoundary')
+                    chunk, voice=voice, rate=speech_rate, proxy=proxy)
 
                 async for event in communicate.stream():
                     if event["type"] == "audio":
@@ -50,6 +56,13 @@ def synthesize(chunks, config, output_dir, resume=False):
                             "text": event["text"],
                             "offset": accumulated_duration + event["offset"] / 10_000_000,
                             "duration": event["duration"] / 10_000_000,
+                        })
+                    # Support new edge-tts 7.x format
+                    elif event["type"] == "SentenceBoundary":
+                        chunk_words.append({
+                            "text": event.get("text", ""),
+                            "offset": accumulated_duration + event.get("offset", 0) / 10_000_000,
+                            "duration": event.get("duration", 0) / 10_000_000,
                         })
 
                 if not audio_data:
@@ -74,6 +87,8 @@ def synthesize(chunks, config, output_dir, resume=False):
                 break
             except Exception as e:
                 print(f"  ✗ Part {i + 1} failed (attempt {attempt}/3): {e}")
+                import traceback
+                traceback.print_exc()
                 if attempt < 3:
                     time.sleep(attempt * 2)
 
