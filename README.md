@@ -554,15 +554,22 @@ video-podcast-maker/
 │       ├── google.py         # Google TTS
 │       ├── aws.py            # Amazon Polly
 │       └── elevenlabs.py     # ElevenLabs
+├── scripts/                   # 工具脚本
+│   ├── cleanup.ps1           # Windows 清理脚本
+│   └── cleanup.sh            # Linux/Mac 清理脚本
 ├── out/                       # 输出目录
 │   └── tech-revolution.mp4   # 示例视频
 ├── render.ps1                 # Windows渲染脚本
 ├── render.sh                  # Linux/Mac渲染脚本
 ├── README.md                  # 中文文档
 ├── README_EN.md               # 英文文档
+├── SKILLS.md                  # Skills推荐
+├── REPO_ANALYSIS.md           # 代码仓库结构分析
 ├── package.json              # Node.js依赖
 └── requirements.txt          # Python依赖
 ```
+
+> 📊 详细的结构分析请查看 [REPO_ANALYSIS.md](REPO_ANALYSIS.md)
 
 ---
 

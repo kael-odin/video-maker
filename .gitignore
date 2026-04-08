@@ -1,24 +1,31 @@
-# Dependencies
+# 依赖
 node_modules/
-package-lock.json
-
-# Python
 __pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-venv/
-env/
-ENV/
+*.pyc
+*.pyo
+.pyo
 
-# Build outputs
-out/
-dist/
-build/
+# 音频文件（使用 Git LFS 或不提交）
+*.wav
+*.mp3
+!assets/*.mp3
 
-# Remotion
-.remotion/
+# 视频文件
+*.mp4
+*.webm
+*.mov
+!out/.gitkeep
+
+# 临时文件
+part_*.wav
+concat_list.txt
+*.tmp
+*.log
+
+# 输出文件
+out/*
+!out/.gitkeep
+public/podcast_audio.*
 
 # IDE
 .vscode/
@@ -29,36 +36,32 @@ build/
 
 # OS
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
 
-# Environment variables
+# 环境变量
 .env
 .env.local
+.env.*.local
 
-# Generated audio files (keep structure, ignore large files)
-*.wav
-*.mp3
-*.webm
+# 构建输出
+dist/
+build/
+*.tsbuildinfo
 
-# Keep timing.json and subtitles
-!timing.json
-!*.srt
+# 测试覆盖率
+coverage/
+.nyc_output/
 
-# Output videos (optional: uncomment to exclude)
-# *.mp4
+# 缓存
+.cache/
+.parcel-cache/
 
-# Keep example video
-!out/how-to-learn-programming.mp4
-
-# Logs
-*.log
+# 调试
 npm-debug.log*
-
-# Test files
-test*.mp3
-test*.py
-test*.wav
-
-# Temporary files
-*.tmp
-*.temp
+yarn-debug.log*
+yarn-error.log*
