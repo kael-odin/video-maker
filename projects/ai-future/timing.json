@@ -1,0 +1,48 @@
+{
+  "total_duration": 190.536,
+  "fps": 30,
+  "total_frames": 5716,
+  "speech_rate": "+5%",
+  "sections": [
+    {
+      "name": "hero",
+      "label": "人工智能正在改变世界",
+      "start_time": 0,
+      "end_time": 118.763,
+      "duration": 118.763,
+      "start_frame": 0,
+      "duration_frames": 3562,
+      "is_silent": false
+    },
+    {
+      "name": "future",
+      "label": "AI的未来展望",
+      "start_time": 118.763,
+      "end_time": 147.942,
+      "duration": 29.179,
+      "start_frame": 3562,
+      "duration_frames": 875,
+      "is_silent": false
+    },
+    {
+      "name": "summary",
+      "label": "总结一下",
+      "start_time": 147.942,
+      "end_time": 173.632,
+      "duration": 25.69,
+      "start_frame": 4438,
+      "duration_frames": 770,
+      "is_silent": false
+    },
+    {
+      "name": "outro",
+      "label": "感谢观看",
+      "start_time": 173.632,
+      "end_time": 190.536,
+      "duration": 16.904,
+      "start_frame": 5208,
+      "duration_frames": 507,
+      "is_silent": false
+    }
+  ]
+}

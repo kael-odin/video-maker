@@ -81,12 +81,12 @@ def synthesize(chunks, config, output_dir, resume=False):
                 chunk_duration = float(probe.stdout.strip())
 
                 word_boundaries.extend(chunk_words)
-                print(f"  ✓ Part {i + 1}/{len(chunks)} done ({len(chunk)} chars, {chunk_duration:.1f}s)")
+                print(f"  [OK] Part {i + 1}/{len(chunks)} done ({len(chunk)} chars, {chunk_duration:.1f}s)")
                 accumulated_duration += chunk_duration
                 success = True
                 break
             except Exception as e:
-                print(f"  ✗ Part {i + 1} failed (attempt {attempt}/3): {e}")
+                print(f"  [FAIL] Part {i + 1} failed (attempt {attempt}/3): {e}")
                 import traceback
                 traceback.print_exc()
                 if attempt < 3:

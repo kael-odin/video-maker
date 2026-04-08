@@ -1,0 +1,88 @@
+{
+  "total_duration": 213.456,
+  "fps": 30,
+  "total_frames": 6403,
+  "speech_rate": "+5%",
+  "sections": [
+    {
+      "name": "hero",
+      "label": "想象一下",
+      "start_time": 0,
+      "end_time": 18.31,
+      "duration": 18.31,
+      "start_frame": 0,
+      "duration_frames": 549,
+      "is_silent": false
+    },
+    {
+      "name": "musk-story",
+      "label": "埃隆·马斯克",
+      "start_time": 18.31,
+      "end_time": 49.976,
+      "duration": 31.667,
+      "start_frame": 549,
+      "duration_frames": 950,
+      "is_silent": false
+    },
+    {
+      "name": "jobs-story",
+      "label": "史蒂夫·乔布斯",
+      "start_time": 49.976,
+      "end_time": 78.81,
+      "duration": 28.833,
+      "start_frame": 1499,
+      "duration_frames": 865,
+      "is_silent": false
+    },
+    {
+      "name": "gates-story",
+      "label": "比尔·盖茨",
+      "start_time": 78.81,
+      "end_time": 111.284,
+      "duration": 32.474,
+      "start_frame": 2364,
+      "duration_frames": 974,
+      "is_silent": false
+    },
+    {
+      "name": "innovation",
+      "label": "三位巨头",
+      "start_time": 111.284,
+      "end_time": 137.141,
+      "duration": 25.857,
+      "start_frame": 3338,
+      "duration_frames": 775,
+      "is_silent": false
+    },
+    {
+      "name": "lesson",
+      "label": "从他们身上",
+      "start_time": 137.141,
+      "end_time": 174.057,
+      "duration": 36.917,
+      "start_frame": 4114,
+      "duration_frames": 1107,
+      "is_silent": false
+    },
+    {
+      "name": "call-to-action",
+      "label": "现在",
+      "start_time": 174.057,
+      "end_time": 197.831,
+      "duration": 23.774,
+      "start_frame": 5221,
+      "duration_frames": 713,
+      "is_silent": false
+    },
+    {
+      "name": "outro",
+      "label": "感谢观看",
+      "start_time": 197.831,
+      "end_time": 213.456,
+      "duration": 15.625,
+      "start_frame": 5934,
+      "duration_frames": 468,
+      "is_silent": false
+    }
+  ]
+}

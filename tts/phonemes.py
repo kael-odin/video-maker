@@ -24,7 +24,7 @@ def load_phoneme_dicts(input_file, phoneme_file=None):
         if not os.path.exists(global_path):
             import shutil
             shutil.copy2(template_path, global_path)
-            print(f"✓ Created phonemes.json from template")
+            print(f"[OK] Created phonemes.json from template")
         else:
             with open(template_path, 'r', encoding='utf-8') as f:
                 template_data = {k: v for k, v in json.load(f).items() if not k.startswith('_')}
@@ -36,7 +36,7 @@ def load_phoneme_dicts(input_file, phoneme_file=None):
                 user_data.update(new_entries)
                 with open(global_path, 'w', encoding='utf-8') as f:
                     json.dump(user_data, f, ensure_ascii=False, indent=4)
-                print(f"✓ Merged {len(new_entries)} new entries from template into phonemes.json")
+                print(f"[OK] Merged {len(new_entries)} new entries from template into phonemes.json")
 
     merged = {}
 

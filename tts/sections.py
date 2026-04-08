@@ -8,7 +8,7 @@ def parse_sections(text):
 
     Returns: (sections_list, matches_list, clean_text)
     """
-    section_pattern = r'\[SECTION:(\w+)\]'
+    section_pattern = r'\[SECTION:([\w-]+)\]'
     sections = []
     matches = list(re.finditer(section_pattern, text))
 
@@ -78,7 +78,7 @@ def print_validation_report(input_file, sections, clean_text, errors, warnings):
         for w in warnings:
             print(f"    ⚠ {w}")
     if not errors and not warnings:
-        print("\n✓ All checks passed")
+        print("\n[OK] All checks passed")
     print(f"{'='*50}")
     sys.exit(1 if errors else 0)
 
@@ -105,7 +105,7 @@ def match_section_times(sections, word_boundaries, total_duration):
                         section['start_time'] = word_boundaries[i]['offset']
                         sections[sec_idx - 1]['end_time'] = section['start_time']
                         search_start = i + 1
-                        print(f"  ✓ {section['name']}: {section['start_time']:.2f}s (matched: \"{window[:20]}...\")")
+                        print(f"  [OK] {section['name']}: {section['start_time']:.2f}s (matched: \"{window[:20]}...\")")
                         found = True
                         break
                 if found:

@@ -11,7 +11,7 @@
 import { Composition, Still } from "remotion";
 import type { CalculateMetadataFunction } from "remotion";
 import { z } from "zod";
-import { Video } from "./Video";
+import { TechRevolutionVideo } from "./TechRevolutionVideo";
 import { Thumbnail } from "./Thumbnail";
 import { fetchTimingData } from "./components";
 
@@ -111,7 +111,7 @@ export const RemotionRoot = () => {
       {/* 主视频 - 1080p 分辨率，支持可视化编辑 */}
       <Composition
         id={VIDEO_ID}
-        component={Video}
+        component={TechRevolutionVideo}
         durationInFrames={300}
         calculateMetadata={calculateVideoMetadata}
         fps={30}
@@ -124,7 +124,7 @@ export const RemotionRoot = () => {
       {/* Vertical video - 9:16 for B站竖屏/短视频 */}
       <Composition
         id="MyVideoVertical"
-        component={Video}
+        component={TechRevolutionVideo}
         durationInFrames={300}
         calculateMetadata={calculateVideoMetadata}
         fps={30}
