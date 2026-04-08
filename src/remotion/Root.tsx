@@ -77,7 +77,7 @@ export const defaultVideoProps: VideoProps = {
   progressActiveColor: "#4f6ef7",
 
   // 音频
-  bgmVolume: 0.05,
+  bgmVolume: 0,
 
   // 动画
   enableAnimations: true,
@@ -108,15 +108,15 @@ const calculateVideoMetadata: CalculateMetadataFunction<VideoProps> = async ({
 export const RemotionRoot = () => {
   return (
     <>
-      {/* 主视频 - 4K 分辨率，支持可视化编辑 */}
+      {/* 主视频 - 1080p 分辨率，支持可视化编辑 */}
       <Composition
         id={VIDEO_ID}
         component={Video}
         durationInFrames={300}
         calculateMetadata={calculateVideoMetadata}
         fps={30}
-        width={3840}
-        height={2160}
+        width={1920}
+        height={1080}
         schema={videoSchema}
         defaultProps={defaultVideoProps}
       />
@@ -128,8 +128,8 @@ export const RemotionRoot = () => {
         durationInFrames={300}
         calculateMetadata={calculateVideoMetadata}
         fps={30}
-        width={2160}
-        height={3840}
+        width={1080}
+        height={1920}
         schema={videoSchema}
         defaultProps={{
           ...defaultVideoProps,
